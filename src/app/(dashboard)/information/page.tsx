@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
+import PageHeader from '@/components/PageHeader';
 import { Building2, Mic2, ExternalLink } from 'lucide-react';
 import type { Partner, Speaker } from '@/types';
 
@@ -51,8 +52,8 @@ export default function InformationPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold tracking-tight">Information</h1>
+    <div className="space-y-6">
+      <PageHeader title="Information" subtitle="Partners & speakers" />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
 
@@ -76,13 +77,13 @@ export default function InformationPage() {
             No partners found.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {filteredPartners.map((partner) => (
               <div
                 key={partner.id}
-                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm"
+                className="noise-panel flex items-start gap-4 rounded-2xl p-5 border border-[#E8E8ED] shadow-sm"
               >
-                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
+                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -130,13 +131,13 @@ export default function InformationPage() {
           No speakers found.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {speakers.map((speaker) => (
             <div
               key={speaker.id}
-              className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm"
+              className="noise-panel flex items-start gap-4 rounded-2xl p-5 border border-[#E8E8ED] shadow-sm"
             >
-              <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+              <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
                 {speaker.photo_url ? (
                   <img
                     src={speaker.photo_url}

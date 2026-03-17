@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Calendar, Info, Wrench, User, Users } from 'lucide-react';
+import { Calendar, Info, Wrench, User, Users, Ticket } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser } from '@/lib/demo';
@@ -12,6 +12,7 @@ const visitorTabs = [
   { href: '/schedule', label: 'Schedule', icon: Calendar },
   { href: '/information', label: 'Info', icon: Info },
   { href: '/workshops', label: 'Workshops', icon: Wrench },
+  { href: '/ticket', label: 'Ticket', icon: Ticket },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

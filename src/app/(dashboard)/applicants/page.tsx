@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
+import PageHeader from '@/components/PageHeader';
 import { CheckCircle, XCircle, Clock, User, FileText } from 'lucide-react';
 import type { Applicant } from '@/types';
 
@@ -75,8 +76,8 @@ export default function ApplicantsPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold tracking-tight">Bewerber</h1>
+    <div className="space-y-6">
+      <PageHeader title="Bewerber" subtitle="Review applicant profiles" />
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
 
@@ -91,7 +92,7 @@ export default function ApplicantsPage() {
           No applicants found.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filtered.map((applicant) => {
             const visitor = applicant.visitor as unknown as {
               id: string;
@@ -103,7 +104,7 @@ export default function ApplicantsPage() {
             return (
               <div
                 key={applicant.id}
-                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                className="noise-panel rounded-2xl p-5 space-y-3.5 border border-[#E8E8ED] shadow-sm"
               >
                 <div className="relative z-10 flex items-start justify-between">
                   <div className="flex items-center gap-3">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
+import PageHeader from '@/components/PageHeader';
 import { MapPin, Mic2 } from 'lucide-react';
 import type { ScheduleItem } from '@/types';
 
@@ -77,8 +78,8 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold tracking-tight">Schedule</h1>
+    <div className="space-y-6">
+      <PageHeader title="Schedule" subtitle="Today's event programme" />
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
       {locations.length > 1 && (
@@ -108,7 +109,7 @@ export default function SchedulePage() {
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <div key={group.time + gIdx} className={`relative flex gap-4 ${isLast ? '' : 'mb-3'}`}>
+                <div key={group.time + gIdx} className={`relative flex gap-4 ${isLast ? '' : 'mb-4'}`}>
                   {/* Timeline node */}
                   <div className="relative z-10 flex flex-col items-center pt-1">
                     <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${
@@ -160,7 +161,7 @@ function EventCard({
   compact?: boolean;
 }) {
   return (
-    <div className={`noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
+    <div className={`noise-panel rounded-2xl p-5 space-y-2.5 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[220px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
         <p className="relative z-10 text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
           until {formatTime(item.end_time)}

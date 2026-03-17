@@ -7,9 +7,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-28">
       <DemoBanner />
-      <main className="mx-auto max-w-lg px-4 pt-6">{children}</main>
+      <main className="mx-auto max-w-lg px-5 pt-8 pb-4">{children}</main>
       <BottomBar />
     </div>
   );

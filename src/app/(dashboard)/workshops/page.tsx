@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import PageHeader from '@/components/PageHeader';
 import { Clock, MapPin, Users, Check } from 'lucide-react';
 import type { ContentWorkshop, WorkshopBooking } from '@/types';
 
@@ -62,8 +63,8 @@ export default function WorkshopsPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-xl font-bold tracking-tight">Workshops</h1>
+    <div className="space-y-6">
+      <PageHeader title="Workshops" subtitle="Book your hands-on sessions" />
 
       {loading ? (
         <div className="space-y-3">
@@ -76,13 +77,13 @@ export default function WorkshopsPage() {
           No workshops available.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {workshops.map((ws) => {
             const booked = isBooked(ws.id);
             return (
               <div
                 key={ws.id}
-                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                className="noise-panel rounded-2xl p-5 space-y-3.5 border border-[#E8E8ED] shadow-sm"
               >
                 <div className="relative z-10 space-y-1">
                   <h3 className="font-semibold text-sm">{ws.title}</h3>
