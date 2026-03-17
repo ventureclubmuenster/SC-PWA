@@ -22,7 +22,10 @@ function getClient(): SanityClient {
 
 export const sanityClient = new Proxy({} as SanityClient, {
   get(_target, prop) {
-    return (getClient() as unknown as Record<string | symbol, unknown>)[prop];
+    const client = getClient();
+    const value = (client as unknown as Record<string | symbol, unknown>)[prop];
+    if (typeof value === 'function') return (value as Function).bind(client);
+    return value;
   },
 });
 
