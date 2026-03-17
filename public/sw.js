@@ -19,6 +19,8 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // Exclude CMS routes from service worker caching
+  if (new URL(event.request.url).pathname.startsWith('/cms')) return;
   event.respondWith(
     fetch(event.request)
       .then((response) => {

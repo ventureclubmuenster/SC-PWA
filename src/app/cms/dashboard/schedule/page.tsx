@@ -1,0 +1,151 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Trash2, Pencil, Plus } from 'lucide-react';
+
+interface Speaker {
+  id: string;
+  name: string;
+  photo_url: string | null;
+}
+
+interface ScheduleItem {
+  id: string;
+  title: string;
+  time: string;
+  end_time: string | null;
+  location: string;
+  category: 'workshop' | 'main-stage' | 'panel' | 'networking';
+  description: string | null;
+  speaker_id: string | null;
+  speaker?: Speaker | null;
+}
+
+const categories = ['workshop', 'main-stage', 'panel', 'networking'] as const;
+const empty = { title: '', time: '', end_time: '', location: '', category: 'main-stage' as ScheduleItem['category'], description: '', speaker_id: '' };
+
+export default function ScheduleCmsPage() {
+  const [items, setItems] = useState<ScheduleItem[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [form, setForm] = useState(empty);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const load = () =>
+    Promise.all([
+      fetch('/api/cms/schedule').then((r) => r.json()),
+      fetch('/api/cms/speakers').then((r) => r.json()),
+    ]).then(([s, sp]) => {
+      if (Array.isArray(s)) setItems(s);
+      if (Array.isArray(sp)) setSpeakers(sp);
+    });
+
+  useEffect(() => { load(); }, []);
+
+  const toLocal = (iso: string) => {
+    if (!iso) return '';
+    return new Date(iso).toISOString().slice(0, 16);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const body = {
+      title: form.title,
+      time: new Date(form.time).toISOString(),
+      end_time: form.end_time ? new Date(form.end_time).toISOString() : null,
+      location: form.location,
+      category: form.category,
+      description: form.description || null,
+      speaker_id: form.speaker_id || null,
+    };
+    if (editId) {
+      await fetch(`/api/cms/schedule/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    } else {
+      await fetch('/api/cms/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    }
+    setForm(empty);
+    setEditId(null);
+    setShowForm(false);
+    load();
+  };
+
+  const handleEdit = (item: ScheduleItem) => {
+    setForm({
+      title: item.title,
+      time: toLocal(item.time),
+      end_time: item.end_time ? toLocal(item.end_time) : '',
+      location: item.location,
+      category: item.category,
+      description: item.description || '',
+      speaker_id: item.speaker_id || '',
+    });
+    setEditId(item.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this schedule item?')) return;
+    await fetch(`/api/cms/schedule/${id}`, { method: 'DELETE' });
+    load();
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const catColors: Record<string, string> = { 'main-stage': 'bg-purple-900/50 text-purple-300', workshop: 'bg-blue-900/50 text-blue-300', panel: 'bg-amber-900/50 text-amber-300', networking: 'bg-green-900/50 text-green-300' };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Schedule</h1>
+        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold hover:bg-indigo-500">
+          <Plus className="h-4 w-4" /> Add
+        </button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-xl bg-gray-900 p-4 border border-gray-800">
+          <input required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title *" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Start Time *</label>
+              <input required type="datetime-local" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">End Time</label>
+              <input type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+            </div>
+          </div>
+          <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as ScheduleItem['category'] }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none">
+            {categories.map((c) => <option key={c} value={c}>{c.replace('-', ' ')}</option>)}
+          </select>
+          <select value={form.speaker_id} onChange={(e) => setForm((f) => ({ ...f, speaker_id: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none">
+            <option value="">No speaker</option>
+            {speakers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+          <div className="flex gap-2">
+            <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500">{editId ? 'Update' : 'Create'}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-gray-800 px-4 py-2 text-sm hover:bg-gray-700">Cancel</button>
+          </div>
+        </form>
+      )}
+
+      <div className="space-y-2">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center gap-3 rounded-xl bg-gray-900 p-3 border border-gray-800">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold truncate">{item.title}</p>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-gray-800 text-gray-400'}`}>{item.category.replace('-', ' ')}</span>
+              </div>
+              <p className="text-xs text-gray-500">{fmt(item.time)}{item.end_time ? ` – ${fmt(item.end_time)}` : ''} · {item.location}{item.speaker ? ` · ${item.speaker.name}` : ''}</p>
+            </div>
+            <button onClick={() => handleEdit(item)} className="p-1.5 rounded hover:bg-gray-800"><Pencil className="h-4 w-4 text-gray-400" /></button>
+            <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-gray-800"><Trash2 className="h-4 w-4 text-red-400" /></button>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-sm text-gray-500 text-center py-8">No schedule items yet</p>}
+      </div>
+    </div>
+  );
+}

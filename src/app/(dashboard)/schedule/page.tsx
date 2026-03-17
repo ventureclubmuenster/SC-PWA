@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { sanityClient } from '@/lib/sanity/client';
-import { scheduleQuery } from '@/lib/sanity/queries';
+import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import { Clock, MapPin } from 'lucide-react';
-import type { SanityScheduleItem } from '@/types';
+import type { ScheduleItem } from '@/types';
 
 const categoryFilters = [
   { label: 'All', value: 'all' },
@@ -16,16 +15,20 @@ const categoryFilters = [
 ];
 
 export default function SchedulePage() {
-  const [items, setItems] = useState<SanityScheduleItem[]>([]);
+  const [items, setItems] = useState<ScheduleItem[]>([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    sanityClient
-      .fetch(scheduleQuery)
-      .then((data) => setItems(data || []))
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
+    const supabase = createClient();
+    supabase
+      .from('schedule_items')
+      .select('*, speaker:speaker_id(id, name, photo_url, linkedin, bio)')
+      .order('time')
+      .then(({ data }) => {
+        setItems(data || []);
+        setLoading(false);
+      });
   }, []);
 
   const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
@@ -76,13 +79,13 @@ export default function SchedulePage() {
         </div>
       ) : finalItems.length === 0 ? (
         <p className="text-center text-sm text-gray-500 py-12">
-          No events found. Content will appear once published in Sanity.
+          No events found.
         </p>
       ) : (
         <div className="space-y-3">
           {finalItems.map((item) => (
             <div
-              key={item._id}
+              key={item.id}
               className="rounded-xl bg-gray-900 p-4 space-y-2 border border-gray-800"
             >
               <div className="flex items-start justify-between gap-2">
@@ -99,7 +102,7 @@ export default function SchedulePage() {
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {formatTime(item.time)}
-                  {item.endTime && ` – ${formatTime(item.endTime)}`}
+                  {item.end_time && ` – ${formatTime(item.end_time)}`}
                 </span>
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />

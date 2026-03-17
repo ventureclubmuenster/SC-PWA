@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { sanityClient } from '@/lib/sanity/client';
-import { partnersQuery, speakersQuery } from '@/lib/sanity/queries';
+import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import { Building2, Mic2, ExternalLink } from 'lucide-react';
-import type { SanityPartner, SanitySpeaker } from '@/types';
+import type { Partner, Speaker } from '@/types';
 
 const viewFilters = [
   { label: 'Partners', value: 'partners' },
@@ -21,17 +20,18 @@ const categoryFilters = [
 
 export default function InformationPage() {
   const [view, setView] = useState('partners');
-  const [partners, setPartners] = useState<SanityPartner[]>([]);
-  const [speakers, setSpeakers] = useState<SanitySpeaker[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
     Promise.all([
-      sanityClient.fetch(partnersQuery),
-      sanityClient.fetch(speakersQuery),
+      supabase.from('partners').select('*').order('category').order('name'),
+      supabase.from('speakers').select('*').order('name'),
     ])
-      .then(([p, s]) => {
+      .then(([{ data: p }, { data: s }]) => {
         setPartners(p || []);
         setSpeakers(s || []);
       })
@@ -73,19 +73,19 @@ export default function InformationPage() {
       ) : view === 'partners' ? (
         filteredPartners.length === 0 ? (
           <p className="text-center text-sm text-gray-500 py-12">
-            No partners found. Content will appear once published in Sanity.
+            No partners found.
           </p>
         ) : (
           <div className="space-y-3">
             {filteredPartners.map((partner) => (
               <div
-                key={partner._id}
+                key={partner.id}
                 className="flex items-start gap-3 rounded-xl bg-gray-900 p-4 border border-gray-800"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-800">
-                  {partner.logo ? (
+                  {partner.logo_url ? (
                     <img
-                      src={partner.logo}
+                      src={partner.logo_url}
                       alt={partner.name}
                       className="h-8 w-8 object-contain"
                     />
@@ -104,8 +104,8 @@ export default function InformationPage() {
                       {partner.category}
                     </span>
                   </div>
-                  {partner.boothNumber && (
-                    <p className="text-xs text-gray-500">Booth {partner.boothNumber}</p>
+                  {partner.booth_number && (
+                    <p className="text-xs text-gray-500">Booth {partner.booth_number}</p>
                   )}
                   {partner.description && (
                     <p className="text-xs text-gray-400 line-clamp-2">{partner.description}</p>
@@ -127,19 +127,19 @@ export default function InformationPage() {
         )
       ) : speakers.length === 0 ? (
         <p className="text-center text-sm text-gray-500 py-12">
-          No speakers found. Content will appear once published in Sanity.
+          No speakers found.
         </p>
       ) : (
         <div className="space-y-3">
           {speakers.map((speaker) => (
             <div
-              key={speaker._id}
+              key={speaker.id}
               className="flex items-start gap-3 rounded-xl bg-gray-900 p-4 border border-gray-800"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-800 overflow-hidden">
-                {speaker.photo ? (
+                {speaker.photo_url ? (
                   <img
-                    src={speaker.photo}
+                    src={speaker.photo_url}
                     alt={speaker.name}
                     className="h-full w-full object-cover"
                   />

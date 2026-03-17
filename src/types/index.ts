@@ -37,44 +37,49 @@ export interface Scan {
   created_at: string;
 }
 
-// Sanity types
-export interface SanityScheduleItem {
-  _id: string;
-  title: string;
-  time: string;
-  endTime?: string;
-  location: string;
-  category: 'workshop' | 'main-stage' | 'panel' | 'networking';
-  speaker?: SanitySpeaker;
-  description?: string;
+// Content types (Supabase)
+export interface Speaker {
+  id: string;
+  name: string;
+  photo_url: string | null;
+  linkedin: string | null;
+  bio: string | null;
+  created_at: string;
 }
 
-export interface SanitySpeaker {
-  _id: string;
+export interface Partner {
+  id: string;
   name: string;
-  photo?: string;
-  linkedin?: string;
-  bio?: string;
-}
-
-export interface SanityPartner {
-  _id: string;
-  name: string;
-  logo?: string;
-  description?: string;
-  boothNumber?: string;
+  logo_url: string | null;
+  description: string | null;
+  booth_number: string | null;
   category: 'gold' | 'silver' | 'bronze';
-  website?: string;
+  website: string | null;
+  created_at: string;
 }
 
-export interface SanityWorkshop {
-  _id: string;
+export interface ContentWorkshop {
+  id: string;
   title: string;
-  description?: string;
+  description: string | null;
   capacity: number;
   time: string;
-  endTime?: string;
-  location: string;
+  end_time: string | null;
+  location: string | null;
   host: string;
-  hostLogo?: string;
+  host_logo_url: string | null;
+  created_at: string;
+}
+
+export interface ScheduleItem {
+  id: string;
+  title: string;
+  time: string;
+  end_time: string | null;
+  location: string;
+  category: 'workshop' | 'main-stage' | 'panel' | 'networking';
+  description: string | null;
+  speaker_id: string | null;
+  speaker?: Speaker | null;
+  created_at: string;
 }

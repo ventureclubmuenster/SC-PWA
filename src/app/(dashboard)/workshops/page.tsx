@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { sanityClient } from '@/lib/sanity/client';
-import { workshopsQuery } from '@/lib/sanity/queries';
 import { createClient } from '@/lib/supabase/client';
 import { Clock, MapPin, Users, Check } from 'lucide-react';
-import type { SanityWorkshop, WorkshopBooking } from '@/types';
+import type { ContentWorkshop, WorkshopBooking } from '@/types';
 
 export default function WorkshopsPage() {
-  const [workshops, setWorkshops] = useState<SanityWorkshop[]>([]);
+  const [workshops, setWorkshops] = useState<ContentWorkshop[]>([]);
   const [bookings, setBookings] = useState<WorkshopBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
@@ -16,8 +14,8 @@ export default function WorkshopsPage() {
   useEffect(() => {
     const load = async () => {
       const supabase = createClient();
-      const [workshopData, { data: bookingData }] = await Promise.all([
-        sanityClient.fetch(workshopsQuery).catch(() => []),
+      const [{ data: workshopData }, { data: bookingData }] = await Promise.all([
+        supabase.from('workshops').select('*').order('time'),
         supabase.from('workshop_bookings').select('*'),
       ]);
       setWorkshops(workshopData || []);
@@ -75,15 +73,15 @@ export default function WorkshopsPage() {
         </div>
       ) : workshops.length === 0 ? (
         <p className="text-center text-sm text-gray-500 py-12">
-          No workshops available. Content will appear once published in Sanity.
+          No workshops available.
         </p>
       ) : (
         <div className="space-y-3">
           {workshops.map((ws) => {
-            const booked = isBooked(ws._id);
+            const booked = isBooked(ws.id);
             return (
               <div
-                key={ws._id}
+                key={ws.id}
                 className="rounded-xl bg-gray-900 p-4 space-y-3 border border-gray-800"
               >
                 <div className="space-y-1">
@@ -95,7 +93,7 @@ export default function WorkshopsPage() {
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatTime(ws.time)}
-                    {ws.endTime && ` – ${formatTime(ws.endTime)}`}
+                    {ws.end_time && ` – ${formatTime(ws.end_time)}`}
                   </span>
                   {ws.location && (
                     <span className="flex items-center gap-1">
@@ -114,15 +112,15 @@ export default function WorkshopsPage() {
                 )}
 
                 <button
-                  onClick={() => handleBook(ws._id)}
-                  disabled={bookingInProgress === ws._id}
+                  onClick={() => handleBook(ws.id)}
+                  disabled={bookingInProgress === ws.id}
                   className={`w-full rounded-lg py-2 text-xs font-semibold transition-colors ${
                     booked
                       ? 'bg-green-900/50 text-green-300 hover:bg-red-900/50 hover:text-red-300'
                       : 'bg-indigo-600 text-white hover:bg-indigo-500'
                   } disabled:opacity-50`}
                 >
-                  {bookingInProgress === ws._id ? (
+                  {bookingInProgress === ws.id ? (
                     'Processing...'
                   ) : booked ? (
                     <span className="flex items-center justify-center gap-1">
