@@ -90,61 +90,61 @@ export default function ScheduleCmsPage() {
   };
 
   const fmt = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  const catColors: Record<string, string> = { 'main-stage': 'bg-purple-900/50 text-purple-300', workshop: 'bg-blue-900/50 text-blue-300', panel: 'bg-amber-900/50 text-amber-300', networking: 'bg-green-900/50 text-green-300' };
+  const catColors: Record<string, string> = { 'main-stage': 'bg-purple-100 text-purple-700', workshop: 'bg-blue-100 text-blue-700', panel: 'bg-amber-100 text-amber-700', networking: 'bg-green-100 text-green-700' };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Schedule</h1>
-        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold hover:bg-indigo-500">
+        <h1 className="text-2xl font-bold tracking-tight">Schedule</h1>
+        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg noise-panel-dark px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
           <Plus className="h-4 w-4" /> Add
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-xl bg-gray-900 p-4 border border-gray-800">
-          <input required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title *" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-[#E8E8ED]">
+          <input required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Start Time *</label>
-              <input required type="datetime-local" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+              <label className="text-xs text-[#86868B] mb-1 block">Start Time *</label>
+              <input required type="datetime-local" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">End Time</label>
-              <input type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+              <label className="text-xs text-[#86868B] mb-1 block">End Time</label>
+              <input type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
             </div>
           </div>
-          <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
-          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as ScheduleItem['category'] }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none">
+          <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as ScheduleItem['category'] }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
             {categories.map((c) => <option key={c} value={c}>{c.replace('-', ' ')}</option>)}
           </select>
-          <select value={form.speaker_id} onChange={(e) => setForm((f) => ({ ...f, speaker_id: e.target.value }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none">
+          <select value={form.speaker_id} onChange={(e) => setForm((f) => ({ ...f, speaker_id: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
             <option value="">No speaker</option>
             {speakers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <div className="flex gap-2">
-            <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500">{editId ? 'Update' : 'Create'}</button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-gray-800 px-4 py-2 text-sm hover:bg-gray-700">Cancel</button>
+            <button type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</button>
           </div>
         </form>
       )}
 
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-3 rounded-xl bg-gray-900 p-3 border border-gray-800">
+          <div key={item.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-gray-800 text-gray-400'}`}>{item.category.replace('-', ' ')}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>{item.category.replace('-', ' ')}</span>
               </div>
-              <p className="text-xs text-gray-500">{fmt(item.time)}{item.end_time ? ` – ${fmt(item.end_time)}` : ''} · {item.location}{item.speaker ? ` · ${item.speaker.name}` : ''}</p>
+              <p className="text-xs text-[#86868B]">{fmt(item.time)}{item.end_time ? ` – ${fmt(item.end_time)}` : ''} · {item.location}{item.speaker ? ` · ${item.speaker.name}` : ''}</p>
             </div>
-            <button onClick={() => handleEdit(item)} className="p-1.5 rounded hover:bg-gray-800"><Pencil className="h-4 w-4 text-gray-400" /></button>
-            <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-gray-800"><Trash2 className="h-4 w-4 text-red-400" /></button>
+            <button onClick={() => handleEdit(item)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>
+            <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></button>
           </div>
         ))}
-        {items.length === 0 && <p className="text-sm text-gray-500 text-center py-8">No schedule items yet</p>}
+        {items.length === 0 && <p className="text-sm text-[#86868B] text-center py-8">No schedule items yet</p>}
       </div>
     </div>
   );

@@ -67,46 +67,46 @@ export default function PartnersPage() {
     load();
   };
 
-  const badge: Record<string, string> = { gold: 'bg-yellow-900/50 text-yellow-300', silver: 'bg-gray-700/50 text-gray-300', bronze: 'bg-orange-900/50 text-orange-300' };
+  const badge: Record<string, string> = { gold: 'bg-yellow-100 text-yellow-700', silver: 'bg-gray-100 text-gray-600', bronze: 'bg-orange-100 text-orange-700' };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Partners</h1>
-        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold hover:bg-indigo-500">
+        <h1 className="text-2xl font-bold tracking-tight">Partners</h1>
+        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg noise-panel-dark px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
           <Plus className="h-4 w-4" /> Add
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-xl bg-gray-900 p-4 border border-gray-800">
-          <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Company Name *" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-[#E8E8ED]">
+          <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Company Name *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 hover:border-gray-600">
+            <label className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] hover:border-[#ccc]">
               <Upload className="h-4 w-4" /> {uploading ? 'Uploading...' : 'Logo'}
               <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
             </label>
             {form.logo_url && <img src={form.logo_url} alt="" className="h-8 w-8 object-contain" />}
           </div>
-          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as Partner['category'] }))} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none">
+          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as Partner['category'] }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
             <option value="gold">Gold</option>
             <option value="silver">Silver</option>
             <option value="bronze">Bronze</option>
           </select>
-          <input value={form.booth_number} onChange={(e) => setForm((f) => ({ ...f, booth_number: e.target.value }))} placeholder="Booth Number" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
-          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
-          <input value={form.website} onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} placeholder="Website URL" className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm border border-gray-700 focus:border-indigo-500 focus:outline-none" />
+          <input value={form.booth_number} onChange={(e) => setForm((f) => ({ ...f, booth_number: e.target.value }))} placeholder="Booth Number" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+          <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+          <input value={form.website} onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} placeholder="Website URL" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <div className="flex gap-2">
-            <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500">{editId ? 'Update' : 'Create'}</button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-gray-800 px-4 py-2 text-sm hover:bg-gray-700">Cancel</button>
+            <button type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</button>
           </div>
         </form>
       )}
 
       <div className="space-y-2">
         {items.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 rounded-xl bg-gray-900 p-3 border border-gray-800">
-            <div className="h-10 w-10 shrink-0 rounded-lg bg-gray-800 flex items-center justify-center overflow-hidden">
+          <div key={p.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]">
+            <div className="h-10 w-10 shrink-0 rounded-lg bg-[#F5F5F7] flex items-center justify-center overflow-hidden">
               {p.logo_url && <img src={p.logo_url} alt={p.name} className="h-8 w-8 object-contain" />}
             </div>
             <div className="flex-1 min-w-0">
@@ -114,13 +114,13 @@ export default function PartnersPage() {
                 <p className="text-sm font-semibold truncate">{p.name}</p>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${badge[p.category]}`}>{p.category}</span>
               </div>
-              {p.booth_number && <p className="text-xs text-gray-500">Booth {p.booth_number}</p>}
+              {p.booth_number && <p className="text-xs text-[#86868B]">Booth {p.booth_number}</p>}
             </div>
-            <button onClick={() => handleEdit(p)} className="p-1.5 rounded hover:bg-gray-800"><Pencil className="h-4 w-4 text-gray-400" /></button>
-            <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-gray-800"><Trash2 className="h-4 w-4 text-red-400" /></button>
+            <button onClick={() => handleEdit(p)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>
+            <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></button>
           </div>
         ))}
-        {items.length === 0 && <p className="text-sm text-gray-500 text-center py-8">No partners yet</p>}
+        {items.length === 0 && <p className="text-sm text-[#86868B] text-center py-8">No partners yet</p>}
       </div>
     </div>
   );

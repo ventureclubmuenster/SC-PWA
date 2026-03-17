@@ -45,14 +45,14 @@ export default function InformationPage() {
       : partners.filter((p) => p.category === categoryFilter);
 
   const categoryBadge: Record<string, string> = {
-    gold: 'bg-yellow-900/50 text-yellow-300',
-    silver: 'bg-gray-700/50 text-gray-300',
-    bronze: 'bg-orange-900/50 text-orange-300',
+    gold: 'bg-yellow-100 text-yellow-700',
+    silver: 'bg-gray-100 text-gray-600',
+    bronze: 'bg-orange-100 text-orange-700',
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Information</h1>
+    <div className="space-y-5">
+      <h1 className="text-xl font-bold tracking-tight">Information</h1>
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
 
@@ -67,12 +67,12 @@ export default function InformationPage() {
       {loading ? (
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-800" />
+            <div key={i} className="h-20 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : view === 'partners' ? (
         filteredPartners.length === 0 ? (
-          <p className="text-center text-sm text-gray-500 py-12">
+          <p className="text-center text-sm text-[#86868B] py-12">
             No partners found.
           </p>
         ) : (
@@ -80,9 +80,9 @@ export default function InformationPage() {
             {filteredPartners.map((partner) => (
               <div
                 key={partner.id}
-                className="flex items-start gap-3 rounded-xl bg-gray-900 p-4 border border-gray-800"
+                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-800">
+                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -90,14 +90,14 @@ export default function InformationPage() {
                       className="h-8 w-8 object-contain"
                     />
                   ) : (
-                    <Building2 className="h-5 w-5 text-gray-500" />
+                    <Building2 className="h-5 w-5 text-[#86868B]" />
                   )}
                 </div>
-                <div className="flex-1 space-y-1">
+                <div className="relative z-10 flex-1 space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">{partner.name}</h3>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                         categoryBadge[partner.category]
                       }`}
                     >
@@ -105,17 +105,17 @@ export default function InformationPage() {
                     </span>
                   </div>
                   {partner.booth_number && (
-                    <p className="text-xs text-gray-500">Booth {partner.booth_number}</p>
+                    <p className="text-xs text-[#86868B]">Booth {partner.booth_number}</p>
                   )}
                   {partner.description && (
-                    <p className="text-xs text-gray-400 line-clamp-2">{partner.description}</p>
+                    <p className="text-xs text-[#86868B] line-clamp-2">{partner.description}</p>
                   )}
                   {partner.website && (
                     <a
                       href={partner.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
                     >
                       <ExternalLink className="h-3 w-3" /> Website
                     </a>
@@ -126,7 +126,7 @@ export default function InformationPage() {
           </div>
         )
       ) : speakers.length === 0 ? (
-        <p className="text-center text-sm text-gray-500 py-12">
+        <p className="text-center text-sm text-[#86868B] py-12">
           No speakers found.
         </p>
       ) : (
@@ -134,9 +134,9 @@ export default function InformationPage() {
           {speakers.map((speaker) => (
             <div
               key={speaker.id}
-              className="flex items-start gap-3 rounded-xl bg-gray-900 p-4 border border-gray-800"
+              className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-800 overflow-hidden">
+              <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
                 {speaker.photo_url ? (
                   <img
                     src={speaker.photo_url}
@@ -144,20 +144,20 @@ export default function InformationPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <Mic2 className="h-5 w-5 text-gray-500" />
+                  <Mic2 className="h-5 w-5 text-[#86868B]" />
                 )}
               </div>
-              <div className="flex-1 space-y-1">
+              <div className="relative z-10 flex-1 space-y-1">
                 <h3 className="text-sm font-semibold">{speaker.name}</h3>
                 {speaker.bio && (
-                  <p className="text-xs text-gray-400 line-clamp-3">{speaker.bio}</p>
+                  <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
                 )}
                 {speaker.linkedin && (
                   <a
                     href={speaker.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
                   >
                     <ExternalLink className="h-3 w-3" /> LinkedIn
                   </a>

@@ -90,60 +90,60 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-32 animate-pulse rounded bg-gray-800" />
-        <div className="h-64 animate-pulse rounded-xl bg-gray-800" />
+        <div className="h-8 w-32 animate-pulse rounded bg-[#E8E8ED]" />
+        <div className="h-64 animate-pulse rounded-2xl bg-[#E8E8ED]" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">Profile</h1>
+      <h1 className="text-xl font-bold tracking-tight">Profile</h1>
 
       {/* Avatar & Email */}
-      <div className="flex items-center gap-4 rounded-xl bg-gray-900 p-4 border border-gray-800">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600">
-          <User className="h-6 w-6 text-white" />
+      <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
+        <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full noise-panel-dark">
+          <User className="relative z-10 h-6 w-6 text-white" />
         </div>
-        <div>
-          <p className="font-semibold text-sm">{form.full_name || 'No name set'}</p>
-          <p className="text-xs text-gray-400">{profile?.email}</p>
-          <p className="text-[10px] text-gray-600 mt-0.5 capitalize">{profile?.role}</p>
+        <div className="relative z-10">
+          <p className="font-semibold text-sm text-[#1D1D1F]">{form.full_name || 'No name set'}</p>
+          <p className="text-xs text-[#86868B]">{profile?.email}</p>
+          <p className="text-[10px] text-[#86868B] mt-0.5 capitalize font-medium">{profile?.role}</p>
         </div>
       </div>
 
       {/* Edit Form */}
-      <div className="space-y-4 rounded-xl bg-gray-900 p-4 border border-gray-800">
-        <div className="space-y-1">
-          <label className="text-xs text-gray-400">Full Name</label>
+      <div className="space-y-4 noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
+        <div className="relative z-10 space-y-1">
+          <label className="text-xs font-medium text-[#86868B]">Full Name</label>
           <input
             type="text"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm outline-none ring-1 ring-gray-700 focus:ring-indigo-500"
+            className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all"
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="text-xs text-gray-400">University</label>
+        <div className="relative z-10 space-y-1">
+          <label className="text-xs font-medium text-[#86868B]">University</label>
           <input
             type="text"
             value={form.university}
             onChange={(e) => setForm({ ...form, university: e.target.value })}
-            className="w-full rounded-lg bg-gray-800 px-3 py-2 text-sm outline-none ring-1 ring-gray-700 focus:ring-indigo-500"
+            className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all"
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="text-xs text-gray-400">Afterparty RSVP</label>
+        <div className="relative z-10 flex items-center justify-between">
+          <label className="text-xs font-medium text-[#86868B]">Afterparty RSVP</label>
           <button
             onClick={() => setForm({ ...form, afterparty_rsvp: !form.afterparty_rsvp })}
             className={`h-6 w-11 rounded-full transition-colors ${
-              form.afterparty_rsvp ? 'bg-indigo-600' : 'bg-gray-700'
+              form.afterparty_rsvp ? 'bg-[#FF754B]' : 'bg-[#E8E8ED]'
             }`}
           >
             <div
-              className={`h-5 w-5 rounded-full bg-white transition-transform ${
+              className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
                 form.afterparty_rsvp ? 'translate-x-5.5' : 'translate-x-0.5'
               }`}
             />
@@ -153,17 +153,17 @@ export default function ProfilePage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="relative z-10 noise-panel-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
         >
-          <Save className="h-4 w-4" />
-          {saving ? 'Saving...' : 'Save Profile'}
+          <Save className="relative z-10 h-4 w-4" />
+          <span className="relative z-10">{saving ? 'Saving...' : 'Save Profile'}</span>
         </button>
       </div>
 
       {/* Logout */}
       <button
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 py-3 text-sm text-red-400 border border-gray-800 hover:bg-gray-800 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[#E8E8ED] hover:bg-red-50 transition-all shadow-sm"
       >
         <LogOut className="h-4 w-4" />
         Sign Out

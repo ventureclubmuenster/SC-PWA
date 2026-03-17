@@ -35,36 +35,36 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo / Branding */}
-        <div className="space-y-2">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600">
-            <Sparkles className="h-8 w-8 text-white" />
+        <div className="space-y-3">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl noise-panel-dark">
+            <Sparkles className="relative z-10 h-8 w-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold">Startup Contacts</h1>
-          <p className="text-sm text-gray-400">
+          <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">Startup Contacts</h1>
+          <p className="text-sm font-medium text-[#86868B]">
             Venture Club Münster
           </p>
         </div>
 
         {sent ? (
           /* Success state */
-          <div className="space-y-4 rounded-2xl bg-gray-900 p-6">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-900/50">
-              <Mail className="h-6 w-6 text-green-400" />
+          <div className="noise-panel space-y-4 rounded-2xl p-6 border border-[#E8E8ED] shadow-sm">
+            <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+              <Mail className="h-6 w-6 text-green-500" />
             </div>
-            <h2 className="text-lg font-semibold">Check your email</h2>
-            <p className="text-sm text-gray-400">
-              We sent a magic link to <span className="font-medium text-white">{email}</span>.
+            <h2 className="relative z-10 text-lg font-semibold text-[#1D1D1F]">Check your email</h2>
+            <p className="relative z-10 text-sm text-[#86868B]">
+              We sent a magic link to <span className="font-medium text-[#1D1D1F]">{email}</span>.
               Click the link to sign in.
             </p>
           </div>
         ) : (
           /* Login form */
           <div className="space-y-6">
-            <div className="rounded-2xl bg-gray-900 p-6 space-y-4">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-800">
-                <Mail className="h-6 w-6 text-gray-400" />
+            <div className="noise-panel rounded-2xl p-6 space-y-4 border border-[#E8E8ED] shadow-sm">
+              <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F5F7]">
+                <Mail className="h-6 w-6 text-[#86868B]" />
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="relative z-10 text-sm text-[#86868B]">
                 No account detected. Enter your email or open the link you received by mail to login.
               </p>
             </div>
@@ -76,24 +76,24 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="w-full rounded-xl bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none ring-1 ring-gray-800 focus:ring-indigo-500 transition-all"
+                className="w-full rounded-xl bg-white px-4 py-3.5 text-sm text-[#1D1D1F] placeholder-[#86868B] outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all shadow-sm"
               />
               {error && (
-                <p className="text-sm text-red-400">{error}</p>
+                <p className="text-sm text-red-500">{error}</p>
               )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                className="noise-panel-dark w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
               >
-                {loading ? 'Sending...' : 'Send Magic Link'}
+                <span className="relative z-10">{loading ? 'Sending...' : 'Send Magic Link'}</span>
               </button>
             </form>
 
             <div className="text-center">
               <a
                 href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+                className="text-xs font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors"
               >
                 Continue with demo account →
               </a>

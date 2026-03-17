@@ -52,15 +52,15 @@ export default function SchedulePage() {
   };
 
   const categoryColors: Record<string, string> = {
-    'main-stage': 'bg-purple-900/50 text-purple-300',
-    workshop: 'bg-blue-900/50 text-blue-300',
-    panel: 'bg-amber-900/50 text-amber-300',
-    networking: 'bg-green-900/50 text-green-300',
+    'main-stage': 'bg-purple-100 text-purple-700',
+    workshop: 'bg-blue-100 text-blue-700',
+    panel: 'bg-amber-100 text-amber-700',
+    networking: 'bg-green-100 text-green-700',
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Schedule</h1>
+    <div className="space-y-5">
+      <h1 className="text-xl font-bold tracking-tight">Schedule</h1>
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
       {locations.length > 1 && (
@@ -74,11 +74,11 @@ export default function SchedulePage() {
       {loading ? (
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-800" />
+            <div key={i} className="h-24 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : finalItems.length === 0 ? (
-        <p className="text-center text-sm text-gray-500 py-12">
+        <p className="text-center text-sm text-[#86868B] py-12">
           No events found.
         </p>
       ) : (
@@ -86,19 +86,19 @@ export default function SchedulePage() {
           {finalItems.map((item) => (
             <div
               key={item.id}
-              className="rounded-xl bg-gray-900 p-4 space-y-2 border border-gray-800"
+              className="noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm"
             >
-              <div className="flex items-start justify-between gap-2">
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-sm">{item.title}</h3>
                 <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    categoryColors[item.category] || 'bg-gray-800 text-gray-400'
+                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                    categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
                   }`}
                 >
                   {item.category.replace('-', ' ')}
                 </span>
               </div>
-              <div className="flex items-center gap-4 text-xs text-gray-400">
+              <div className="relative z-10 flex items-center gap-4 text-xs text-[#86868B]">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {formatTime(item.time)}
@@ -110,12 +110,12 @@ export default function SchedulePage() {
                 </span>
               </div>
               {item.speaker && (
-                <p className="text-xs text-gray-500">
-                  Speaker: {item.speaker.name}
+                <p className="relative z-10 text-xs text-[#86868B]">
+                  Speaker: <span className="font-medium text-[#1D1D1F]">{item.speaker.name}</span>
                 </p>
               )}
               {item.description && (
-                <p className="text-xs text-gray-500 line-clamp-2">{item.description}</p>
+                <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{item.description}</p>
               )}
             </div>
           ))}

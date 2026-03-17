@@ -22,26 +22,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 shrink-0 bg-gray-900 border-r border-gray-800 p-4 flex flex-col">
-        <h2 className="text-lg font-bold mb-6">SC CMS</h2>
-        <nav className="space-y-1 flex-1">
+      <aside className="w-56 shrink-0 noise-panel border-r border-[#E8E8ED] p-4 flex flex-col">
+        <h2 className="relative z-10 text-lg font-bold tracking-tight mb-6">SC CMS</h2>
+        <nav className="relative z-10 space-y-1 flex-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`block rounded-lg px-3 py-2 text-sm transition-colors ${
+              className={`block rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                 pathname === item.href
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  ? 'noise-panel-dark text-white shadow-sm'
+                  : 'text-[#86868B] hover:bg-white/60 hover:text-[#1D1D1F]'
               }`}
             >
-              {item.label}
+              {pathname === item.href ? <span className="relative z-10">{item.label}</span> : item.label}
             </Link>
           ))}
         </nav>
         <button
           onClick={handleLogout}
-          className="mt-4 rounded-lg px-3 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white text-left"
+          className="relative z-10 mt-4 rounded-xl px-3 py-2.5 text-sm font-medium text-[#86868B] hover:bg-white/60 hover:text-[#1D1D1F] text-left transition-all"
         >
           Logout
         </button>

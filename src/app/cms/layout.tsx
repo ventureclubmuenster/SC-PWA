@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function CmsLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-gray-950 text-white antialiased font-sans">
+      <body className="bg-[#F5F5F7] text-[#1D1D1F] antialiased font-sans">
         {children}
       </body>
     </html>

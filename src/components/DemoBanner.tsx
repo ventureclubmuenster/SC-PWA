@@ -13,8 +13,8 @@ export default function DemoBanner() {
   if (!isDemo) return null;
 
   return (
-    <div className="sticky top-0 z-50 bg-amber-500 px-4 py-1.5 text-center text-xs font-medium text-black">
-      🚧 Demo Mode — no real data
+    <div className="noise-panel-accent sticky top-0 z-50 px-4 py-1.5 text-center text-[11px] font-semibold tracking-wide text-[#FF754B] border-b border-[#FFD4C4]">
+      <span className="relative z-10">🚧 Demo Mode — no real data</span>
     </div>
   );
 }

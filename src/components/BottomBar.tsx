@@ -50,7 +50,7 @@ export default function BottomBar() {
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-800 bg-gray-950/95 backdrop-blur-lg safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E8E8ED] bg-white/80 backdrop-blur-xl safe-area-bottom">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
@@ -59,13 +59,13 @@ export default function BottomBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-1 px-3 py-1.5 text-xs transition-colors ${
+              className={`flex flex-col items-center gap-1 px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors ${
                 isActive
-                  ? 'text-indigo-400'
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'text-[#FF754B]'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 1.5} />
               <span>{tab.label}</span>
             </Link>
           );

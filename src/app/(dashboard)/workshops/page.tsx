@@ -62,17 +62,17 @@ export default function WorkshopsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Workshops</h1>
+    <div className="space-y-5">
+      <h1 className="text-xl font-bold tracking-tight">Workshops</h1>
 
       {loading ? (
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-800" />
+            <div key={i} className="h-32 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : workshops.length === 0 ? (
-        <p className="text-center text-sm text-gray-500 py-12">
+        <p className="text-center text-sm text-[#86868B] py-12">
           No workshops available.
         </p>
       ) : (
@@ -82,14 +82,14 @@ export default function WorkshopsPage() {
             return (
               <div
                 key={ws.id}
-                className="rounded-xl bg-gray-900 p-4 space-y-3 border border-gray-800"
+                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
               >
-                <div className="space-y-1">
+                <div className="relative z-10 space-y-1">
                   <h3 className="font-semibold text-sm">{ws.title}</h3>
-                  <p className="text-xs text-indigo-400">{ws.host}</p>
+                  <p className="text-xs font-medium text-[#FF754B]">{ws.host}</p>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-gray-400">
+                <div className="relative z-10 flex items-center gap-4 text-xs text-[#86868B]">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatTime(ws.time)}
@@ -108,16 +108,16 @@ export default function WorkshopsPage() {
                 </div>
 
                 {ws.description && (
-                  <p className="text-xs text-gray-500 line-clamp-2">{ws.description}</p>
+                  <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{ws.description}</p>
                 )}
 
                 <button
                   onClick={() => handleBook(ws.id)}
                   disabled={bookingInProgress === ws.id}
-                  className={`w-full rounded-lg py-2 text-xs font-semibold transition-colors ${
+                  className={`relative z-10 w-full rounded-xl py-2.5 text-xs font-semibold transition-all ${
                     booked
-                      ? 'bg-green-900/50 text-green-300 hover:bg-red-900/50 hover:text-red-300'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-500'
+                      ? 'bg-green-50 text-green-600 hover:bg-red-50 hover:text-red-600'
+                      : 'noise-panel-dark text-white hover:opacity-90'
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === ws.id ? (
@@ -127,7 +127,7 @@ export default function WorkshopsPage() {
                       <Check className="h-3 w-3" /> Booked — tap to cancel
                     </span>
                   ) : (
-                    'Book Workshop'
+                    <span className="relative z-10">Book Workshop</span>
                   )}
                 </button>
               </div>

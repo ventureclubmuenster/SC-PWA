@@ -75,19 +75,19 @@ export default function ApplicantsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Bewerber</h1>
+    <div className="space-y-5">
+      <h1 className="text-xl font-bold tracking-tight">Bewerber</h1>
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
 
       {loading ? (
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl bg-gray-800" />
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <p className="text-center text-sm text-gray-500 py-12">
+        <p className="text-center text-sm text-[#86868B] py-12">
           No applicants found.
         </p>
       ) : (
@@ -103,26 +103,26 @@ export default function ApplicantsPage() {
             return (
               <div
                 key={applicant.id}
-                className="rounded-xl bg-gray-900 p-4 space-y-3 border border-gray-800"
+                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
               >
-                <div className="flex items-start justify-between">
+                <div className="relative z-10 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800">
-                      <User className="h-4 w-4 text-gray-400" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED]">
+                      <User className="h-4 w-4 text-[#86868B]" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
                         {visitor?.full_name || 'Unnamed'}
                       </p>
-                      <p className="text-xs text-gray-500">{visitor?.email}</p>
+                      <p className="text-xs text-[#86868B]">{visitor?.email}</p>
                       {visitor?.university && (
-                        <p className="text-xs text-gray-600">{visitor.university}</p>
+                        <p className="text-xs text-[#86868B]">{visitor.university}</p>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     {statusIcon(applicant.status)}
-                    <span className={`text-xs font-medium capitalize ${statusColor(applicant.status)}`}>
+                    <span className={`text-xs font-semibold capitalize ${statusColor(applicant.status)}`}>
                       {applicant.status}
                     </span>
                   </div>
@@ -133,25 +133,25 @@ export default function ApplicantsPage() {
                     href={visitor.cv_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+                    className="relative z-10 inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
                   >
                     <FileText className="h-3 w-3" /> View CV
                   </a>
                 )}
 
                 {applicant.status === 'pending' && (
-                  <div className="flex gap-2">
+                  <div className="relative z-10 flex gap-2">
                     <button
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-lg bg-green-900/50 py-2 text-xs font-semibold text-green-300 hover:bg-green-800/50 disabled:opacity-50 transition-colors"
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-lg bg-red-900/50 py-2 text-xs font-semibold text-red-300 hover:bg-red-800/50 disabled:opacity-50 transition-colors"
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
                     >
                       Reject
                     </button>

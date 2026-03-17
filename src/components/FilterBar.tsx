@@ -15,10 +15,10 @@ export default function FilterBar({ filters, activeFilter, onFilterChange }: Fil
         <button
           key={filter.value}
           onClick={() => onFilterChange(filter.value)}
-          className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+          className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition-all ${
             activeFilter === filter.value
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              ? 'bg-[#1D1D1F] text-white shadow-sm'
+              : 'bg-white text-[#86868B] border border-[#E8E8ED] hover:border-[#1D1D1F] hover:text-[#1D1D1F]'
           }`}
         >
           {filter.label}
