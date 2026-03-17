@@ -5,8 +5,8 @@ import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
-import { MapPin, Mic2, Clock } from 'lucide-react';
-import type { ScheduleItem } from '@/types';
+import { MapPin, Mic2, Clock, ExternalLink, ChevronRight } from 'lucide-react';
+import type { ScheduleItem, Speaker } from '@/types';
 
 const categoryFilters = [
   { label: 'All', value: 'all' },
@@ -21,6 +21,7 @@ export default function SchedulePage() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<ScheduleItem | null>(null);
+  const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -150,51 +151,106 @@ export default function SchedulePage() {
         </div>
       )}
 
-      {/* Detail Modal */}
-      <DetailModal open={!!selected} onClose={() => setSelected(null)}>
+      {/* Schedule Detail Modal — tall */}
+      <DetailModal open={!!selected} onClose={() => setSelected(null)} tall>
         {selected && (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selected.title}</h2>
-              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
-                {selected.category.replace('-', ' ')}
-              </span>
-            </div>
+          <div className="space-y-6">
+            {/* Category badge */}
+            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
+              {selected.category.replace('-', ' ')}
+            </span>
 
-            <div className="flex flex-wrap gap-3 text-sm text-[#86868B]">
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                {formatTime(selected.time)}
-                {selected.end_time && ` – ${formatTime(selected.end_time)}`}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" />
-                {selected.location}
-              </span>
-            </div>
+            {/* Title */}
+            <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
 
-            {selected.speaker && (
+            {/* Time & Location cards */}
+            <div className="grid grid-cols-2 gap-3">
               <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
-                <div className="relative z-10 flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
-                    {selected.speaker.photo_url ? (
-                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <Mic2 className="h-4 w-4 text-[#86868B]" />
-                    )}
-                  </div>
+                <div className="relative z-10 flex items-center gap-2 text-[#86868B]">
+                  <Clock className="h-4 w-4 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.speaker.name}</p>
-                    {selected.speaker.bio && (
-                      <p className="text-xs text-[#86868B] mt-0.5">{selected.speaker.bio}</p>
-                    )}
+                    <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">
+                      {formatTime(selected.time)}
+                      {selected.end_time && ` – ${formatTime(selected.end_time)}`}
+                    </p>
                   </div>
                 </div>
               </div>
+              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
+                <div className="relative z-10 flex items-center gap-2 text-[#86868B]">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.location}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Speaker — clickable */}
+            {selected.speaker && (
+              <button
+                onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
+                className="w-full noise-panel rounded-xl p-4 border border-[#E8E8ED] text-left active:scale-[0.98] transition-transform"
+              >
+                <div className="relative z-10 flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+                    {selected.speaker.photo_url ? (
+                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <Mic2 className="h-5 w-5 text-[#86868B]" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.speaker.name}</p>
+                    <p className="text-xs text-[#86868B]">Speaker</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-[#86868B] shrink-0" />
+                </div>
+              </button>
             )}
 
+            {/* Description */}
             {selected.description && (
-              <p className="text-sm text-[#86868B] leading-relaxed">{selected.description}</p>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#86868B] mb-2">About</h3>
+                <p className="text-sm text-[#1D1D1F] leading-relaxed">{selected.description}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </DetailModal>
+
+      {/* Speaker Detail Modal */}
+      <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
+        {selectedSpeaker && (
+          <div className="space-y-5">
+            <div className="flex flex-col items-center text-center">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border-2 border-[#E8E8ED] overflow-hidden shadow-md">
+                {selectedSpeaker.photo_url ? (
+                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
+                ) : (
+                  <Mic2 className="h-10 w-10 text-[#86868B]" />
+                )}
+              </div>
+              <h2 className="mt-4 text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
+            </div>
+
+            {selectedSpeaker.bio && (
+              <p className="text-sm text-[#86868B] leading-relaxed">{selectedSpeaker.bio}</p>
+            )}
+
+            {selectedSpeaker.linkedin && (
+              <a
+                href={selectedSpeaker.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                <ExternalLink className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">LinkedIn Profile</span>
+              </a>
             )}
           </div>
         )}

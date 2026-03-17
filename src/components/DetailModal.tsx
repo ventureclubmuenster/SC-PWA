@@ -1,17 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface DetailModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  tall?: boolean;
 }
 
-export default function DetailModal({ open, onClose, children }: DetailModalProps) {
-  const backdropRef = useRef<HTMLDivElement>(null);
-
+export default function DetailModal({ open, onClose, children, tall }: DetailModalProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -24,16 +23,15 @@ export default function DetailModal({ open, onClose, children }: DetailModalProp
   if (!open) return null;
 
   return (
-    <div
-      ref={backdropRef}
-      className="fixed inset-0 z-[100] flex items-end justify-center"
-      onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]" />
+    <div className="fixed inset-0 z-[100] flex items-end justify-center">
+      {/* Backdrop — click to close */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"
+        onClick={onClose}
+      />
 
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl bg-[#F5F5F7] shadow-2xl animate-[slideUp_300ms_cubic-bezier(0.32,0.72,0,1)]">
+      <div className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-2xl bg-[#F5F5F7] shadow-2xl animate-[slideUp_300ms_cubic-bezier(0.32,0.72,0,1)] ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}>
         {/* Handle + close */}
         <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 bg-[#F5F5F7]">
           <div className="mx-auto h-1 w-10 rounded-full bg-[#E8E8ED]" />

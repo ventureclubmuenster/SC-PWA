@@ -204,16 +204,17 @@ export default function InformationPage() {
       {/* Speaker Detail Modal */}
       <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
         {selectedSpeaker && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white border border-[#E8E8ED] overflow-hidden">
+          <div className="space-y-5">
+            {/* Large centered photo */}
+            <div className="flex flex-col items-center text-center">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border-2 border-[#E8E8ED] overflow-hidden shadow-md">
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
                 ) : (
-                  <Mic2 className="h-6 w-6 text-[#86868B]" />
+                  <Mic2 className="h-10 w-10 text-[#86868B]" />
                 )}
               </div>
-              <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
+              <h2 className="mt-4 text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
