@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
-import { MapPin, Mic2 } from 'lucide-react';
+import DetailModal from '@/components/DetailModal';
+import { MapPin, Mic2, Clock } from 'lucide-react';
 import type { ScheduleItem } from '@/types';
 
 const categoryFilters = [
@@ -19,6 +20,7 @@ export default function SchedulePage() {
   const [items, setItems] = useState<ScheduleItem[]>([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<ScheduleItem | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -78,7 +80,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Schedule" subtitle="Today's event programme" />
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -101,17 +103,17 @@ export default function SchedulePage() {
           No events found.
         </p>
       ) : (
-        <div className="relative">
-          {/* Timeline spine */}
-          <div className="absolute left-[23px] top-2 bottom-2 w-[2px] bg-[#E8E8ED]" />
+        <div className="relative pl-6">
+          {/* Timeline spine — centered on the dot column */}
+          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[#E8E8ED]" />
 
           <div className="space-y-0">
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <div key={group.time + gIdx} className={`relative flex gap-4 ${isLast ? '' : 'mb-4'}`}>
-                  {/* Timeline node */}
-                  <div className="relative z-10 flex flex-col items-center pt-1">
+                <div key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
+                  {/* Timeline node — positioned on the spine */}
+                  <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
                     <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${
                       group.items.length === 1
                         ? (categoryDot[group.items[0].category] || 'bg-[#86868B]')
@@ -120,7 +122,7 @@ export default function SchedulePage() {
                   </div>
 
                   {/* Cards */}
-                  <div className="flex-1 space-y-2">
+                  <div className="space-y-2">
                     {/* Shared time label */}
                     <p className="text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
                       {group.time}
@@ -128,13 +130,15 @@ export default function SchedulePage() {
                     </p>
 
                     {group.items.length === 1 ? (
-                      /* Single event — full width card */
-                      <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
+                      <div onClick={() => setSelected(group.items[0])} className="cursor-pointer">
+                        <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
+                      </div>
                     ) : (
-                      /* Multiple events — horizontal scroll */
                       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
                         {group.items.map((item) => (
-                          <EventCard key={item.id} item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
+                          <div key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
+                            <EventCard item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
+                          </div>
                         ))}
                       </div>
                     )}
@@ -145,6 +149,56 @@ export default function SchedulePage() {
           </div>
         </div>
       )}
+
+      {/* Detail Modal */}
+      <DetailModal open={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selected.title}</h2>
+              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
+                {selected.category.replace('-', ' ')}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-3 text-sm text-[#86868B]">
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {formatTime(selected.time)}
+                {selected.end_time && ` – ${formatTime(selected.end_time)}`}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4" />
+                {selected.location}
+              </span>
+            </div>
+
+            {selected.speaker && (
+              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
+                <div className="relative z-10 flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+                    {selected.speaker.photo_url ? (
+                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <Mic2 className="h-4 w-4 text-[#86868B]" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.speaker.name}</p>
+                    {selected.speaker.bio && (
+                      <p className="text-xs text-[#86868B] mt-0.5">{selected.speaker.bio}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selected.description && (
+              <p className="text-sm text-[#86868B] leading-relaxed">{selected.description}</p>
+            )}
+          </div>
+        )}
+      </DetailModal>
     </div>
   );
 }
@@ -161,7 +215,7 @@ function EventCard({
   compact?: boolean;
 }) {
   return (
-    <div className={`noise-panel rounded-2xl p-5 space-y-2.5 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[220px] flex-shrink-0' : ''}`}>
+    <div className={`noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
         <p className="relative z-10 text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
           until {formatTime(item.end_time)}

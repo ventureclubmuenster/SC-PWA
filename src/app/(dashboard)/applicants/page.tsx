@@ -76,7 +76,7 @@ export default function ApplicantsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Bewerber" subtitle="Review applicant profiles" />
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -92,7 +92,7 @@ export default function ApplicantsPage() {
           No applicants found.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filtered.map((applicant) => {
             const visitor = applicant.visitor as unknown as {
               id: string;
@@ -104,7 +104,7 @@ export default function ApplicantsPage() {
             return (
               <div
                 key={applicant.id}
-                className="noise-panel rounded-2xl p-5 space-y-3.5 border border-[#E8E8ED] shadow-sm"
+                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
               >
                 <div className="relative z-10 flex items-start justify-between">
                   <div className="flex items-center gap-3">

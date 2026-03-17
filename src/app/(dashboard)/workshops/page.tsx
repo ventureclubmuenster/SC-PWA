@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import PageHeader from '@/components/PageHeader';
+import DetailModal from '@/components/DetailModal';
 import { Clock, MapPin, Users, Check } from 'lucide-react';
 import type { ContentWorkshop, WorkshopBooking } from '@/types';
 
@@ -11,6 +12,7 @@ export default function WorkshopsPage() {
   const [bookings, setBookings] = useState<WorkshopBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
+  const [selected, setSelected] = useState<ContentWorkshop | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -29,14 +31,14 @@ export default function WorkshopsPage() {
   const isBooked = (workshopId: string) =>
     bookings.some((b) => b.workshop_id === workshopId);
 
-  const handleBook = async (workshopId: string) => {
+  const handleBook = async (e: React.MouseEvent, workshopId: string) => {
+    e.stopPropagation();
     setBookingInProgress(workshopId);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     if (isBooked(workshopId)) {
-      // Cancel booking
       await supabase
         .from('workshop_bookings')
         .delete()
@@ -44,7 +46,6 @@ export default function WorkshopsPage() {
         .eq('workshop_id', workshopId);
       setBookings((prev) => prev.filter((b) => b.workshop_id !== workshopId));
     } else {
-      // Create booking
       const { data } = await supabase
         .from('workshop_bookings')
         .insert({ user_id: user.id, workshop_id: workshopId })
@@ -63,7 +64,7 @@ export default function WorkshopsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Workshops" subtitle="Book your hands-on sessions" />
 
       {loading ? (
@@ -77,13 +78,14 @@ export default function WorkshopsPage() {
           No workshops available.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {workshops.map((ws) => {
             const booked = isBooked(ws.id);
             return (
               <div
                 key={ws.id}
-                className="noise-panel rounded-2xl p-5 space-y-3.5 border border-[#E8E8ED] shadow-sm"
+                onClick={() => setSelected(ws)}
+                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
               >
                 <div className="relative z-10 space-y-1">
                   <h3 className="font-semibold text-sm">{ws.title}</h3>
@@ -113,7 +115,7 @@ export default function WorkshopsPage() {
                 )}
 
                 <button
-                  onClick={() => handleBook(ws.id)}
+                  onClick={(e) => handleBook(e, ws.id)}
                   disabled={bookingInProgress === ws.id}
                   className={`relative z-10 w-full rounded-xl py-2.5 text-xs font-semibold transition-all ${
                     booked
@@ -136,6 +138,60 @@ export default function WorkshopsPage() {
           })}
         </div>
       )}
+
+      {/* Detail Modal */}
+      <DetailModal open={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selected.title}</h2>
+              <p className="text-sm font-medium text-[#FF754B] mt-1">{selected.host}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 text-sm text-[#86868B]">
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {formatTime(selected.time)}
+                {selected.end_time && ` – ${formatTime(selected.end_time)}`}
+              </span>
+              {selected.location && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" />
+                  {selected.location}
+                </span>
+              )}
+              <span className="flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                {selected.capacity} spots
+              </span>
+            </div>
+
+            {selected.description && (
+              <p className="text-sm text-[#86868B] leading-relaxed">{selected.description}</p>
+            )}
+
+            <button
+              onClick={(e) => handleBook(e, selected.id)}
+              disabled={bookingInProgress === selected.id}
+              className={`relative z-10 w-full rounded-xl py-3 text-sm font-semibold transition-all ${
+                isBooked(selected.id)
+                  ? 'bg-green-50 text-green-600 hover:bg-red-50 hover:text-red-600'
+                  : 'noise-panel-dark text-white hover:opacity-90'
+              } disabled:opacity-50`}
+            >
+              {bookingInProgress === selected.id ? (
+                'Processing...'
+              ) : isBooked(selected.id) ? (
+                <span className="flex items-center justify-center gap-1">
+                  <Check className="h-4 w-4" /> Booked — tap to cancel
+                </span>
+              ) : (
+                <span className="relative z-10">Book Workshop</span>
+              )}
+            </button>
+          </div>
+        )}
+      </DetailModal>
     </div>
   );
 }

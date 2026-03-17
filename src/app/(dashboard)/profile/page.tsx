@@ -98,12 +98,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Profile" subtitle="Manage your account" />
 
       {/* Avatar & Email */}
-      <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-5 border border-[#E8E8ED] shadow-sm">
-        <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full noise-panel-dark">
+      <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
+        <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full noise-panel-dark">
           <User className="relative z-10 h-6 w-6 text-white" />
         </div>
         <div className="relative z-10">
@@ -114,7 +114,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Edit Form */}
-      <div className="space-y-4 noise-panel rounded-2xl p-5 border border-[#E8E8ED] shadow-sm">
+      <div className="space-y-4 noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
         <div className="relative z-10 space-y-1">
           <label className="text-xs font-medium text-[#86868B]">Full Name</label>
           <input

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
+import DetailModal from '@/components/DetailModal';
 import { Building2, Mic2, ExternalLink } from 'lucide-react';
 import type { Partner, Speaker } from '@/types';
 
@@ -25,6 +26,8 @@ export default function InformationPage() {
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -52,7 +55,7 @@ export default function InformationPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Information" subtitle="Partners & speakers" />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
@@ -77,13 +80,14 @@ export default function InformationPage() {
             No partners found.
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredPartners.map((partner) => (
               <div
                 key={partner.id}
-                className="noise-panel flex items-start gap-4 rounded-2xl p-5 border border-[#E8E8ED] shadow-sm"
+                onClick={() => setSelectedPartner(partner)}
+                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
               >
-                <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
+                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -111,16 +115,6 @@ export default function InformationPage() {
                   {partner.description && (
                     <p className="text-xs text-[#86868B] line-clamp-2">{partner.description}</p>
                   )}
-                  {partner.website && (
-                    <a
-                      href={partner.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
-                    >
-                      <ExternalLink className="h-3 w-3" /> Website
-                    </a>
-                  )}
                 </div>
               </div>
             ))}
@@ -131,13 +125,14 @@ export default function InformationPage() {
           No speakers found.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {speakers.map((speaker) => (
             <div
               key={speaker.id}
-              className="noise-panel flex items-start gap-4 rounded-2xl p-5 border border-[#E8E8ED] shadow-sm"
+              onClick={() => setSelectedSpeaker(speaker)}
+              className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
             >
-              <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+              <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
                 {speaker.photo_url ? (
                   <img
                     src={speaker.photo_url}
@@ -153,21 +148,92 @@ export default function InformationPage() {
                 {speaker.bio && (
                   <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
                 )}
-                {speaker.linkedin && (
-                  <a
-                    href={speaker.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
-                  >
-                    <ExternalLink className="h-3 w-3" /> LinkedIn
-                  </a>
-                )}
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Partner Detail Modal */}
+      <DetailModal open={!!selectedPartner} onClose={() => setSelectedPartner(null)}>
+        {selectedPartner && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white border border-[#E8E8ED]">
+                {selectedPartner.logo_url ? (
+                  <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" />
+                ) : (
+                  <Building2 className="h-6 w-6 text-[#86868B]" />
+                )}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedPartner.name}</h2>
+                <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${categoryBadge[selectedPartner.category]}`}>
+                  {selectedPartner.category}
+                </span>
+              </div>
+            </div>
+
+            {selectedPartner.booth_number && (
+              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
+                <p className="relative z-10 text-sm text-[#86868B]">
+                  <span className="font-semibold text-[#1D1D1F]">Booth:</span> {selectedPartner.booth_number}
+                </p>
+              </div>
+            )}
+
+            {selectedPartner.description && (
+              <p className="text-sm text-[#86868B] leading-relaxed">{selectedPartner.description}</p>
+            )}
+
+            {selectedPartner.website && (
+              <a
+                href={selectedPartner.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                <ExternalLink className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">Visit Website</span>
+              </a>
+            )}
+          </div>
+        )}
+      </DetailModal>
+
+      {/* Speaker Detail Modal */}
+      <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
+        {selectedSpeaker && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white border border-[#E8E8ED] overflow-hidden">
+                {selectedSpeaker.photo_url ? (
+                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
+                ) : (
+                  <Mic2 className="h-6 w-6 text-[#86868B]" />
+                )}
+              </div>
+              <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
+            </div>
+
+            {selectedSpeaker.bio && (
+              <p className="text-sm text-[#86868B] leading-relaxed">{selectedSpeaker.bio}</p>
+            )}
+
+            {selectedSpeaker.linkedin && (
+              <a
+                href={selectedSpeaker.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                <ExternalLink className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">LinkedIn Profile</span>
+              </a>
+            )}
+          </div>
+        )}
+      </DetailModal>
     </div>
   );
 }
