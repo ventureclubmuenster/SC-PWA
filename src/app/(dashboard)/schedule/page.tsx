@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
-import { Clock, MapPin, Mic2 } from 'lucide-react';
+import { MapPin, Mic2 } from 'lucide-react';
 import type { ScheduleItem } from '@/types';
 
 const categoryFilters = [
@@ -64,6 +64,18 @@ export default function SchedulePage() {
     networking: 'bg-green-100 text-green-700',
   };
 
+  // Group items by start time for horizontal stacking
+  const timeGroups: { time: string; items: typeof finalItems }[] = [];
+  for (const item of finalItems) {
+    const t = formatTime(item.time);
+    const existing = timeGroups.find((g) => g.time === t);
+    if (existing) {
+      existing.items.push(item);
+    } else {
+      timeGroups.push({ time: t, items: [item] });
+    }
+  }
+
   return (
     <div className="space-y-5">
       <h1 className="text-xl font-bold tracking-tight">Schedule</h1>
@@ -93,49 +105,37 @@ export default function SchedulePage() {
           <div className="absolute left-[23px] top-2 bottom-2 w-[2px] bg-[#E8E8ED]" />
 
           <div className="space-y-0">
-            {finalItems.map((item, idx) => {
-              const isLast = idx === finalItems.length - 1;
+            {timeGroups.map((group, gIdx) => {
+              const isLast = gIdx === timeGroups.length - 1;
               return (
-                <div key={item.id} className="relative flex gap-4">
+                <div key={group.time + gIdx} className={`relative flex gap-4 ${isLast ? '' : 'mb-3'}`}>
                   {/* Timeline node */}
                   <div className="relative z-10 flex flex-col items-center pt-1">
-                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${categoryDot[item.category] || 'bg-[#86868B]'}`} />
+                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${
+                      group.items.length === 1
+                        ? (categoryDot[group.items[0].category] || 'bg-[#86868B]')
+                        : 'bg-[#1D1D1F]'
+                    }`} />
                   </div>
 
-                  {/* Card */}
-                  <div className={`flex-1 noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm ${isLast ? 'mb-0' : 'mb-3'}`}>
-                    {/* Time label */}
-                    <p className="relative z-10 text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
-                      {formatTime(item.time)}
-                      {item.end_time && ` – ${formatTime(item.end_time)}`}
+                  {/* Cards */}
+                  <div className="flex-1 space-y-2">
+                    {/* Shared time label */}
+                    <p className="text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
+                      {group.time}
+                      {group.items[0].end_time && group.items.length === 1 && ` – ${formatTime(group.items[0].end_time)}`}
                     </p>
 
-                    <div className="relative z-10 flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm text-[#1D1D1F]">{item.title}</h3>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                          categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
-                        }`}
-                      >
-                        {item.category.replace('-', ' ')}
-                      </span>
-                    </div>
-
-                    <div className="relative z-10 flex items-center gap-3 text-xs text-[#86868B]">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {item.location}
-                      </span>
-                      {item.speaker && (
-                        <span className="flex items-center gap-1">
-                          <Mic2 className="h-3 w-3" />
-                          <span className="font-medium text-[#1D1D1F]">{item.speaker.name}</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {item.description && (
-                      <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{item.description}</p>
+                    {group.items.length === 1 ? (
+                      /* Single event — full width card */
+                      <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
+                    ) : (
+                      /* Multiple events — horizontal scroll */
+                      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
+                        {group.items.map((item) => (
+                          <EventCard key={item.id} item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -143,6 +143,55 @@ export default function SchedulePage() {
             })}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function EventCard({
+  item,
+  categoryColors,
+  formatTime,
+  compact,
+}: {
+  item: ScheduleItem;
+  categoryColors: Record<string, string>;
+  formatTime: (iso: string) => string;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
+      {compact && item.end_time && (
+        <p className="relative z-10 text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
+          until {formatTime(item.end_time)}
+        </p>
+      )}
+      <div className="relative z-10 flex items-start justify-between gap-2">
+        <h3 className="font-semibold text-sm text-[#1D1D1F]">{item.title}</h3>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+            categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
+          }`}
+        >
+          {item.category.replace('-', ' ')}
+        </span>
+      </div>
+
+      <div className="relative z-10 flex items-center gap-3 text-xs text-[#86868B]">
+        <span className="flex items-center gap-1">
+          <MapPin className="h-3 w-3" />
+          {item.location}
+        </span>
+        {item.speaker && (
+          <span className="flex items-center gap-1">
+            <Mic2 className="h-3 w-3" />
+            <span className="font-medium text-[#1D1D1F]">{item.speaker.name}</span>
+          </span>
+        )}
+      </div>
+
+      {item.description && (
+        <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{item.description}</p>
       )}
     </div>
   );

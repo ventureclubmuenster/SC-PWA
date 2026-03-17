@@ -50,7 +50,7 @@ export default function BottomBar() {
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E8E8ED] bg-white/80 backdrop-blur-xl safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E8E8ED] bg-white/80 backdrop-blur-xl safe-area-bottom pwa-bottom-space">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;

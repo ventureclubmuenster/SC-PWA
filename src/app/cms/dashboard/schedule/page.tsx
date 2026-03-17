@@ -22,6 +22,7 @@ interface ScheduleItem {
 }
 
 const categories = ['workshop', 'main-stage', 'panel', 'networking'] as const;
+const FIXED_DATE = '2026-01-01';
 const empty = { title: '', time: '', end_time: '', location: '', category: 'main-stage' as ScheduleItem['category'], description: '', speaker_id: '' };
 
 export default function ScheduleCmsPage() {
@@ -44,15 +45,16 @@ export default function ScheduleCmsPage() {
 
   const toLocal = (iso: string) => {
     if (!iso) return '';
-    return new Date(iso).toISOString().slice(0, 16);
+    const d = new Date(iso);
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = {
       title: form.title,
-      time: new Date(form.time).toISOString(),
-      end_time: form.end_time ? new Date(form.end_time).toISOString() : null,
+      time: new Date(`${FIXED_DATE}T${form.time}:00`).toISOString(),
+      end_time: form.end_time ? new Date(`${FIXED_DATE}T${form.end_time}:00`).toISOString() : null,
       location: form.location,
       category: form.category,
       description: form.description || null,
@@ -107,11 +109,11 @@ export default function ScheduleCmsPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-[#86868B] mb-1 block">Start Time *</label>
-              <input required type="datetime-local" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+              <input required type="time" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
             </div>
             <div>
               <label className="text-xs text-[#86868B] mb-1 block">End Time</label>
-              <input type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+              <input type="time" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
             </div>
           </div>
           <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />

@@ -120,3 +120,8 @@ body {
 
 /* Safe area for bottom bar */
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Extra bottom spacing when running as installed PWA */
+@media (display-mode: standalone) {
+  .pwa-bottom-space { padding-bottom: 25px; }
+}
