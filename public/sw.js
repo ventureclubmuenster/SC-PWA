@@ -1,24 +1,11 @@
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const STATIC_CACHE = `sc-static-v${CACHE_VERSION}`;
 const PAGES_CACHE = `sc-pages-v${CACHE_VERSION}`;
 const DATA_CACHE = `sc-data-v${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, PAGES_CACHE, DATA_CACHE];
 
-// All PWA page routes to precache for offline-ready start
-const PRECACHE_PAGES = [
-  '/',
-  '/schedule',
-  '/information',
-  '/workshops',
-  '/profile',
-  '/applicants',
-  '/ticket',
-];
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(PAGES_CACHE).then((cache) => cache.addAll(PRECACHE_PAGES))
-  );
+  event.waitUntil(caches.open(STATIC_CACHE));
   self.skipWaiting();
 });
 
@@ -35,59 +22,43 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-function isCmsOrExcluded(url) {
+function isExcluded(url) {
   const path = url.pathname;
   return path.startsWith('/admin') || path.startsWith('/api/admin');
 }
 
-// Safari does not allow service workers to serve responses that followed a redirect.
-// Create a clean, non-redirected copy of the response.
-function cleanResponse(response) {
-  if (!response.redirected) return response;
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: new Headers(response.headers),
-  });
-}
-
-function isCacheable(response) {
-  return response.ok && !response.redirected;
-}
-
-// Cache-first for hashed static assets (_next/static) — immutable once built
+// Cache-first for immutable static assets (_next/static, icons, fonts)
 function handleStaticAsset(event) {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        if (isCacheable(response)) {
+        if (response.ok && !response.redirected) {
           const clone = response.clone();
           caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, clone));
         }
-        return cleanResponse(response);
+        return response;
       });
     })
   );
 }
 
-// Stale-while-revalidate for pages — serve cached instantly, update in background
+// Network-first for navigation — let browser handle redirects natively
 function handleNavigation(event) {
   event.respondWith(
-    caches.open(PAGES_CACHE).then((cache) =>
-      cache.match(event.request).then((cached) => {
-        const networkFetch = fetch(event.request)
-          .then((response) => {
-            if (isCacheable(response)) {
-              cache.put(event.request, response.clone());
-            }
-            return cleanResponse(response);
-          })
-          .catch(() => cached);
-
-        return cached || networkFetch;
+    fetch(event.request, { redirect: 'manual' })
+      .then((response) => {
+        // Auth redirect — return as-is so the browser follows it natively
+        if (response.type === 'opaqueredirect') {
+          return response;
+        }
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(PAGES_CACHE).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
       })
-    )
+      .catch(() => caches.match(event.request))
   );
 }
 
@@ -98,10 +69,10 @@ function handleData(event) {
       cache.match(event.request).then((cached) => {
         const networkFetch = fetch(event.request)
           .then((response) => {
-            if (isCacheable(response)) {
+            if (response.ok && !response.redirected) {
               cache.put(event.request, response.clone());
             }
-            return cleanResponse(response);
+            return response;
           })
           .catch(() => cached);
 
@@ -116,20 +87,20 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Exclude CMS routes entirely
-  if (isCmsOrExcluded(url)) return;
+  // Exclude admin routes entirely
+  if (isExcluded(url)) return;
 
   // Next.js hashed static assets — cache-first (immutable)
   if (url.pathname.startsWith('/_next/static/')) {
     return handleStaticAsset(event);
   }
 
-  // Navigation requests (HTML pages) — stale-while-revalidate
+  // Navigation requests (HTML pages) — network-first with cache fallback
   if (event.request.mode === 'navigate') {
     return handleNavigation(event);
   }
 
-  // Static files in /public (fonts, icons, images, manifest)
+  // Static files in /public (icons, images, manifest)
   if (
     url.pathname.startsWith('/icons/') ||
     url.pathname.endsWith('.svg') ||
