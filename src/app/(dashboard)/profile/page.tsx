@@ -7,6 +7,7 @@ import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
 import { User, LogOut, Save } from 'lucide-react';
 import type { Profile } from '@/types';
+import PushNotificationManager from '@/components/push/PushNotificationManager';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -159,6 +160,17 @@ export default function ProfilePage() {
           <Save className="relative z-10 h-4 w-4" />
           <span className="relative z-10">{saving ? 'Saving...' : 'Save Profile'}</span>
         </button>
+      </div>
+
+      {/* Push Notifications */}
+      <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-[#1D1D1F]">Push Notifications</p>
+            <p className="text-xs text-[#86868B] mt-0.5">Get notified about schedule changes</p>
+          </div>
+          <PushNotificationManager />
+        </div>
       </div>
 
       {/* Logout */}

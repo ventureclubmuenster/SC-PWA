@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Partners', href: '/cms/dashboard/partners' },
   { label: 'Workshops', href: '/cms/dashboard/workshops' },
   { label: 'Schedule', href: '/cms/dashboard/schedule' },
+  { label: 'Notifications', href: '/cms/dashboard/notifications' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
