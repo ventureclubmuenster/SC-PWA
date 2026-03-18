@@ -5,12 +5,13 @@ import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
-import { Building2, Mic2, ExternalLink } from 'lucide-react';
+import { Building2, Mic2, ExternalLink, Map } from 'lucide-react';
 import type { Partner, Speaker } from '@/types';
 
 const viewFilters = [
   { label: 'Partners', value: 'partners' },
   { label: 'Speakers', value: 'speakers' },
+  { label: 'Lageplan', value: 'lageplan' },
 ];
 
 const categoryFilters = [
@@ -56,7 +57,7 @@ export default function InformationPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Information" subtitle="Partners & speakers" />
+      <PageHeader title="Information" subtitle="Partners, speakers & Lageplan" />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
 
@@ -68,7 +69,7 @@ export default function InformationPage() {
         />
       )}
 
-      {loading ? (
+      {loading && view !== 'lageplan' ? (
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-20 animate-pulse rounded-2xl bg-[#E8E8ED]" />
@@ -120,6 +121,16 @@ export default function InformationPage() {
             ))}
           </div>
         )
+      ) : view === 'lageplan' ? (
+        <div className="noise-panel rounded-2xl border border-[#E8E8ED] shadow-sm overflow-hidden">
+          <div className="relative z-10 flex flex-col items-center justify-center gap-4 py-16 text-[#86868B]">
+            <Map className="h-14 w-14 opacity-40" strokeWidth={1} />
+            <div className="text-center space-y-1">
+              <p className="text-sm font-semibold text-[#1D1D1F]">Lageplan</p>
+              <p className="text-xs text-[#86868B]">Der Lageplan wird bald hinzugefügt.</p>
+            </div>
+          </div>
+        </div>
       ) : speakers.length === 0 ? (
         <p className="text-center text-sm text-[#86868B] py-12">
           No speakers found.
