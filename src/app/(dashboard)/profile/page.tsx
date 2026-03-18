@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useDemoUser, isDemoMode } from '@/lib/demo';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
-import { User, LogOut, Save } from 'lucide-react';
+import { User, LogOut, Save, Bell, BellOff } from 'lucide-react';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
 
@@ -163,15 +163,29 @@ export default function ProfilePage() {
       </div>
 
       {/* Push Notifications */}
-      <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-        <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-[#1D1D1F]">Push Notifications</p>
-            <p className="text-xs text-[#86868B] mt-0.5">Get notified about schedule changes</p>
-          </div>
-          <PushNotificationManager />
-        </div>
-      </div>
+      <PushNotificationManager>
+        {({ isSubscribed, isLoading, subscribe }) => (
+          <button
+            onClick={subscribe}
+            disabled={isSubscribed || isLoading}
+            className="w-full noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm text-left transition-all disabled:opacity-100"
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-[#1D1D1F]">Push Notifications</p>
+                <p className="text-xs text-[#86868B] mt-0.5">
+                  {isLoading ? 'Enabling...' : isSubscribed ? 'Notifications are enabled' : 'Tap to enable notifications'}
+                </p>
+              </div>
+              {isSubscribed ? (
+                <Bell size={20} className="text-[#FF754B]" />
+              ) : (
+                <BellOff size={20} className="text-[#86868B]" />
+              )}
+            </div>
+          </button>
+        )}
+      </PushNotificationManager>
 
       {/* Logout */}
       <button

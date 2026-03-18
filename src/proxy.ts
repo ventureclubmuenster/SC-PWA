@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import { CMS_COOKIE } from '@/lib/cms/auth';
+import { CMS_COOKIE } from '@/lib/admin/auth';
 
 async function verifyCmsCookie(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get(CMS_COOKIE);
@@ -17,19 +17,19 @@ async function verifyCmsCookie(request: NextRequest): Promise<boolean> {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect CMS dashboard routes
-  if (pathname.startsWith('/cms/dashboard')) {
+  // Protect admin dashboard routes
+  if (pathname.startsWith('/admin/dashboard')) {
     const valid = await verifyCmsCookie(request);
     if (!valid) {
       const url = request.nextUrl.clone();
-      url.pathname = '/cms';
+      url.pathname = '/admin';
       return NextResponse.redirect(url);
     }
     return NextResponse.next({ request });
   }
 
-  // CMS routes bypass main app auth
-  if (pathname.startsWith('/cms') || pathname.startsWith('/api/cms')) {
+  // Admin routes bypass main app auth
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     return NextResponse.next({ request });
   }
 

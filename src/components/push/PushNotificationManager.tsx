@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Bell, BellOff } from 'lucide-react';
 
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -14,7 +13,7 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   return outputArray.buffer as ArrayBuffer;
 }
 
-export default function PushNotificationManager() {
+export default function PushNotificationManager({ children }: { children: (state: { isSubscribed: boolean; isLoading: boolean; subscribe: () => void }) => React.ReactNode }) {
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +32,7 @@ export default function PushNotificationManager() {
   }, [checkSubscription]);
 
   async function subscribe() {
+    if (isSubscribed) return;
     setIsLoading(true);
     try {
       const permission = await Notification.requestPermission();
@@ -63,50 +63,7 @@ export default function PushNotificationManager() {
     }
   }
 
-  async function unsubscribe() {
-    setIsLoading(true);
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      if (subscription) {
-        await fetch('/api/push-subscription', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: subscription.endpoint }),
-        });
-        await subscription.unsubscribe();
-      }
-      setIsSubscribed(false);
-    } catch (err) {
-      console.error('Push unsubscribe failed:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   if (!isSupported) return null;
 
-  return (
-    <button
-      onClick={isSubscribed ? unsubscribe : subscribe}
-      disabled={isLoading}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
-      style={{
-        backgroundColor: isSubscribed ? '#F5F5F7' : '#FF754B',
-        color: isSubscribed ? '#1D1D1F' : '#FFFFFF',
-      }}
-    >
-      {isSubscribed ? (
-        <>
-          <BellOff size={16} />
-          Notifications On
-        </>
-      ) : (
-        <>
-          <Bell size={16} />
-          Enable Notifications
-        </>
-      )}
-    </button>
-  );
+  return <>{children({ isSubscribed, isLoading, subscribe })}</>;
 }

@@ -1,4 +1,4 @@
--- Content tables for CMS (replacing Sanity)
+-- Content tables for admin panel (replacing Sanity)
 
 CREATE TABLE speakers (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
