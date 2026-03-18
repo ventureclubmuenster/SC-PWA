@@ -95,8 +95,18 @@ export default function SchedulePage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-[#E8E8ED]" />
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="h-4 w-3/5 animate-pulse rounded-lg bg-[#E8E8ED]" />
+                <div className="h-5 w-16 animate-pulse rounded-full bg-[#E8E8ED]" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-3 w-20 animate-pulse rounded bg-[#E8E8ED]" />
+                <div className="h-3 w-24 animate-pulse rounded bg-[#E8E8ED]" />
+              </div>
+              <div className="h-3 w-4/5 animate-pulse rounded bg-[#E8E8ED]" />
+            </div>
           ))}
         </div>
       ) : finalItems.length === 0 ? (
