@@ -49,18 +49,24 @@ export async function POST(request: NextRequest) {
       )
     );
 
-    // Remove expired/invalid subscriptions
-    const errors: string[] = [];
-    const expiredEndpoints = subscriptions
-      .filter((_, i) => {
-        const r = results[i];
-        if (r.status === 'rejected') {
-          errors.push(String(r.reason));
-          return true;
+    const errors: { statusCode?: number; message: string; endpoint: string }[] = [];
+    const expiredEndpoints: string[] = [];
+
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        const err = r.reason as { statusCode?: number; body?: string; message?: string };
+        const statusCode = err.statusCode;
+        errors.push({
+          statusCode,
+          message: err.body || err.message || String(r.reason),
+          endpoint: subscriptions[i].endpoint.slice(0, 60) + '...',
+        });
+        // Only remove truly gone subscriptions (404/410)
+        if (statusCode === 404 || statusCode === 410) {
+          expiredEndpoints.push(subscriptions[i].endpoint);
         }
-        return false;
-      })
-      .map((sub) => sub.endpoint);
+      }
+    });
 
     if (expiredEndpoints.length > 0) {
       await supabase
