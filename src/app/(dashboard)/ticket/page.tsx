@@ -4,18 +4,28 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser } from '@/lib/demo';
 import PageHeader from '@/components/PageHeader';
-import { QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import type { Profile } from '@/types';
+
+async function hashId(id: string): Promise<string> {
+  const data = new TextEncoder().encode(id);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
 
 export default function TicketPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [qrValue, setQrValue] = useState<string | null>(null);
   const demoUser = useDemoUser();
 
   useEffect(() => {
     const load = async () => {
       if (demoUser) {
         setProfile(demoUser);
+        setQrValue(await hashId(demoUser.id));
         setLoading(false);
         return;
       }
@@ -27,7 +37,10 @@ export default function TicketPage() {
           .select('*')
           .eq('id', user.id)
           .single();
-        if (data) setProfile(data);
+        if (data) {
+          setProfile(data);
+          setQrValue(await hashId(data.id));
+        }
       }
       setLoading(false);
     };
@@ -45,12 +58,11 @@ export default function TicketPage() {
       {/* Ticket Card */}
       <div className="noise-panel rounded-2xl p-6 border border-[#E8E8ED] shadow-sm">
         <div className="relative z-10 flex flex-col items-center space-y-5">
-          {/* QR Code Placeholder */}
-          <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-white border-2 border-dashed border-[#E8E8ED]">
-            <div className="flex flex-col items-center gap-3 text-[#86868B]">
-              <QrCode className="h-16 w-16" strokeWidth={1} />
-              <span className="text-xs font-medium">QR Code</span>
-            </div>
+          {/* QR Code */}
+          <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-white border border-[#E8E8ED]">
+            {qrValue ? (
+              <QRCodeSVG value={qrValue} size={180} level="M" />
+            ) : null}
           </div>
 
           {/* Attendee Info */}
