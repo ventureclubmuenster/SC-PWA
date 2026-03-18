@@ -62,14 +62,9 @@ export async function POST(request: NextRequest) {
 
   const rawBody = await request.text();
 
-  // Collect ALL headers for debugging
-  const allHeaders: Record<string, string> = {};
-  request.headers.forEach((value, key) => {
-    allHeaders[key] = value;
-  });
-
-  // Look for HMAC signature in common header locations
+  // Look for HMAC signature — vivenu uses x-vivenu-signature
   const signature =
+    request.headers.get('x-vivenu-signature') ||
     request.headers.get('x-signature') ||
     request.headers.get('x-hub-signature-256') ||
     request.headers.get('x-webhook-signature') ||
@@ -91,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   // Capture relevant headers for storage
   const headers: Record<string, string> = {};
-  for (const key of ['content-type', 'x-signature', 'x-hub-signature-256', 'x-webhook-signature', 'x-hmac-signature', 'user-agent', 'x-request-id']) {
+  for (const key of ['content-type', 'x-vivenu-signature', 'x-signature', 'x-hub-signature-256', 'x-webhook-signature', 'x-hmac-signature', 'user-agent', 'x-request-id']) {
     const val = request.headers.get(key);
     if (val) headers[key] = val;
   }
@@ -108,21 +103,8 @@ export async function POST(request: NextRequest) {
   webhookEvents.unshift(event);
   if (webhookEvents.length > MAX_EVENTS) webhookEvents.length = MAX_EVENTS;
 
-  // TEMPORARY DEBUG: return all headers + signature comparison in the response
-  // so we can diagnose the issue on the deployed server.
-  // TODO: Remove this debug block once HMAC is working.
   if (!verified) {
-    return NextResponse.json({
-      error: 'Invalid signature',
-      _debug: {
-        allHeaders,
-        signatureHeaderFound: signature || '(none)',
-        providedSig: providedSig || '(empty)',
-        expectedSig,
-        rawBodyLength: rawBody.length,
-        rawBodyFirst200: rawBody.slice(0, 200),
-      },
-    }, { status: 401 });
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
   return NextResponse.json({ ok: true, id: event.id });
