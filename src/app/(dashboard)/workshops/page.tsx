@@ -69,20 +69,8 @@ export default function WorkshopsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm">
-              <div className="space-y-1">
-                <div className="h-4 w-2/3 animate-pulse rounded-lg bg-[#E8E8ED]" />
-                <div className="h-3 w-24 animate-pulse rounded bg-[#E8E8ED]" />
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-3 w-20 animate-pulse rounded bg-[#E8E8ED]" />
-                <div className="h-3 w-16 animate-pulse rounded bg-[#E8E8ED]" />
-                <div className="h-3 w-16 animate-pulse rounded bg-[#E8E8ED]" />
-              </div>
-              <div className="h-3 w-full animate-pulse rounded bg-[#E8E8ED]" />
-              <div className="h-10 w-full animate-pulse rounded-xl bg-[#E8E8ED]" />
-            </div>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : workshops.length === 0 ? (

@@ -91,29 +91,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="space-y-5">
-        <div className="space-y-1">
-          <div className="h-7 w-20 animate-pulse rounded-lg bg-[#E8E8ED]" />
-          <div className="h-4 w-40 animate-pulse rounded bg-[#E8E8ED]" />
-        </div>
-        <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-          <div className="h-12 w-12 animate-pulse rounded-full bg-[#E8E8ED]" />
-          <div className="space-y-1.5">
-            <div className="h-4 w-28 animate-pulse rounded-lg bg-[#E8E8ED]" />
-            <div className="h-3 w-40 animate-pulse rounded bg-[#E8E8ED]" />
-          </div>
-        </div>
-        <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm space-y-4">
-          <div className="space-y-1">
-            <div className="h-3 w-16 animate-pulse rounded bg-[#E8E8ED]" />
-            <div className="h-10 w-full animate-pulse rounded-xl bg-[#E8E8ED]" />
-          </div>
-          <div className="space-y-1">
-            <div className="h-3 w-16 animate-pulse rounded bg-[#E8E8ED]" />
-            <div className="h-10 w-full animate-pulse rounded-xl bg-[#E8E8ED]" />
-          </div>
-          <div className="h-10 w-full animate-pulse rounded-xl bg-[#E8E8ED]" />
-        </div>
+      <div className="space-y-4">
+        <div className="h-8 w-32 animate-pulse rounded bg-[#E8E8ED]" />
+        <div className="h-64 animate-pulse rounded-2xl bg-[#E8E8ED]" />
       </div>
     );
   }

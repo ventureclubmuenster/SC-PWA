@@ -71,18 +71,8 @@ export default function InformationPage() {
 
       {loading && view !== 'lageplan' ? (
         <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-              <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-[#E8E8ED]" />
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-32 animate-pulse rounded-lg bg-[#E8E8ED]" />
-                  <div className="h-4 w-12 animate-pulse rounded-full bg-[#E8E8ED]" />
-                </div>
-                <div className="h-3 w-20 animate-pulse rounded bg-[#E8E8ED]" />
-                <div className="h-3 w-4/5 animate-pulse rounded bg-[#E8E8ED]" />
-              </div>
-            </div>
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-20 animate-pulse rounded-2xl bg-[#E8E8ED]" />
           ))}
         </div>
       ) : view === 'partners' ? (
