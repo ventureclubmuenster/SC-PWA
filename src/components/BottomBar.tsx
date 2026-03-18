@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Calendar, Info, Wrench, User, Users, Ticket } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser } from '@/lib/demo';
 import type { UserRole } from '@/types';
@@ -67,14 +68,27 @@ export default function BottomBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-1 px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors ${
-                isActive
-                  ? 'text-[#FF754B]'
-                  : 'text-[#86868B] hover:text-[#1D1D1F]'
-              }`}
+              className="relative flex flex-col items-center gap-1 px-3 py-1.5 text-[11px] font-medium tracking-wide"
             >
-              <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 1.5} />
-              <span>{tab.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="bottombar-active"
+                  className="absolute inset-0 rounded-xl bg-[#FF754B]/10"
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
+              )}
+              <motion.div
+                animate={isActive ? { scale: 1, y: 0 } : { scale: 1, y: 0 }}
+                whileTap={{ scale: 0.85 }}
+              >
+                <Icon
+                  className={`h-5 w-5 transition-colors ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}
+                  strokeWidth={isActive ? 2.5 : 1.5}
+                />
+              </motion.div>
+              <span className={`relative z-10 transition-colors ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}>
+                {tab.label}
+              </span>
             </Link>
           );
         })}

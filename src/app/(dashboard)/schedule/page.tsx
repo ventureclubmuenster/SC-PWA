@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
+import { StaggerList, StaggerItem, TapCard, FadeIn } from '@/components/motion';
 import { MapPin, Mic2, Clock, ExternalLink, ChevronRight } from 'lucide-react';
 import type { ScheduleItem, Speaker } from '@/types';
 
@@ -94,20 +95,22 @@ export default function SchedulePage() {
       )}
 
       {loading ? null : finalItems.length === 0 ? (
-        <p className="text-center text-sm text-[#86868B] py-12">
-          No events found.
-        </p>
+        <FadeIn>
+          <p className="text-center text-sm text-[#86868B] py-12">
+            No events found.
+          </p>
+        </FadeIn>
       ) : (
         <div className="relative pl-6">
-          {/* Timeline spine — centered on the dot column */}
+          {/* Timeline spine */}
           <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[#E8E8ED]" />
 
-          <div className="space-y-0">
+          <StaggerList className="space-y-0">
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <div key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
-                  {/* Timeline node — positioned on the spine */}
+                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
+                  {/* Timeline node */}
                   <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
                     <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${
                       group.items.length === 1
@@ -118,30 +121,29 @@ export default function SchedulePage() {
 
                   {/* Cards */}
                   <div className="space-y-2">
-                    {/* Shared time label */}
                     <p className="text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
                       {group.time}
                       {group.items[0].end_time && group.items.length === 1 && ` – ${formatTime(group.items[0].end_time)}`}
                     </p>
 
                     {group.items.length === 1 ? (
-                      <div onClick={() => setSelected(group.items[0])} className="cursor-pointer">
+                      <TapCard onClick={() => setSelected(group.items[0])} className="cursor-pointer">
                         <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
-                      </div>
+                      </TapCard>
                     ) : (
                       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
                         {group.items.map((item) => (
-                          <div key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
+                          <TapCard key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
                             <EventCard item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
-                          </div>
+                          </TapCard>
                         ))}
                       </div>
                     )}
                   </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerList>
         </div>
       )}
 
@@ -149,15 +151,12 @@ export default function SchedulePage() {
       <DetailModal open={!!selected} onClose={() => setSelected(null)} tall>
         {selected && (
           <div className="space-y-6">
-            {/* Category badge */}
             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
               {selected.category.replace('-', ' ')}
             </span>
 
-            {/* Title */}
             <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
 
-            {/* Time & Location cards */}
             <div className="grid grid-cols-2 gap-3">
               <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
                 <div className="relative z-10 flex items-center gap-2 text-[#86868B]">
@@ -182,11 +181,10 @@ export default function SchedulePage() {
               </div>
             </div>
 
-            {/* Speaker — clickable */}
             {selected.speaker && (
-              <button
+              <TapCard
                 onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
-                className="w-full noise-panel rounded-xl p-4 border border-[#E8E8ED] text-left active:scale-[0.98] transition-transform"
+                className="w-full noise-panel rounded-xl p-4 border border-[#E8E8ED] text-left cursor-pointer"
               >
                 <div className="relative z-10 flex items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
@@ -202,10 +200,9 @@ export default function SchedulePage() {
                   </div>
                   <ChevronRight className="h-4 w-4 text-[#86868B] shrink-0" />
                 </div>
-              </button>
+              </TapCard>
             )}
 
-            {/* Description */}
             {selected.description && (
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#86868B] mb-2">About</h3>

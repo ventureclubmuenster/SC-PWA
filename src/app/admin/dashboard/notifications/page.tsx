@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Send, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, Bell } from 'lucide-react';
 
 interface NotificationLog {
@@ -423,14 +424,16 @@ export default function NotificationsPage() {
               </div>
             )}
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleSend}
               disabled={sending || !form.title || !form.body}
               className="relative z-10 noise-panel-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
             >
               <Send className="relative z-10 h-4 w-4" />
               <span className="relative z-10">{sending ? 'Sending...' : 'Send to All Users'}</span>
-            </button>
+            </motion.button>
           </div>
 
           {result && (

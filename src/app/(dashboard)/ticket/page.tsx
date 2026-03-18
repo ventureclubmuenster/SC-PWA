@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser } from '@/lib/demo';
 import PageHeader from '@/components/PageHeader';
+import { FadeIn } from '@/components/motion';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Profile } from '@/types';
 
@@ -56,6 +57,7 @@ export default function TicketPage() {
       <PageHeader title="Ticket" subtitle="Your event entry pass" />
 
       {/* Ticket Card */}
+      <FadeIn delay={0.1}>
       <div className="noise-panel rounded-2xl p-6 border border-[#E8E8ED] shadow-sm">
         <div className="relative z-10 flex flex-col items-center space-y-5">
           {/* QR Code */}
@@ -96,6 +98,7 @@ export default function TicketPage() {
           </div>
         </div>
       </div>
+      </FadeIn>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
+import { StaggerList, StaggerItem, TapButton, FadeIn } from '@/components/motion';
 import { Clock, MapPin, Users, Check, AlertCircle, FileText } from 'lucide-react';
 import type { ContentWorkshop, WorkshopBooking, Profile } from '@/types';
 
@@ -109,21 +110,23 @@ export default function WorkshopsPage() {
       )}
 
       {loading ? null : workshops.length === 0 ? (
-        <p className="text-center text-sm text-[#86868B] py-12">
-          No workshops available.
-        </p>
+        <FadeIn>
+          <p className="text-center text-sm text-[#86868B] py-12">
+            No workshops available.
+          </p>
+        </FadeIn>
       ) : (
-        <div className="space-y-3">
+        <StaggerList className="space-y-3">
           {workshops.map((ws) => {
             const booking = getBooking(ws.id);
             const booked = !!booking;
             const status = bookingStatusLabel(booking);
             return (
-              <div
-                key={ws.id}
-                onClick={() => { setSelected(ws); setCvError(null); }}
-                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
-              >
+              <StaggerItem key={ws.id}>
+                <div
+                  onClick={() => { setSelected(ws); setCvError(null); }}
+                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
+                >
                 <div className="relative z-10 space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-sm">{ws.title}</h3>
@@ -155,7 +158,7 @@ export default function WorkshopsPage() {
                   <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{ws.description}</p>
                 )}
 
-                <button
+                <TapButton
                   onClick={(e) => handleBook(e, ws.id)}
                   disabled={bookingInProgress === ws.id || (booked && booking?.status !== 'approved')}
                   className={`relative z-10 w-full rounded-xl py-2.5 text-xs font-semibold transition-all ${
@@ -175,11 +178,12 @@ export default function WorkshopsPage() {
                   ) : (
                     <span className="relative z-10">Book Workshop</span>
                   )}
-                </button>
-              </div>
+                </TapButton>
+                </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerList>
       )}
 
       {/* Detail Modal */}

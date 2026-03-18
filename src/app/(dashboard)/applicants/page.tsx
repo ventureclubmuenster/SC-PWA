@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
+import { StaggerList, StaggerItem, TapButton } from '@/components/motion';
 import { CheckCircle, XCircle, Clock, User, FileText, Wrench } from 'lucide-react';
 import type { Applicant } from '@/types';
 
@@ -161,7 +162,7 @@ export default function ApplicantsPage() {
           No applicants found.
         </p>
       ) : (
-        <div className="space-y-3">
+        <StaggerList className="space-y-3">
           {/* Direct applicants */}
           {showDirect && filteredDirect.map((applicant) => {
             const visitor = applicant.visitor as unknown as {
@@ -172,10 +173,10 @@ export default function ApplicantsPage() {
               cv_url: string | null;
             };
             return (
-              <div
-                key={applicant.id}
-                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
-              >
+              <StaggerItem key={applicant.id}>
+                <div
+                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                >
                 <div className="relative z-10 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED]">
@@ -212,23 +213,24 @@ export default function ApplicantsPage() {
 
                 {applicant.status === 'pending' && (
                   <div className="relative z-10 flex gap-2">
-                    <button
+                    <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
                     >
                       Accept
-                    </button>
-                    <button
+                    </TapButton>
+                    <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
                     >
                       Reject
-                    </button>
+                    </TapButton>
                   </div>
                 )}
               </div>
+              </StaggerItem>
             );
           })}
 
@@ -242,10 +244,10 @@ export default function ApplicantsPage() {
               cv_url: string | null;
             };
             return (
-              <div
-                key={`ws-${applicant.id}`}
-                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
-              >
+              <StaggerItem key={`ws-${applicant.id}`}>
+                <div
+                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                >
                 <div className="relative z-10 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 border border-blue-200">
@@ -287,26 +289,27 @@ export default function ApplicantsPage() {
 
                 {applicant.status === 'pending' && (
                   <div className="relative z-10 flex gap-2">
-                    <button
+                    <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
                     >
                       Accept
-                    </button>
-                    <button
+                    </TapButton>
+                    <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
                     >
                       Reject
-                    </button>
+                    </TapButton>
                   </div>
                 )}
               </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerList>
       )}
     </div>
   );

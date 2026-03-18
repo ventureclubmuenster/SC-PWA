@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Pencil, Plus, Upload } from 'lucide-react';
 
 interface Workshop {
@@ -121,12 +122,20 @@ export default function WorkshopsCmsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Workshops</h1>
-        <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg noise-panel-dark px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg noise-panel-dark px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
           <Plus className="h-4 w-4" /> Add
-        </button>
+        </motion.button>
       </div>
 
+      <AnimatePresence>
       {showForm && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          style={{ overflow: 'hidden' }}
+        >
         <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-[#E8E8ED]">
           <input required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <input required value={form.host} onChange={(e) => setForm((f) => ({ ...f, host: e.target.value }))} placeholder="Host / Company *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
@@ -175,15 +184,23 @@ export default function WorkshopsCmsPage() {
           </div>
 
           <div className="flex gap-2">
-            <button type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</button>
+            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</motion.button>
           </div>
         </form>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       <div className="space-y-2">
-        {items.map((w) => (
-          <div key={w.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]">
+        {items.map((w, i) => (
+          <motion.div
+            key={w.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]"
+          >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{w.title}</p>
@@ -192,9 +209,9 @@ export default function WorkshopsCmsPage() {
               </div>
               <p className="text-xs text-[#86868B]">{w.host} · {fmt(w.time)}{w.end_time ? ` – ${fmt(w.end_time)}` : ''} · {w.capacity} spots</p>
             </div>
-            <button onClick={() => handleEdit(w)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>
-            <button onClick={() => handleDelete(w.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></button>
-          </div>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleEdit(w)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></motion.button>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleDelete(w.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></motion.button>
+          </motion.div>
         ))}
         {items.length === 0 && <p className="text-sm text-[#86868B] text-center py-8">No workshops yet</p>}
       </div>

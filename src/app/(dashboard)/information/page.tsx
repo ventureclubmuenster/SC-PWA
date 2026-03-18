@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
+import { StaggerList, StaggerItem, TapCard, FadeIn } from '@/components/motion';
 import { Building2, Mic2, ExternalLink, Map } from 'lucide-react';
 import type { Partner, Speaker } from '@/types';
 
@@ -70,18 +71,19 @@ export default function InformationPage() {
       )}
 
       {loading && view !== 'lageplan' ? null : view === 'partners' ? (
-        filteredPartners.length === 0 ? (
+        <>
+        {filteredPartners.length === 0 ? (
           <p className="text-center text-sm text-[#86868B] py-12">
             No partners found.
           </p>
         ) : (
-          <div className="space-y-3">
+          <StaggerList className="space-y-3">
             {filteredPartners.map((partner) => (
-              <div
-                key={partner.id}
-                onClick={() => setSelectedPartner(partner)}
-                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
-              >
+              <StaggerItem key={partner.id}>
+                <TapCard
+                  onClick={() => setSelectedPartner(partner)}
+                  className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer"
+                >
                 <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
                   {partner.logo_url ? (
                     <img
@@ -111,10 +113,12 @@ export default function InformationPage() {
                     <p className="text-xs text-[#86868B] line-clamp-2">{partner.description}</p>
                   )}
                 </div>
-              </div>
+              </TapCard>
+              </StaggerItem>
             ))}
-          </div>
-        )
+          </StaggerList>
+        )}
+        </>
       ) : view === 'lageplan' ? (
         <div className="noise-panel rounded-2xl border border-[#E8E8ED] shadow-sm overflow-hidden">
           <div className="relative z-10 flex flex-col items-center justify-center gap-4 py-16 text-[#86868B]">
@@ -130,33 +134,36 @@ export default function InformationPage() {
           No speakers found.
         </p>
       ) : (
-        <div className="space-y-3">
+        <>
+        <StaggerList className="space-y-3">
           {speakers.map((speaker) => (
-            <div
-              key={speaker.id}
-              onClick={() => setSelectedSpeaker(speaker)}
-              className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
-            >
-              <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
-                {speaker.photo_url ? (
-                  <img
-                    src={speaker.photo_url}
-                    alt={speaker.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <Mic2 className="h-5 w-5 text-[#86868B]" />
-                )}
-              </div>
-              <div className="relative z-10 flex-1 space-y-1">
-                <h3 className="text-sm font-semibold">{speaker.name}</h3>
-                {speaker.bio && (
-                  <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
-                )}
-              </div>
-            </div>
+            <StaggerItem key={speaker.id}>
+              <TapCard
+                onClick={() => setSelectedSpeaker(speaker)}
+                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer"
+              >
+                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+                  {speaker.photo_url ? (
+                    <img
+                      src={speaker.photo_url}
+                      alt={speaker.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Mic2 className="h-5 w-5 text-[#86868B]" />
+                  )}
+                </div>
+                <div className="relative z-10 flex-1 space-y-1">
+                  <h3 className="text-sm font-semibold">{speaker.name}</h3>
+                  {speaker.bio && (
+                    <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
+                  )}
+                </div>
+              </TapCard>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
+        </>
       )}
 
       {/* Partner Detail Modal */}

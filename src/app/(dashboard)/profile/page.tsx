@@ -6,6 +6,7 @@ import { useDemoUser, isDemoMode } from '@/lib/demo';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
 import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2 } from 'lucide-react';
+import { FadeIn, TapButton } from '@/components/motion';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
 
@@ -138,18 +139,21 @@ export default function ProfilePage() {
       <PageHeader title="Profile" subtitle="Manage your account" />
 
       {/* Avatar & Email */}
-      <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-        <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full noise-panel-dark">
-          <User className="relative z-10 h-6 w-6 text-white" />
-        </div>
+      <FadeIn delay={0}>
+        <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
+          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full noise-panel-dark">
+            <User className="relative z-10 h-6 w-6 text-white" />
+          </div>
         <div className="relative z-10">
           <p className="font-semibold text-sm text-[#1D1D1F]">{form.full_name || 'No name set'}</p>
           <p className="text-xs text-[#86868B]">{profile?.email}</p>
           <p className="text-[10px] text-[#86868B] mt-0.5 capitalize font-medium">{profile?.role}</p>
         </div>
       </div>
+      </FadeIn>
 
       {/* Edit Form */}
+      <FadeIn delay={0.1}>
       <div className="space-y-4 noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
         <div className="relative z-10 space-y-1">
           <label className="text-xs font-medium text-[#86868B]">Full Name</label>
@@ -187,17 +191,19 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <button
+        <TapButton
           onClick={handleSave}
           disabled={saving}
           className="relative z-10 noise-panel-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
         >
           <Save className="relative z-10 h-4 w-4" />
           <span className="relative z-10">{saving ? 'Saving...' : 'Save Profile'}</span>
-        </button>
+        </TapButton>
       </div>
+      </FadeIn>
 
       {/* CV Upload */}
+      <FadeIn delay={0.2}>
       <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm space-y-3">
         <div className="relative z-10">
           <p className="text-sm font-semibold text-[#1D1D1F]">CV / Resume</p>
@@ -239,11 +245,13 @@ export default function ProfilePage() {
           </label>
         )}
       </div>
+      </FadeIn>
 
       {/* Push Notifications */}
+      <FadeIn delay={0.3}>
       <PushNotificationManager>
         {({ isSubscribed, isLoading, subscribe }) => (
-          <button
+          <TapButton
             onClick={subscribe}
             disabled={isSubscribed || isLoading}
             className="w-full noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm text-left transition-all disabled:opacity-100"
@@ -261,18 +269,21 @@ export default function ProfilePage() {
                 <BellOff size={20} className="text-[#86868B]" />
               )}
             </div>
-          </button>
+          </TapButton>
         )}
       </PushNotificationManager>
+      </FadeIn>
 
       {/* Logout */}
-      <button
+      <FadeIn delay={0.4}>
+      <TapButton
         onClick={handleLogout}
         className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[#E8E8ED] hover:bg-red-50 transition-all shadow-sm"
       >
         <LogOut className="h-4 w-4" />
         Sign Out
-      </button>
+      </TapButton>
+      </FadeIn>
     </div>
   );
 }
