@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Trash2, Pencil, Plus } from 'lucide-react';
+import TimePicker from '@/components/cms/TimePicker';
 
 interface Speaker {
   id: string;
@@ -107,14 +108,17 @@ export default function ScheduleCmsPage() {
         <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-[#E8E8ED]">
           <input required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Title *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-[#86868B] mb-1 block">Start Time *</label>
-              <input required type="time" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs text-[#86868B] mb-1 block">End Time</label>
-              <input type="time" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
-            </div>
+            <TimePicker
+              label="Start Time *"
+              required
+              value={form.time}
+              onChange={(v) => setForm((f) => ({ ...f, time: v }))}
+            />
+            <TimePicker
+              label="End Time"
+              value={form.end_time}
+              onChange={(v) => setForm((f) => ({ ...f, end_time: v }))}
+            />
           </div>
           <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as ScheduleItem['category'] }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
