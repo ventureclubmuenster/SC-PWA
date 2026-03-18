@@ -67,13 +67,7 @@ export default function WorkshopsPage() {
     <div className="space-y-5">
       <PageHeader title="Workshops" subtitle="Book your hands-on sessions" />
 
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-          ))}
-        </div>
-      ) : workshops.length === 0 ? (
+      {loading ? null : workshops.length === 0 ? (
         <p className="text-center text-sm text-[#86868B] py-12">
           No workshops available.
         </p>

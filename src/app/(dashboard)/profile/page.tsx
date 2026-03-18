@@ -90,12 +90,7 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-32 animate-pulse rounded bg-[#E8E8ED]" />
-        <div className="h-64 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-      </div>
-    );
+    return null;
   }
 
   return (

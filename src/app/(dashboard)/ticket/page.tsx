@@ -35,12 +35,7 @@ export default function TicketPage() {
   }, [demoUser]);
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-16 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-        <div className="h-80 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-      </div>
-    );
+    return null;
   }
 
   return (

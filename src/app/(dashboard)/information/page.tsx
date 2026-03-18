@@ -69,13 +69,7 @@ export default function InformationPage() {
         />
       )}
 
-      {loading && view !== 'lageplan' ? (
-        <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-          ))}
-        </div>
-      ) : view === 'partners' ? (
+      {loading && view !== 'lageplan' ? null : view === 'partners' ? (
         filteredPartners.length === 0 ? (
           <p className="text-center text-sm text-[#86868B] py-12">
             No partners found.

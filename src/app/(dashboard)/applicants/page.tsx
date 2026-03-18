@@ -81,13 +81,7 @@ export default function ApplicantsPage() {
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
 
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
+      {loading ? null : filtered.length === 0 ? (
         <p className="text-center text-sm text-[#86868B] py-12">
           No applicants found.
         </p>

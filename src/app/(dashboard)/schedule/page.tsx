@@ -93,13 +93,7 @@ export default function SchedulePage() {
         />
       )}
 
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-          ))}
-        </div>
-      ) : finalItems.length === 0 ? (
+      {loading ? null : finalItems.length === 0 ? (
         <p className="text-center text-sm text-[#86868B] py-12">
           No events found.
         </p>
