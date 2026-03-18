@@ -3,14 +3,13 @@ import webpush from 'web-push';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyCmsSession } from '@/lib/cms/auth';
 
-webpush.setVapidDetails(
-  `mailto:admin@${new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').hostname}`,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
 // Send push notification to all subscribers (CMS-protected)
 export async function POST(request: NextRequest) {
+  webpush.setVapidDetails(
+    `mailto:admin@${new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').hostname}`,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  );
   const isAuthed = await verifyCmsSession();
   if (!isAuthed) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,8 +50,16 @@ export async function POST(request: NextRequest) {
     );
 
     // Remove expired/invalid subscriptions
+    const errors: string[] = [];
     const expiredEndpoints = subscriptions
-      .filter((_, i) => results[i].status === 'rejected')
+      .filter((_, i) => {
+        const r = results[i];
+        if (r.status === 'rejected') {
+          errors.push(String(r.reason));
+          return true;
+        }
+        return false;
+      })
       .map((sub) => sub.endpoint);
 
     if (expiredEndpoints.length > 0) {
@@ -65,7 +72,7 @@ export async function POST(request: NextRequest) {
     const sent = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.filter((r) => r.status === 'rejected').length;
 
-    return NextResponse.json({ sent, failed });
+    return NextResponse.json({ sent, failed, errors });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
