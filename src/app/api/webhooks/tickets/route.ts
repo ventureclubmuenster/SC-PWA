@@ -57,11 +57,16 @@ function timingSafeEqual(a: string, b: string): boolean {
 export async function POST(request: NextRequest) {
   const secret = process.env.TICKET_WEBHOOK_HMAC_SECRET;
   if (!secret) {
-    console.error('[webhook] TICKET_WEBHOOK_HMAC_SECRET not configured');
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
   }
 
   const rawBody = await request.text();
+
+  // Collect ALL headers for debugging
+  const allHeaders: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    allHeaders[key] = value;
+  });
 
   // Look for HMAC signature in common header locations
   const signature =
@@ -73,7 +78,6 @@ export async function POST(request: NextRequest) {
 
   // Strip optional "sha256=" prefix
   const providedSig = signature.replace(/^sha256=/, '').toLowerCase();
-
   const expectedSig = await computeHmac(secret, rawBody);
   const verified = providedSig.length > 0 && timingSafeEqual(providedSig, expectedSig);
 
@@ -85,7 +89,7 @@ export async function POST(request: NextRequest) {
     body = rawBody;
   }
 
-  // Capture relevant headers
+  // Capture relevant headers for storage
   const headers: Record<string, string> = {};
   for (const key of ['content-type', 'x-signature', 'x-hub-signature-256', 'x-webhook-signature', 'x-hmac-signature', 'user-agent', 'x-request-id']) {
     const val = request.headers.get(key);
@@ -104,11 +108,21 @@ export async function POST(request: NextRequest) {
   webhookEvents.unshift(event);
   if (webhookEvents.length > MAX_EVENTS) webhookEvents.length = MAX_EVENTS;
 
-  console.log(`[webhook] Ticket event received | verified=${verified} | id=${event.id}`);
-  console.log(`[webhook] Body:`, JSON.stringify(body, null, 2));
-
+  // TEMPORARY DEBUG: return all headers + signature comparison in the response
+  // so we can diagnose the issue on the deployed server.
+  // TODO: Remove this debug block once HMAC is working.
   if (!verified) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    return NextResponse.json({
+      error: 'Invalid signature',
+      _debug: {
+        allHeaders,
+        signatureHeaderFound: signature || '(none)',
+        providedSig: providedSig || '(empty)',
+        expectedSig,
+        rawBodyLength: rawBody.length,
+        rawBodyFirst200: rawBody.slice(0, 200),
+      },
+    }, { status: 401 });
   }
 
   return NextResponse.json({ ok: true, id: event.id });
