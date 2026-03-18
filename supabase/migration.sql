@@ -62,5 +62,32 @@ CREATE TABLE push_subscriptions (
 
 ALTER TABLE push_subscriptions DISABLE ROW LEVEL SECURITY;
 
+-- Notification send logs
+CREATE TABLE notification_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  url TEXT,
+  icon TEXT,
+  badge TEXT,
+  image TEXT,
+  tag TEXT,
+  renotify BOOLEAN DEFAULT FALSE,
+  require_interaction BOOLEAN DEFAULT FALSE,
+  silent BOOLEAN DEFAULT FALSE,
+  vibrate TEXT,
+  dir TEXT CHECK (dir IN ('auto', 'ltr', 'rtl')),
+  lang TEXT,
+  actions JSONB,
+  timestamp TIMESTAMPTZ,
+  sent_count INTEGER NOT NULL DEFAULT 0,
+  failed_count INTEGER NOT NULL DEFAULT 0,
+  total_subscribers INTEGER NOT NULL DEFAULT 0,
+  errors JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE notification_logs DISABLE ROW LEVEL SECURITY;
+
 -- Storage: Create a public bucket named "cms-images" in Supabase dashboard
 -- Storage > New bucket > Name: "cms-images" > Public: ON

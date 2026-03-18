@@ -124,8 +124,18 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Startup Contacts';
   const options = {
     body: data.body || '',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: data.badge || '/icons/icon-192x192.png',
+    image: data.image || undefined,
+    tag: data.tag || undefined,
+    renotify: data.renotify || false,
+    requireInteraction: data.requireInteraction || false,
+    silent: data.silent || false,
+    vibrate: data.vibrate || undefined,
+    dir: data.dir || 'auto',
+    lang: data.lang || undefined,
+    actions: data.actions || undefined,
+    timestamp: data.timestamp || undefined,
     data: { url: data.url || '/' },
   };
   event.waitUntil(self.registration.showNotification(title, options));
