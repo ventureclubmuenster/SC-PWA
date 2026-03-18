@@ -1,44 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useWorkshops } from '@/components/DataProvider';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
 import { StaggerList, StaggerItem, TapButton, FadeIn } from '@/components/motion';
 import { Clock, MapPin, Users, Check, AlertCircle, FileText } from 'lucide-react';
-import type { ContentWorkshop, WorkshopBooking, Profile } from '@/types';
+import type { ContentWorkshop, WorkshopBooking } from '@/types';
 
 export default function WorkshopsPage() {
-  const [workshops, setWorkshops] = useState<ContentWorkshop[]>([]);
-  const [bookings, setBookings] = useState<WorkshopBooking[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { workshops, bookings: cachedBookings, profile, loading, refreshBookings } = useWorkshops();
+  const [localBookings, setLocalBookings] = useState<WorkshopBooking[]>([]);
   const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
   const [selected, setSelected] = useState<ContentWorkshop | null>(null);
   const [cvError, setCvError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      const [{ data: workshopData }, { data: bookingData }] = await Promise.all([
-        supabase.from('workshops').select('*').order('time'),
-        supabase.from('workshop_bookings').select('*'),
-      ]);
-      if (user) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setProfile(profileData);
-      }
-      setWorkshops(workshopData || []);
-      setBookings(bookingData || []);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  // Merge cached bookings with optimistic local updates
+  const bookings = localBookings.length > 0 ? localBookings : cachedBookings;
 
   const getBooking = (workshopId: string) =>
     bookings.find((b) => b.workshop_id === workshopId);
@@ -68,7 +47,7 @@ export default function WorkshopsPage() {
         .delete()
         .eq('user_id', user.id)
         .eq('workshop_id', workshopId);
-      setBookings((prev) => prev.filter((b) => b.workshop_id !== workshopId));
+      setLocalBookings(bookings.filter((b) => b.workshop_id !== workshopId));
     } else {
       const status = workshop.has_waiting_list ? 'pending' : 'approved';
       const { data } = await supabase
@@ -77,9 +56,11 @@ export default function WorkshopsPage() {
         .select()
         .single();
       if (data) {
-        setBookings((prev) => [...prev, data]);
+        setLocalBookings([...bookings, data]);
       }
     }
+    // Sync cache in background
+    refreshBookings();
     setBookingInProgress(null);
   };
 

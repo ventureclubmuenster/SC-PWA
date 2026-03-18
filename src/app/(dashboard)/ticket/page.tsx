@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useProfile } from '@/components/DataProvider';
 import { useDemoUser } from '@/lib/demo';
 import PageHeader from '@/components/PageHeader';
 import { FadeIn } from '@/components/motion';
 import { QRCodeSVG } from 'qrcode.react';
-import type { Profile } from '@/types';
 
 async function hashId(id: string): Promise<string> {
   const data = new TextEncoder().encode(id);
@@ -17,36 +16,16 @@ async function hashId(id: string): Promise<string> {
 }
 
 export default function TicketPage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, loading } = useProfile();
   const [qrValue, setQrValue] = useState<string | null>(null);
   const demoUser = useDemoUser();
 
   useEffect(() => {
-    const load = async () => {
-      if (demoUser) {
-        setProfile(demoUser);
-        setQrValue(await hashId(demoUser.id));
-        setLoading(false);
-        return;
-      }
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        if (data) {
-          setProfile(data);
-          setQrValue(await hashId(data.id));
-        }
-      }
-      setLoading(false);
-    };
-    load();
-  }, [demoUser]);
+    const p = demoUser || profile;
+    if (p) {
+      hashId(p.id).then(setQrValue);
+    }
+  }, [demoUser, profile]);
 
   if (loading) {
     return null;

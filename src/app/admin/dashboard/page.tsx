@@ -100,6 +100,31 @@ export default function AdminDashboardPage() {
       .then(setAnalytics);
   }, []);
 
+  // Poll for webhook events and log to console
+  useEffect(() => {
+    const seen = new Set<string>();
+    const poll = () => {
+      fetch('/api/admin/webhooks')
+        .then((r) => r.ok ? r.json() : [])
+        .then((events: { id: string; receivedAt: string; body: unknown; verified: boolean; headers: Record<string, string> }[]) => {
+          for (const evt of events) {
+            if (seen.has(evt.id)) continue;
+            seen.add(evt.id);
+            console.log(
+              `%c[Ticket Webhook]%c ${evt.receivedAt} | verified=${evt.verified}`,
+              'color: #FF754B; font-weight: bold',
+              'color: inherit',
+            );
+            console.log(evt.body);
+          }
+        })
+        .catch(() => {});
+    };
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (!analytics) {
     return (
       <div className="space-y-6">

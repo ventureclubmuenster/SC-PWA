@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser, isDemoMode } from '@/lib/demo';
+import { useProfile as useCachedProfile } from '@/components/DataProvider';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
 import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2 } from 'lucide-react';
@@ -11,6 +12,7 @@ import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
 
 export default function ProfilePage() {
+  const { profile: cachedProfile, loading: cacheLoading, refreshProfile } = useCachedProfile();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,39 +24,21 @@ export default function ProfilePage() {
   });
   const demoUser = useDemoUser();
 
+  // Hydrate from cache
   useEffect(() => {
-    const load = async () => {
-      if (demoUser) {
-        setProfile(demoUser);
-        setForm({
-          full_name: demoUser.full_name || '',
-          university: demoUser.university || '',
-          afterparty_rsvp: demoUser.afterparty_rsvp || false,
-        });
-        setLoading(false);
-        return;
-      }
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        if (data) {
-          setProfile(data);
-          setForm({
-            full_name: data.full_name || '',
-            university: data.university || '',
-            afterparty_rsvp: data.afterparty_rsvp || false,
-          });
-        }
-      }
+    const p = demoUser || cachedProfile;
+    if (p) {
+      setProfile(p);
+      setForm({
+        full_name: p.full_name || '',
+        university: p.university || '',
+        afterparty_rsvp: p.afterparty_rsvp || false,
+      });
       setLoading(false);
-    };
-    load();
-  }, [demoUser]);
+    } else if (!cacheLoading) {
+      setLoading(false);
+    }
+  }, [demoUser, cachedProfile, cacheLoading]);
 
   const handleSave = async () => {
     if (!profile) return;
@@ -77,6 +61,7 @@ export default function ProfilePage() {
         updated_at: new Date().toISOString(),
       })
       .eq('id', profile.id);
+    refreshProfile();
     setSaving(false);
   };
 
@@ -102,6 +87,7 @@ export default function ProfilePage() {
         .update({ cv_url: urlData.publicUrl, updated_at: new Date().toISOString() })
         .eq('id', profile.id);
       setProfile((p) => p ? { ...p, cv_url: urlData.publicUrl } : p);
+      refreshProfile();
     }
     setUploadingCv(false);
     e.target.value = '';
@@ -116,6 +102,7 @@ export default function ProfilePage() {
       .update({ cv_url: null, updated_at: new Date().toISOString() })
       .eq('id', profile.id);
     setProfile((p) => p ? { ...p, cv_url: null } : p);
+    refreshProfile();
     setUploadingCv(false);
   };
 

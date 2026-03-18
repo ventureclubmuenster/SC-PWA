@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
+import { useSchedule } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
@@ -18,23 +18,10 @@ const categoryFilters = [
 ];
 
 export default function SchedulePage() {
-  const [items, setItems] = useState<ScheduleItem[]>([]);
+  const { items, loading } = useSchedule();
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<ScheduleItem | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('schedule_items')
-      .select('*, speaker:speaker_id(id, name, photo_url, linkedin, bio)')
-      .order('time')
-      .then(({ data }) => {
-        setItems(data || []);
-        setLoading(false);
-      });
-  }, []);
 
   const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
 

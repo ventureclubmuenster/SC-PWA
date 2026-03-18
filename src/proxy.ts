@@ -33,6 +33,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Webhook endpoints bypass auth (verified via HMAC)
+  if (pathname.startsWith('/api/webhooks')) {
+    return NextResponse.next({ request });
+  }
+
   return await updateSession(request);
 }
 

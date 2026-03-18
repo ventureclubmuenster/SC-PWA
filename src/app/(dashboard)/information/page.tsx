@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
+import { usePartners, useSpeakers } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
 import DetailModal from '@/components/DetailModal';
@@ -24,26 +24,12 @@ const categoryFilters = [
 
 export default function InformationPage() {
   const [view, setView] = useState('partners');
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const { partners, loading: partnersLoading } = usePartners();
+  const { speakers, loading: speakersLoading } = useSpeakers();
+  const loading = partnersLoading || speakersLoading;
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    Promise.all([
-      supabase.from('partners').select('*').order('category').order('name'),
-      supabase.from('speakers').select('*').order('name'),
-    ])
-      .then(([{ data: p }, { data: s }]) => {
-        setPartners(p || []);
-        setSpeakers(s || []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   const filteredPartners =
     categoryFilter === 'all'

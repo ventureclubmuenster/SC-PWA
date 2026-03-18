@@ -1,11 +1,26 @@
-const CACHE_VERSION = 4;
+const CACHE_VERSION = 5;
 const STATIC_CACHE = `sc-static-v${CACHE_VERSION}`;
 const PAGES_CACHE = `sc-pages-v${CACHE_VERSION}`;
 const DATA_CACHE = `sc-data-v${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, PAGES_CACHE, DATA_CACHE];
 
+// Pages to prefetch on install for instant navigation
+const PREFETCH_PAGES = [
+  '/schedule',
+  '/information',
+  '/workshops',
+  '/ticket',
+  '/profile',
+];
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(STATIC_CACHE));
+  event.waitUntil(
+    caches.open(PAGES_CACHE).then((cache) =>
+      cache.addAll(PREFETCH_PAGES).catch(() => {
+        // Prefetch is best-effort; don't block install on failure
+      })
+    )
+  );
   self.skipWaiting();
 });
 
@@ -111,6 +126,11 @@ self.addEventListener('fetch', (event) => {
 
   // External fonts (Google Fonts) — cache-first
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+    return handleStaticAsset(event);
+  }
+
+  // Supabase Storage images (logos, photos) — cache-first (immutable URLs)
+  if (url.hostname.includes('supabase.co') && url.pathname.includes('/storage/')) {
     return handleStaticAsset(event);
   }
 

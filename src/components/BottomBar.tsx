@@ -3,11 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Calendar, Info, Wrench, User, Users, Ticket } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
-import { useDemoUser } from '@/lib/demo';
-import type { UserRole } from '@/types';
+import { useRole } from '@/components/DataProvider';
 
 const visitorTabs = [
   { href: '/schedule', label: 'Schedule', icon: Calendar },
@@ -22,39 +19,9 @@ const exhibitorTabs = [
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
-let cachedRole: UserRole | null = null;
-
 export default function BottomBar() {
   const pathname = usePathname();
-  const [role, setRole] = useState<UserRole>(cachedRole || 'visitor');
-  const demoUser = useDemoUser();
-  const fetched = useRef(false);
-
-  useEffect(() => {
-    if (demoUser) {
-      setRole(demoUser.role);
-      cachedRole = demoUser.role;
-      return;
-    }
-    if (cachedRole || fetched.current) return;
-    fetched.current = true;
-    const fetchRole = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        if (profile?.role) {
-          cachedRole = profile.role as UserRole;
-          setRole(cachedRole);
-        }
-      }
-    };
-    fetchRole();
-  }, [demoUser]);
+  const role = useRole();
 
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 
