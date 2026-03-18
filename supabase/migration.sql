@@ -30,6 +30,9 @@ CREATE TABLE workshops (
   location TEXT,
   host TEXT NOT NULL,
   host_logo_url TEXT,
+  has_waiting_list BOOLEAN DEFAULT FALSE,
+  cv_required BOOLEAN DEFAULT FALSE,
+  exhibitor_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -42,6 +45,7 @@ CREATE TABLE schedule_items (
   category TEXT NOT NULL CHECK (category IN ('workshop', 'main-stage', 'panel', 'networking')),
   description TEXT,
   speaker_id UUID REFERENCES speakers(id) ON DELETE SET NULL,
+  workshop_id UUID REFERENCES workshops(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -91,3 +95,14 @@ ALTER TABLE notification_logs DISABLE ROW LEVEL SECURITY;
 
 -- Storage: Create a public bucket named "cms-images" in Supabase dashboard
 -- Storage > New bucket > Name: "cms-images" > Public: ON
+
+-- Storage: Create a private bucket named "cvs" in Supabase dashboard
+-- Storage > New bucket > Name: "cvs" > Public: OFF
+-- Add RLS policy: users can upload to their own folder (uid/) and read their own files
+
+-- Add new columns to existing tables (run if tables already exist):
+-- ALTER TABLE workshops ADD COLUMN has_waiting_list BOOLEAN DEFAULT FALSE;
+-- ALTER TABLE workshops ADD COLUMN cv_required BOOLEAN DEFAULT FALSE;
+-- ALTER TABLE workshops ADD COLUMN exhibitor_id UUID REFERENCES profiles(id) ON DELETE SET NULL;
+-- ALTER TABLE schedule_items ADD COLUMN workshop_id UUID REFERENCES workshops(id) ON DELETE CASCADE;
+-- ALTER TABLE workshop_bookings ADD COLUMN status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'accepted', 'rejected'));

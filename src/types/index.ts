@@ -18,6 +18,7 @@ export interface WorkshopBooking {
   id: string;
   user_id: string;
   workshop_id: string;
+  status: 'pending' | 'approved' | 'accepted' | 'rejected';
   created_at: string;
 }
 
@@ -68,6 +69,9 @@ export interface ContentWorkshop {
   location: string | null;
   host: string;
   host_logo_url: string | null;
+  has_waiting_list: boolean;
+  cv_required: boolean;
+  exhibitor_id: string | null;
   created_at: string;
 }
 
@@ -81,5 +85,6 @@ export interface ScheduleItem {
   description: string | null;
   speaker_id: string | null;
   speaker?: Speaker | null;
+  workshop_id: string | null;
   created_at: string;
 }

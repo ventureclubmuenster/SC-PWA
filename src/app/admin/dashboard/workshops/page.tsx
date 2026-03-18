@@ -13,12 +13,23 @@ interface Workshop {
   location: string | null;
   host: string;
   host_logo_url: string | null;
+  has_waiting_list: boolean;
+  cv_required: boolean;
+  exhibitor_id: string | null;
 }
 
-const empty = { title: '', description: '', capacity: 30, time: '', end_time: '', location: '', host: '', host_logo_url: '' };
+interface Exhibitor {
+  id: string;
+  full_name: string | null;
+  email: string;
+  company: string | null;
+}
+
+const empty = { title: '', description: '', capacity: 30, time: '', end_time: '', location: '', host: '', host_logo_url: '', has_waiting_list: false, cv_required: false, exhibitor_id: '' };
 
 export default function WorkshopsCmsPage() {
   const [items, setItems] = useState<Workshop[]>([]);
+  const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [form, setForm] = useState(empty);
   const [editId, setEditId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -29,7 +40,12 @@ export default function WorkshopsCmsPage() {
       .then((r) => r.json())
       .then((d) => Array.isArray(d) && setItems(d));
 
-  useEffect(() => { load(); }, []);
+  const loadExhibitors = () =>
+    fetch('/api/admin/exhibitors')
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d) && setExhibitors(d));
+
+  useEffect(() => { load(); loadExhibitors(); }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,6 +76,9 @@ export default function WorkshopsCmsPage() {
       location: form.location || null,
       host: form.host,
       host_logo_url: form.host_logo_url || null,
+      has_waiting_list: form.has_waiting_list,
+      cv_required: form.cv_required,
+      exhibitor_id: form.exhibitor_id || null,
     };
     if (editId) {
       await fetch(`/api/admin/workshops/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -82,6 +101,9 @@ export default function WorkshopsCmsPage() {
       location: w.location || '',
       host: w.host,
       host_logo_url: w.host_logo_url || '',
+      has_waiting_list: w.has_waiting_list,
+      cv_required: w.cv_required,
+      exhibitor_id: w.exhibitor_id || '',
     });
     setEditId(w.id);
     setShowForm(true);
@@ -130,6 +152,28 @@ export default function WorkshopsCmsPage() {
             <input required type="number" value={form.capacity} onChange={(e) => setForm((f) => ({ ...f, capacity: parseInt(e.target.value) || 0 }))} placeholder="Capacity *" className="rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           </div>
           <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+
+          {/* Exhibitor assignment */}
+          <div>
+            <label className="text-xs text-[#86868B] mb-1 block">Linked Exhibitor</label>
+            <select value={form.exhibitor_id} onChange={(e) => setForm((f) => ({ ...f, exhibitor_id: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
+              <option value="">No exhibitor</option>
+              {exhibitors.map((ex) => <option key={ex.id} value={ex.id}>{ex.company || ex.full_name || ex.email}</option>)}
+            </select>
+          </div>
+
+          {/* Waiting list & CV required toggles */}
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.has_waiting_list} onChange={(e) => setForm((f) => ({ ...f, has_waiting_list: e.target.checked }))} className="h-4 w-4 rounded border-[#E8E8ED] text-[#FF754B] focus:ring-[#FF754B]" />
+              Waiting List
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.cv_required} onChange={(e) => setForm((f) => ({ ...f, cv_required: e.target.checked }))} className="h-4 w-4 rounded border-[#E8E8ED] text-[#FF754B] focus:ring-[#FF754B]" />
+              CV Required
+            </label>
+          </div>
+
           <div className="flex gap-2">
             <button type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</button>
             <button type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</button>
@@ -141,7 +185,11 @@ export default function WorkshopsCmsPage() {
         {items.map((w) => (
           <div key={w.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{w.title}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold truncate">{w.title}</p>
+                {w.has_waiting_list && <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[10px] font-medium">Waiting List</span>}
+                {w.cv_required && <span className="shrink-0 rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[10px] font-medium">CV Required</span>}
+              </div>
               <p className="text-xs text-[#86868B]">{w.host} · {fmt(w.time)}{w.end_time ? ` – ${fmt(w.end_time)}` : ''} · {w.capacity} spots</p>
             </div>
             <button onClick={() => handleEdit(w)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>

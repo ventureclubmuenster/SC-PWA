@@ -4,8 +4,27 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
-import { CheckCircle, XCircle, Clock, User, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, FileText, Wrench } from 'lucide-react';
 import type { Applicant } from '@/types';
+
+interface WorkshopApplicant {
+  id: string;
+  user_id: string;
+  workshop_id: string;
+  status: 'pending' | 'approved' | 'accepted' | 'rejected';
+  created_at: string;
+  visitor?: {
+    id: string;
+    email: string;
+    full_name: string | null;
+    university: string | null;
+    cv_url: string | null;
+  };
+  workshop?: {
+    id: string;
+    title: string;
+  };
+}
 
 const statusFilters = [
   { label: 'All', value: 'all' },
@@ -14,9 +33,17 @@ const statusFilters = [
   { label: 'Rejected', value: 'rejected' },
 ];
 
+const viewFilters = [
+  { label: 'All', value: 'all' },
+  { label: 'Direct', value: 'direct' },
+  { label: 'Workshops', value: 'workshops' },
+];
+
 export default function ApplicantsPage() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [workshopApplicants, setWorkshopApplicants] = useState<WorkshopApplicant[]>([]);
   const [filter, setFilter] = useState('all');
+  const [viewFilter, setViewFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
 
@@ -25,12 +52,37 @@ export default function ApplicantsPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
+        // Load direct applicants
+        const { data: directData } = await supabase
           .from('applicants')
           .select('*, visitor:visitor_id(id, email, full_name, university, cv_url)')
           .eq('exhibitor_id', user.id)
           .order('created_at', { ascending: false });
-        setApplicants(data || []);
+        setApplicants(directData || []);
+
+        // Load workshop applicants (bookings for workshops linked to this exhibitor)
+        const { data: workshops } = await supabase
+          .from('workshops')
+          .select('id, title')
+          .eq('exhibitor_id', user.id)
+          .eq('has_waiting_list', true);
+
+        if (workshops && workshops.length > 0) {
+          const workshopIds = workshops.map((w) => w.id);
+          const { data: bookingData } = await supabase
+            .from('workshop_bookings')
+            .select('*, visitor:user_id(id, email, full_name, university, cv_url)')
+            .in('workshop_id', workshopIds)
+            .order('created_at', { ascending: false });
+
+          if (bookingData) {
+            const enriched = bookingData.map((b) => ({
+              ...b,
+              workshop: workshops.find((w) => w.id === b.workshop_id),
+            }));
+            setWorkshopApplicants(enriched as WorkshopApplicant[]);
+          }
+        }
       }
       setLoading(false);
     };
@@ -50,8 +102,28 @@ export default function ApplicantsPage() {
     setUpdating(null);
   };
 
-  const filtered =
+  const handleWorkshopStatusChange = async (bookingId: string, status: 'accepted' | 'rejected') => {
+    setUpdating(bookingId);
+    const supabase = createClient();
+    await supabase
+      .from('workshop_bookings')
+      .update({ status })
+      .eq('id', bookingId);
+    setWorkshopApplicants((prev) =>
+      prev.map((a) => (a.id === bookingId ? { ...a, status } : a))
+    );
+    setUpdating(null);
+  };
+
+  const filteredDirect =
     filter === 'all' ? applicants : applicants.filter((a) => a.status === filter);
+  const filteredWorkshop =
+    filter === 'all' ? workshopApplicants : workshopApplicants.filter((a) => a.status === filter);
+
+  const showDirect = viewFilter === 'all' || viewFilter === 'direct';
+  const showWorkshops = viewFilter === 'all' || viewFilter === 'workshops';
+
+  const hasNoResults = (showDirect ? filteredDirect.length : 0) + (showWorkshops ? filteredWorkshop.length : 0) === 0;
 
   const statusIcon = (status: string) => {
     switch (status) {
@@ -80,14 +152,18 @@ export default function ApplicantsPage() {
       <PageHeader title="Bewerber" subtitle="Review applicant profiles" />
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
+      {workshopApplicants.length > 0 && (
+        <FilterBar filters={viewFilters} activeFilter={viewFilter} onFilterChange={setViewFilter} />
+      )}
 
-      {loading ? null : filtered.length === 0 ? (
+      {loading ? null : hasNoResults ? (
         <p className="text-center text-sm text-[#86868B] py-12">
           No applicants found.
         </p>
       ) : (
         <div className="space-y-3">
-          {filtered.map((applicant) => {
+          {/* Direct applicants */}
+          {showDirect && filteredDirect.map((applicant) => {
             const visitor = applicant.visitor as unknown as {
               id: string;
               email: string;
@@ -145,6 +221,81 @@ export default function ApplicantsPage() {
                     </button>
                     <button
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
+                      disabled={updating === applicant.id}
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Workshop applicants */}
+          {showWorkshops && filteredWorkshop.map((applicant) => {
+            const visitor = applicant.visitor as unknown as {
+              id: string;
+              email: string;
+              full_name: string | null;
+              university: string | null;
+              cv_url: string | null;
+            };
+            return (
+              <div
+                key={`ws-${applicant.id}`}
+                className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+              >
+                <div className="relative z-10 flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 border border-blue-200">
+                      <Wrench className="h-4 w-4 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {visitor?.full_name || 'Unnamed'}
+                      </p>
+                      <p className="text-xs text-[#86868B]">{visitor?.email}</p>
+                      {visitor?.university && (
+                        <p className="text-xs text-[#86868B]">{visitor.university}</p>
+                      )}
+                      {applicant.workshop && (
+                        <p className="text-xs font-medium text-blue-600 mt-0.5">
+                          Workshop: {applicant.workshop.title}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {statusIcon(applicant.status)}
+                    <span className={`text-xs font-semibold capitalize ${statusColor(applicant.status)}`}>
+                      {applicant.status === 'approved' ? 'pending' : applicant.status}
+                    </span>
+                  </div>
+                </div>
+
+                {visitor?.cv_url && (
+                  <a
+                    href={visitor.cv_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative z-10 inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
+                  >
+                    <FileText className="h-3 w-3" /> View CV
+                  </a>
+                )}
+
+                {applicant.status === 'pending' && (
+                  <div className="relative z-10 flex gap-2">
+                    <button
+                      onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
+                      disabled={updating === applicant.id}
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
                     >

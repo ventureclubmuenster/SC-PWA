@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useDemoUser, isDemoMode } from '@/lib/demo';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
-import { User, LogOut, Save, Bell, BellOff } from 'lucide-react';
+import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2 } from 'lucide-react';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
 
@@ -13,6 +13,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingCv, setUploadingCv] = useState(false);
   const [form, setForm] = useState({
     full_name: '',
     university: '',
@@ -76,6 +77,45 @@ export default function ProfilePage() {
       })
       .eq('id', profile.id);
     setSaving(false);
+  };
+
+  const handleCvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    setUploadingCv(true);
+    const supabase = createClient();
+    const ext = file.name.split('.').pop();
+    const fileName = `${profile.id}/cv-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('cvs')
+      .upload(fileName, file, { contentType: file.type, upsert: true });
+
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage
+        .from('cvs')
+        .getPublicUrl(fileName);
+
+      await supabase
+        .from('profiles')
+        .update({ cv_url: urlData.publicUrl, updated_at: new Date().toISOString() })
+        .eq('id', profile.id);
+      setProfile((p) => p ? { ...p, cv_url: urlData.publicUrl } : p);
+    }
+    setUploadingCv(false);
+    e.target.value = '';
+  };
+
+  const handleCvRemove = async () => {
+    if (!profile?.cv_url) return;
+    setUploadingCv(true);
+    const supabase = createClient();
+    await supabase
+      .from('profiles')
+      .update({ cv_url: null, updated_at: new Date().toISOString() })
+      .eq('id', profile.id);
+    setProfile((p) => p ? { ...p, cv_url: null } : p);
+    setUploadingCv(false);
   };
 
   const handleLogout = async () => {
@@ -155,6 +195,49 @@ export default function ProfilePage() {
           <Save className="relative z-10 h-4 w-4" />
           <span className="relative z-10">{saving ? 'Saving...' : 'Save Profile'}</span>
         </button>
+      </div>
+
+      {/* CV Upload */}
+      <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm space-y-3">
+        <div className="relative z-10">
+          <p className="text-sm font-semibold text-[#1D1D1F]">CV / Resume</p>
+          <p className="text-xs text-[#86868B] mt-0.5">
+            {profile?.cv_url ? 'Your CV has been uploaded' : 'Upload your CV (PDF recommended)'}
+          </p>
+        </div>
+
+        {profile?.cv_url ? (
+          <div className="relative z-10 flex items-center gap-2">
+            <a
+              href={profile.cv_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-all"
+            >
+              <FileText className="h-4 w-4" />
+              View CV
+            </a>
+            <button
+              onClick={handleCvRemove}
+              disabled={uploadingCv}
+              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <label className="relative z-10 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#E8E8ED] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-all">
+            <Upload className="h-4 w-4" />
+            {uploadingCv ? 'Uploading...' : 'Upload CV'}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleCvUpload}
+              className="hidden"
+              disabled={uploadingCv}
+            />
+          </label>
+        )}
       </div>
 
       {/* Push Notifications */}

@@ -17,12 +17,13 @@ interface ScheduleItem {
   end_time: string | null;
   location: string;
   category: 'workshop' | 'main-stage' | 'panel' | 'networking';
+  workshop_id: string | null;
   description: string | null;
   speaker_id: string | null;
   speaker?: Speaker | null;
 }
 
-const categories = ['workshop', 'main-stage', 'panel', 'networking'] as const;
+const categories = ['main-stage', 'panel', 'networking'] as const;
 const FIXED_DATE = '2026-01-01';
 const empty = { title: '', time: '', end_time: '', location: '', category: 'main-stage' as ScheduleItem['category'], description: '', speaker_id: '' };
 
@@ -143,11 +144,16 @@ export default function ScheduleCmsPage() {
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>{item.category.replace('-', ' ')}</span>
+                {item.workshop_id && <span className="shrink-0 rounded-full bg-[#F5F5F7] text-[#86868B] px-2 py-0.5 text-[10px] font-medium">Auto</span>}
               </div>
               <p className="text-xs text-[#86868B]">{fmt(item.time)}{item.end_time ? ` – ${fmt(item.end_time)}` : ''} · {item.location}{item.speaker ? ` · ${item.speaker.name}` : ''}</p>
             </div>
-            <button onClick={() => handleEdit(item)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>
-            <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></button>
+            {!item.workshop_id && (
+              <>
+                <button onClick={() => handleEdit(item)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></button>
+                <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></button>
+              </>
+            )}
           </div>
         ))}
         {items.length === 0 && <p className="text-sm text-[#86868B] text-center py-8">No schedule items yet</p>}

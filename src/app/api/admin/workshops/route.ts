@@ -27,5 +27,17 @@ export async function POST(request: Request) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Auto-create schedule_items entry for this workshop
+  await supabase.from('schedule_items').insert({
+    title: data.title,
+    time: data.time,
+    end_time: data.end_time,
+    location: data.location || 'TBD',
+    category: 'workshop',
+    description: data.description,
+    workshop_id: data.id,
+  });
+
   return NextResponse.json(data, { status: 201 });
 }
