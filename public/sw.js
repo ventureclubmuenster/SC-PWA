@@ -1,4 +1,4 @@
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const STATIC_CACHE = `sc-static-v${CACHE_VERSION}`;
 const PAGES_CACHE = `sc-pages-v${CACHE_VERSION}`;
 const DATA_CACHE = `sc-data-v${CACHE_VERSION}`;
@@ -40,17 +40,32 @@ function isCmsOrExcluded(url) {
   return path.startsWith('/admin') || path.startsWith('/api/admin');
 }
 
+// Safari does not allow service workers to serve responses that followed a redirect.
+// Create a clean, non-redirected copy of the response.
+function cleanResponse(response) {
+  if (!response.redirected) return response;
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: new Headers(response.headers),
+  });
+}
+
+function isCacheable(response) {
+  return response.ok && !response.redirected;
+}
+
 // Cache-first for hashed static assets (_next/static) — immutable once built
 function handleStaticAsset(event) {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        if (response.ok) {
+        if (isCacheable(response)) {
           const clone = response.clone();
           caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, clone));
         }
-        return response;
+        return cleanResponse(response);
       });
     })
   );
@@ -63,10 +78,10 @@ function handleNavigation(event) {
       cache.match(event.request).then((cached) => {
         const networkFetch = fetch(event.request)
           .then((response) => {
-            if (response.ok) {
+            if (isCacheable(response)) {
               cache.put(event.request, response.clone());
             }
-            return response;
+            return cleanResponse(response);
           })
           .catch(() => cached);
 
@@ -83,10 +98,10 @@ function handleData(event) {
       cache.match(event.request).then((cached) => {
         const networkFetch = fetch(event.request)
           .then((response) => {
-            if (response.ok) {
+            if (isCacheable(response)) {
               cache.put(event.request, response.clone());
             }
-            return response;
+            return cleanResponse(response);
           })
           .catch(() => cached);
 
