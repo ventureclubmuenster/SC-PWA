@@ -50,6 +50,10 @@ export default function RootLayout({
                   navigator.serviceWorker.register('/sw.js');
                 });
               }
+              // Lock orientation to portrait when running as installed PWA
+              if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('portrait').catch(() => {});
+              }
             `,
           }}
         />

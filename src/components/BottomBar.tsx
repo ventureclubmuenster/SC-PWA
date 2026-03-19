@@ -35,7 +35,7 @@ export default function BottomBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className="relative flex flex-col items-center gap-1 px-3 py-1.5 text-[11px] font-medium tracking-wide"
+              className="relative flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium tracking-wide"
             >
               {isActive && (
                 <motion.div
