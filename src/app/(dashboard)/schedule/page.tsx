@@ -32,10 +32,17 @@ export default function SchedulePage() {
     ...locations.map((l) => ({ label: l, value: l })),
   ];
 
-  const finalItems =
+  const filteredByLocation =
     locationFilter === 'all'
       ? filtered
       : filtered.filter((i) => i.location === locationFilter);
+
+  // Sort by time-of-day (all events occur on the same date)
+  const finalItems = [...filteredByLocation].sort((a, b) => {
+    const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
+    const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
+    return ta - tb;
+  });
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);

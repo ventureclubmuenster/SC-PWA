@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Pencil, Plus, Upload } from 'lucide-react';
+import TimePicker from '@/components/admin/TimePicker';
 
 interface Workshop {
   id: string;
@@ -27,6 +28,7 @@ interface Exhibitor {
 }
 
 const empty = { title: '', description: '', capacity: 30, time: '', end_time: '', location: '', host: '', host_logo_url: '', has_waiting_list: false, cv_required: false, exhibitor_id: '' };
+const FIXED_DATE = '2026-01-01';
 
 export default function WorkshopsCmsPage() {
   const [items, setItems] = useState<Workshop[]>([]);
@@ -63,7 +65,7 @@ export default function WorkshopsCmsPage() {
   const toLocal = (iso: string) => {
     if (!iso) return '';
     const d = new Date(iso);
-    return d.toISOString().slice(0, 16);
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,8 +74,8 @@ export default function WorkshopsCmsPage() {
       title: form.title,
       description: form.description || null,
       capacity: form.capacity,
-      time: new Date(form.time).toISOString(),
-      end_time: form.end_time ? new Date(form.end_time).toISOString() : null,
+      time: new Date(`${FIXED_DATE}T${form.time}:00`).toISOString(),
+      end_time: form.end_time ? new Date(`${FIXED_DATE}T${form.end_time}:00`).toISOString() : null,
       location: form.location || null,
       host: form.host,
       host_logo_url: form.host_logo_url || null,
@@ -147,14 +149,17 @@ export default function WorkshopsCmsPage() {
             {form.host_logo_url && <img src={form.host_logo_url} alt="" className="h-8 w-8 object-contain" />}
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-[#86868B] mb-1 block">Start Time *</label>
-              <input required type="datetime-local" value={form.time} onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs text-[#86868B] mb-1 block">End Time</label>
-              <input type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
-            </div>
+            <TimePicker
+              label="Start Time *"
+              required
+              value={form.time}
+              onChange={(v) => setForm((f) => ({ ...f, time: v }))}
+            />
+            <TimePicker
+              label="End Time"
+              value={form.end_time}
+              onChange={(v) => setForm((f) => ({ ...f, end_time: v }))}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <input value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location" className="rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
