@@ -42,7 +42,7 @@ CREATE TABLE schedule_items (
   time TIMESTAMPTZ NOT NULL,
   end_time TIMESTAMPTZ,
   location TEXT NOT NULL,
-  category TEXT NOT NULL CHECK (category IN ('workshop', 'main-stage', 'panel', 'networking')),
+  category TEXT NOT NULL CHECK (category IN ('keynote', 'workshop', 'podcast', 'event')),
   description TEXT,
   speaker_id UUID REFERENCES speakers(id) ON DELETE SET NULL,
   workshop_id UUID REFERENCES workshops(id) ON DELETE CASCADE,

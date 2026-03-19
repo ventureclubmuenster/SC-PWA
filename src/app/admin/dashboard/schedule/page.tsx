@@ -17,16 +17,16 @@ interface ScheduleItem {
   time: string;
   end_time: string | null;
   location: string;
-  category: 'workshop' | 'main-stage' | 'panel' | 'networking';
+  category: 'keynote' | 'workshop' | 'podcast' | 'event';
   workshop_id: string | null;
   description: string | null;
   speaker_id: string | null;
   speaker?: Speaker | null;
 }
 
-const categories = ['main-stage', 'panel', 'networking'] as const;
+const categories = ['keynote', 'workshop', 'podcast', 'event'] as const;
 const FIXED_DATE = '2026-01-01';
-const empty = { title: '', time: '', end_time: '', location: '', category: 'main-stage' as ScheduleItem['category'], description: '', speaker_id: '' };
+const empty = { title: '', time: '', end_time: '', location: '', category: 'keynote' as ScheduleItem['category'], description: '', speaker_id: '' };
 
 export default function ScheduleCmsPage() {
   const [items, setItems] = useState<ScheduleItem[]>([]);
@@ -95,7 +95,7 @@ export default function ScheduleCmsPage() {
   };
 
   const fmt = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  const catColors: Record<string, string> = { 'main-stage': 'bg-purple-100 text-purple-700', workshop: 'bg-blue-100 text-blue-700', panel: 'bg-amber-100 text-amber-700', networking: 'bg-green-100 text-green-700' };
+  const catColors: Record<string, string> = { keynote: 'bg-purple-100 text-purple-700', workshop: 'bg-blue-100 text-blue-700', podcast: 'bg-amber-100 text-amber-700', event: 'bg-green-100 text-green-700' };
 
   return (
     <div>
@@ -132,7 +132,7 @@ export default function ScheduleCmsPage() {
           </div>
           <input required value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Location / Stage *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
           <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as ScheduleItem['category'] }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
-            {categories.map((c) => <option key={c} value={c}>{c.replace('-', ' ')}</option>)}
+            {categories.map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
           </select>
           <select value={form.speaker_id} onChange={(e) => setForm((f) => ({ ...f, speaker_id: e.target.value }))} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none">
             <option value="">No speaker</option>
@@ -160,7 +160,7 @@ export default function ScheduleCmsPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>{item.category.replace('-', ' ')}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${catColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
                 {item.workshop_id && <span className="shrink-0 rounded-full bg-[#F5F5F7] text-[#86868B] px-2 py-0.5 text-[10px] font-medium">Auto</span>}
               </div>
               <p className="text-xs text-[#86868B]">{fmt(item.time)}{item.end_time ? ` – ${fmt(item.end_time)}` : ''} · {item.location}{item.speaker ? ` · ${item.speaker.name}` : ''}</p>

@@ -67,7 +67,7 @@ The **Startup Contacts** app is the digital operating system for the Venture Clu
 
 ## Project Structure
 ```
-SC-PWA2/
+SC-PWA/
 ├── public/
 │   ├── manifest.json          # PWA manifest
 │   ├── icons/                 # App icons (192x192, 512x512)

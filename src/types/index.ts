@@ -81,7 +81,7 @@ export interface ScheduleItem {
   time: string;
   end_time: string | null;
   location: string;
-  category: 'workshop' | 'main-stage' | 'panel' | 'networking';
+  category: 'keynote' | 'workshop' | 'podcast' | 'event';
   description: string | null;
   speaker_id: string | null;
   speaker?: Speaker | null;

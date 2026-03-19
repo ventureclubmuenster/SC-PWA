@@ -11,10 +11,10 @@ import type { ScheduleItem, Speaker } from '@/types';
 
 const categoryFilters = [
   { label: 'All', value: 'all' },
-  { label: 'Main Stage', value: 'main-stage' },
+  { label: 'Keynote', value: 'keynote' },
   { label: 'Workshop', value: 'workshop' },
-  { label: 'Panel', value: 'panel' },
-  { label: 'Networking', value: 'networking' },
+  { label: 'Podcast', value: 'podcast' },
+  { label: 'Event', value: 'event' },
 ];
 
 export default function SchedulePage() {
@@ -43,17 +43,17 @@ export default function SchedulePage() {
   };
 
   const categoryDot: Record<string, string> = {
-    'main-stage': 'bg-purple-500',
+    keynote: 'bg-purple-500',
     workshop: 'bg-blue-500',
-    panel: 'bg-amber-500',
-    networking: 'bg-green-500',
+    podcast: 'bg-amber-500',
+    event: 'bg-green-500',
   };
 
   const categoryColors: Record<string, string> = {
-    'main-stage': 'bg-purple-100 text-purple-700',
+    keynote: 'bg-purple-100 text-purple-700',
     workshop: 'bg-blue-100 text-blue-700',
-    panel: 'bg-amber-100 text-amber-700',
-    networking: 'bg-green-100 text-green-700',
+    podcast: 'bg-amber-100 text-amber-700',
+    event: 'bg-green-100 text-green-700',
   };
 
   // Group items by start time for horizontal stacking
@@ -139,7 +139,7 @@ export default function SchedulePage() {
         {selected && (
           <div className="space-y-6">
             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
-              {selected.category.replace('-', ' ')}
+              {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
             <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
@@ -262,7 +262,7 @@ function EventCard({
             categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
           }`}
         >
-          {item.category.replace('-', ' ')}
+          {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
         </span>
       </div>
 
