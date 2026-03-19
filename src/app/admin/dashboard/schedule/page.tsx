@@ -24,7 +24,7 @@ interface ScheduleItem {
   speaker?: Speaker | null;
 }
 
-const categories = ['keynote', 'workshop', 'podcast', 'event'] as const;
+const categories = ['keynote', 'podcast', 'event'] as const;
 const FIXED_DATE = '2026-01-01';
 const empty = { title: '', time: '', end_time: '', location: '', category: 'keynote' as ScheduleItem['category'], description: '', speaker_id: '' };
 
