@@ -127,11 +127,11 @@ export default function ProfilePage() {
 
       {/* Avatar & Email */}
       <FadeIn delay={0}>
-        <div className="noise-panel-accent flex items-center gap-4 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full noise-panel-dark">
-            <User className="relative z-10 h-6 w-6 text-white" />
+        <div className="card-accent flex items-center gap-4 rounded-2xl p-4 border border-[rgba(255,117,75,0.1)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1D1D1F]">
+            <User className="h-6 w-6 text-white" />
           </div>
-        <div className="relative z-10">
+        <div>
           <p className="font-semibold text-sm text-[#1D1D1F]">{form.full_name || 'No name set'}</p>
           <p className="text-xs text-[#86868B]">{profile?.email}</p>
           <p className="text-[10px] text-[#86868B] mt-0.5 capitalize font-medium">{profile?.role}</p>
@@ -141,37 +141,37 @@ export default function ProfilePage() {
 
       {/* Edit Form */}
       <FadeIn delay={0.1}>
-      <div className="space-y-4 noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-        <div className="relative z-10 space-y-1">
+      <div className="space-y-4 card-clean rounded-2xl p-4">
+        <div className="space-y-1">
           <label className="text-xs font-medium text-[#86868B]">Full Name</label>
           <input
             type="text"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all"
+            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
           />
         </div>
 
-        <div className="relative z-10 space-y-1">
+        <div className="space-y-1">
           <label className="text-xs font-medium text-[#86868B]">University</label>
           <input
             type="text"
             value={form.university}
             onChange={(e) => setForm({ ...form, university: e.target.value })}
-            className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all"
+            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
           />
         </div>
 
-        <div className="relative z-10 flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-[#86868B]">Afterparty RSVP</label>
           <button
             onClick={() => setForm({ ...form, afterparty_rsvp: !form.afterparty_rsvp })}
-            className={`h-6 w-11 rounded-full transition-colors ${
-              form.afterparty_rsvp ? 'bg-[#FF754B]' : 'bg-[#E8E8ED]'
+            className={`h-6 w-11 rounded-full transition-colors duration-150 ${
+              form.afterparty_rsvp ? 'bg-[#FF754B]' : 'bg-[rgba(0,0,0,0.08)]'
             }`}
           >
             <div
-              className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+              className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150 ${
                 form.afterparty_rsvp ? 'translate-x-5.5' : 'translate-x-0.5'
               }`}
             />
@@ -181,18 +181,18 @@ export default function ProfilePage() {
         <TapButton
           onClick={handleSave}
           disabled={saving}
-          className="relative z-10 noise-panel-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+          className="bg-[#1D1D1F] flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
         >
-          <Save className="relative z-10 h-4 w-4" />
-          <span className="relative z-10">{saving ? 'Saving...' : 'Save Profile'}</span>
+          <Save className="h-4 w-4" />
+          <span>{saving ? 'Saving...' : 'Save Profile'}</span>
         </TapButton>
       </div>
       </FadeIn>
 
       {/* CV Upload */}
       <FadeIn delay={0.2}>
-      <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm space-y-3">
-        <div className="relative z-10">
+      <div className="card-clean rounded-2xl p-4 space-y-3">
+        <div>
           <p className="text-sm font-semibold text-[#1D1D1F]">CV / Resume</p>
           <p className="text-xs text-[#86868B] mt-0.5">
             {profile?.cv_url ? 'Your CV has been uploaded' : 'Upload your CV (PDF recommended)'}
@@ -200,12 +200,12 @@ export default function ProfilePage() {
         </div>
 
         {profile?.cv_url ? (
-          <div className="relative z-10 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <a
               href={profile.cv_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-all"
+              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-all duration-150"
             >
               <FileText className="h-4 w-4" />
               View CV
@@ -213,13 +213,13 @@ export default function ProfilePage() {
             <button
               onClick={handleCvRemove}
               disabled={uploadingCv}
-              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
+              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <label className="relative z-10 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#E8E8ED] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-all">
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[rgba(0,0,0,0.08)] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-all duration-150">
             <Upload className="h-4 w-4" />
             {uploadingCv ? 'Uploading...' : 'Upload CV'}
             <input
@@ -241,9 +241,9 @@ export default function ProfilePage() {
           <TapButton
             onClick={subscribe}
             disabled={isSubscribed || isLoading}
-            className="w-full noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm text-left transition-all disabled:opacity-100"
+            className="w-full card-clean rounded-2xl p-4 text-left transition-all duration-150 disabled:opacity-100"
           >
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-[#1D1D1F]">Push Notifications</p>
                 <p className="text-xs text-[#86868B] mt-0.5">
@@ -265,7 +265,7 @@ export default function ProfilePage() {
       <FadeIn delay={0.4}>
       <TapButton
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[#E8E8ED] hover:bg-red-50 transition-all shadow-sm"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[rgba(0,0,0,0.06)] hover:bg-red-50 transition-all duration-150"
       >
         <LogOut className="h-4 w-4" />
         Sign Out

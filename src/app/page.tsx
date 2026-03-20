@@ -37,18 +37,18 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo / Branding */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="space-y-3"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl noise-panel-dark"
+            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1D1D1F]"
           >
-            <Sparkles className="relative z-10 h-8 w-8 text-white" />
+            <Sparkles className="h-8 w-8 text-white" />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">Startup Contacts</h1>
           <p className="text-sm font-medium text-[#86868B]">
@@ -64,14 +64,14 @@ export default function LoginPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="noise-panel space-y-4 rounded-2xl p-6 border border-[#E8E8ED] shadow-sm"
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="card-clean space-y-4 rounded-2xl p-6"
             >
-              <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
                 <Mail className="h-6 w-6 text-green-500" />
               </div>
-              <h2 className="relative z-10 text-lg font-semibold text-[#1D1D1F]">Check your email</h2>
-              <p className="relative z-10 text-sm text-[#86868B]">
+              <h2 className="text-lg font-semibold text-[#1D1D1F]">Check your email</h2>
+              <p className="text-sm text-[#86868B]">
                 We sent a magic link to <span className="font-medium text-[#1D1D1F]">{email}</span>.
                 Click the link to sign in.
               </p>
@@ -80,17 +80,17 @@ export default function LoginPage() {
             /* Login form */
             <motion.div
               key="form"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="space-y-6"
             >
-              <div className="noise-panel rounded-2xl p-6 space-y-4 border border-[#E8E8ED] shadow-sm">
-                <div className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F5F7]">
+              <div className="card-clean rounded-2xl p-6 space-y-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#FAFAFA]">
                   <Mail className="h-6 w-6 text-[#86868B]" />
                 </div>
-                <p className="relative z-10 text-sm text-[#86868B]">
+                <p className="text-sm text-[#86868B]">
                   No account detected. Enter your email or open the link you received by mail to login.
                 </p>
               </div>
@@ -102,12 +102,13 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="w-full rounded-xl bg-white px-4 py-3.5 text-sm text-[#1D1D1F] placeholder-[#86868B] outline-none ring-1 ring-[#E8E8ED] focus:ring-2 focus:ring-[#FF754B] transition-all shadow-sm"
+                  className="w-full rounded-xl bg-white px-4 py-3.5 text-sm text-[#1D1D1F] placeholder-[#86868B] outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
                 />
                 {error && (
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15 }}
                     className="text-sm text-red-500"
                   >
                     {error}
@@ -118,16 +119,16 @@ export default function LoginPage() {
                   whileTap={{ scale: 0.97 }}
                   type="submit"
                   disabled={loading}
-                  className="noise-panel-dark w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
                 >
-                  <span className="relative z-10">{loading ? 'Sending...' : 'Send Magic Link'}</span>
+                  {loading ? 'Sending...' : 'Send Magic Link'}
                 </motion.button>
               </form>
 
               <div className="text-center">
                 <a
                   href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                  className="text-xs font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+                  className="text-xs font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors duration-150"
                 >
                   Continue with demo account →
                 </a>

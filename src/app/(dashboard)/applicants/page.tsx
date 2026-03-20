@@ -175,11 +175,11 @@ export default function ApplicantsPage() {
             return (
               <StaggerItem key={applicant.id}>
                 <div
-                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                  className="card-clean rounded-2xl p-4 space-y-3"
                 >
-                <div className="relative z-10 flex items-start justify-between">
+                <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)]">
                       <User className="h-4 w-4 text-[#86868B]" />
                     </div>
                     <div>
@@ -205,25 +205,25 @@ export default function ApplicantsPage() {
                     href={visitor.cv_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative z-10 inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A] transition-colors duration-150"
                   >
                     <FileText className="h-3 w-3" /> View CV
                   </a>
                 )}
 
                 {applicant.status === 'pending' && (
-                  <div className="relative z-10 flex gap-2">
+                  <div className="flex gap-2">
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
                     >
                       Reject
                     </TapButton>
@@ -246,9 +246,9 @@ export default function ApplicantsPage() {
             return (
               <StaggerItem key={`ws-${applicant.id}`}>
                 <div
-                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm"
+                  className="card-clean rounded-2xl p-4 space-y-3"
                 >
-                <div className="relative z-10 flex items-start justify-between">
+                <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 border border-blue-200">
                       <Wrench className="h-4 w-4 text-blue-500" />
@@ -281,25 +281,25 @@ export default function ApplicantsPage() {
                     href={visitor.cv_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative z-10 inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A]"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A] transition-colors duration-150"
                   >
                     <FileText className="h-3 w-3" /> View CV
                   </a>
                 )}
 
                 {applicant.status === 'pending' && (
-                  <div className="relative z-10 flex gap-2">
+                  <div className="flex gap-2">
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all"
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all"
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
                     >
                       Reject
                     </TapButton>

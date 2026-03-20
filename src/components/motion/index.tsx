@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
+const ease = [0.22, 1, 0.36, 1] as const;
+
 // Staggered list container
 export function StaggerList({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -11,7 +13,7 @@ export function StaggerList({ children, className }: { children: ReactNode; clas
       animate="visible"
       variants={{
         hidden: {},
-        visible: { transition: { staggerChildren: 0.06 } },
+        visible: { transition: { staggerChildren: 0.03 } },
       }}
       className={className}
     >
@@ -25,8 +27,8 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 20 } },
+        hidden: { opacity: 0, y: 14 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease } },
       }}
       className={className}
     >
@@ -35,7 +37,7 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
   );
 }
 
-// Interactive card wrapper with tap + hover
+// Interactive card wrapper with hover lift + tap
 export function TapCard({
   children,
   className,
@@ -47,8 +49,8 @@ export function TapCard({
 }) {
   return (
     <motion.div
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{ y: -2, transition: { duration: 0.15, ease } }}
+      whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
       className={className}
       onClick={onClick}
     >
@@ -73,8 +75,8 @@ export function TapButton({
 }) {
   return (
     <motion.button
-      whileHover={disabled ? {} : { scale: 1.02 }}
-      whileTap={disabled ? {} : { scale: 0.96 }}
+      whileHover={disabled ? {} : { scale: 1.02, transition: { duration: 0.15, ease } }}
+      whileTap={disabled ? {} : { scale: 0.97, transition: { duration: 0.1 } }}
       className={className}
       onClick={onClick}
       disabled={disabled}
@@ -97,9 +99,24 @@ export function FadeIn({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay }}
+      transition={{ duration: 0.22, delay, ease }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Page transition wrapper
+export function PageTransition({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, ease }}
       className={className}
     >
       {children}
@@ -114,11 +131,16 @@ export function SlideIn({ children, className }: { children: ReactNode; classNam
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      transition={{ duration: 0.2, ease }}
       className={className}
       style={{ overflow: 'hidden' }}
     >
       {children}
     </motion.div>
   );
+}
+
+// Skeleton loader
+export function Skeleton({ className }: { className?: string }) {
+  return <div className={`skeleton ${className || ''}`} />;
 }

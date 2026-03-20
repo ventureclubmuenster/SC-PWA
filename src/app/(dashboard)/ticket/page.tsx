@@ -37,17 +37,17 @@ export default function TicketPage() {
 
       {/* Ticket Card */}
       <FadeIn delay={0.1}>
-      <div className="noise-panel rounded-2xl p-6 border border-[#E8E8ED] shadow-sm">
-        <div className="relative z-10 flex flex-col items-center space-y-5">
+      <div className="card-clean rounded-2xl p-6">
+        <div className="flex flex-col items-center space-y-5">
           {/* QR Code */}
-          <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-white border border-[#E8E8ED]">
+          <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-white border border-[rgba(0,0,0,0.06)]">
             {qrValue ? (
               <QRCodeSVG value={qrValue} size={180} level="M" />
             ) : null}
           </div>
 
           {/* Attendee Info */}
-          <div className="w-full space-y-3 pt-4 border-t border-dashed border-[#E8E8ED]">
+          <div className="w-full space-y-3 pt-4 border-t border-dashed border-[rgba(0,0,0,0.06)]">
             <div className="flex justify-between items-center">
               <span className="text-xs text-[#86868B]">Name</span>
               <span className="text-sm font-semibold text-[#1D1D1F]">

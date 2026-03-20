@@ -68,9 +68,9 @@ export default function InformationPage() {
               <StaggerItem key={partner.id}>
                 <TapCard
                   onClick={() => setSelectedPartner(partner)}
-                  className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer"
+                  className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
                 >
-                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-[#E8E8ED]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)]">
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -81,7 +81,7 @@ export default function InformationPage() {
                     <Building2 className="h-5 w-5 text-[#86868B]" />
                   )}
                 </div>
-                <div className="relative z-10 flex-1 space-y-1">
+                <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">{partner.name}</h3>
                     <span
@@ -106,8 +106,8 @@ export default function InformationPage() {
         )}
         </>
       ) : view === 'lageplan' ? (
-        <div className="noise-panel rounded-2xl border border-[#E8E8ED] shadow-sm overflow-hidden">
-          <div className="relative z-10 flex flex-col items-center justify-center gap-4 py-16 text-[#86868B]">
+        <div className="card-clean rounded-2xl overflow-hidden">
+          <div className="flex flex-col items-center justify-center gap-4 py-16 text-[#86868B]">
             <Map className="h-14 w-14 opacity-40" strokeWidth={1} />
             <div className="text-center space-y-1">
               <p className="text-sm font-semibold text-[#1D1D1F]">Lageplan</p>
@@ -126,9 +126,9 @@ export default function InformationPage() {
             <StaggerItem key={speaker.id}>
               <TapCard
                 onClick={() => setSelectedSpeaker(speaker)}
-                className="noise-panel flex items-start gap-3 rounded-2xl p-4 border border-[#E8E8ED] shadow-sm cursor-pointer"
+                className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
               >
-                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
                   {speaker.photo_url ? (
                     <img
                       src={speaker.photo_url}
@@ -139,7 +139,7 @@ export default function InformationPage() {
                     <Mic2 className="h-5 w-5 text-[#86868B]" />
                   )}
                 </div>
-                <div className="relative z-10 flex-1 space-y-1">
+                <div className="flex-1 space-y-1">
                   <h3 className="text-sm font-semibold">{speaker.name}</h3>
                   {speaker.bio && (
                     <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
@@ -157,7 +157,7 @@ export default function InformationPage() {
         {selectedPartner && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white border border-[#E8E8ED]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white border border-[rgba(0,0,0,0.06)]">
                 {selectedPartner.logo_url ? (
                   <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" />
                 ) : (
@@ -173,8 +173,8 @@ export default function InformationPage() {
             </div>
 
             {selectedPartner.booth_number && (
-              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
-                <p className="relative z-10 text-sm text-[#86868B]">
+              <div className="card-clean rounded-xl p-3">
+                <p className="text-sm text-[#86868B]">
                   <span className="font-semibold text-[#1D1D1F]">Booth:</span> {selectedPartner.booth_number}
                 </p>
               </div>
@@ -189,10 +189,10 @@ export default function InformationPage() {
                 href={selectedPartner.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
               >
-                <ExternalLink className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">Visit Website</span>
+                <ExternalLink className="h-4 w-4" />
+                Visit Website
               </a>
             )}
           </div>
@@ -205,7 +205,7 @@ export default function InformationPage() {
           <div className="space-y-5">
             {/* Large centered photo */}
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border-2 border-[#E8E8ED] overflow-hidden shadow-md">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
                 ) : (
@@ -224,10 +224,10 @@ export default function InformationPage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
               >
-                <ExternalLink className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">LinkedIn Profile</span>
+                <ExternalLink className="h-4 w-4" />
+                LinkedIn Profile
               </a>
             )}
           </div>

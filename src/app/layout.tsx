@@ -39,7 +39,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body
-        className={`${montserrat.variable} antialiased bg-[#F5F5F7] text-[#1D1D1F]`}
+        className={`${montserrat.variable} antialiased bg-[#FAFAFA] text-[#1D1D1F]`}
       >
         {children}
         <script

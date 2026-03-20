@@ -106,9 +106,9 @@ export default function WorkshopsPage() {
               <StaggerItem key={ws.id}>
                 <div
                   onClick={() => { setSelected(ws); setCvError(null); }}
-                  className="noise-panel rounded-2xl p-4 space-y-3 border border-[#E8E8ED] shadow-sm cursor-pointer active:scale-[0.98] transition-transform"
+                  className="card-clean rounded-2xl p-4 space-y-3 cursor-pointer active:scale-[0.98] transition-transform duration-150"
                 >
-                <div className="relative z-10 space-y-1">
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-sm">{ws.title}</h3>
                     {ws.has_waiting_list && <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[10px] font-medium">Waiting List</span>}
@@ -117,7 +117,7 @@ export default function WorkshopsPage() {
                   <p className="text-xs font-medium text-[#FF754B]">{ws.host}</p>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-4 text-xs text-[#86868B]">
+                <div className="flex items-center gap-4 text-xs text-[#86868B]">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatTime(ws.time)}
@@ -136,16 +136,16 @@ export default function WorkshopsPage() {
                 </div>
 
                 {ws.description && (
-                  <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{ws.description}</p>
+                  <p className="text-xs text-[#86868B] line-clamp-2">{ws.description}</p>
                 )}
 
                 <TapButton
                   onClick={(e) => handleBook(e, ws.id)}
                   disabled={bookingInProgress === ws.id || (booked && booking?.status !== 'approved')}
-                  className={`relative z-10 w-full rounded-xl py-2.5 text-xs font-semibold transition-all ${
+                  className={`w-full rounded-xl py-2.5 text-xs font-semibold transition-all duration-150 ${
                     booked
                       ? (status?.color || 'bg-green-50 text-green-600') + ' hover:bg-red-50 hover:text-red-600'
-                      : 'noise-panel-dark text-white hover:opacity-90'
+                      : 'bg-[#1D1D1F] text-white hover:opacity-90'
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === ws.id ? (
@@ -155,9 +155,9 @@ export default function WorkshopsPage() {
                       <Check className="h-3 w-3" /> {status?.text}
                     </span>
                   ) : ws.has_waiting_list ? (
-                    <span className="relative z-10">Apply for Workshop</span>
+                    'Apply for Workshop'
                   ) : (
-                    <span className="relative z-10">Book Workshop</span>
+                    'Book Workshop'
                   )}
                 </TapButton>
                 </div>
@@ -219,10 +219,10 @@ export default function WorkshopsPage() {
                 <button
                   onClick={(e) => handleBook(e, selected.id)}
                   disabled={bookingInProgress === selected.id || (booked && booking?.status !== 'approved') || (selected.cv_required && !profile?.cv_url && !booked)}
-                  className={`relative z-10 w-full rounded-xl py-3 text-sm font-semibold transition-all ${
+                  className={`w-full rounded-xl py-3 text-sm font-semibold transition-all duration-150 ${
                     booked
                       ? (status?.color || 'bg-green-50 text-green-600') + ' hover:bg-red-50 hover:text-red-600'
-                      : 'noise-panel-dark text-white hover:opacity-90'
+                      : 'bg-[#1D1D1F] text-white hover:opacity-90'
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === selected.id ? (
@@ -232,9 +232,9 @@ export default function WorkshopsPage() {
                       <Check className="h-4 w-4" /> {status?.text}
                     </span>
                   ) : selected.has_waiting_list ? (
-                    <span className="relative z-10">Apply for Workshop</span>
+                    'Apply for Workshop'
                   ) : (
-                    <span className="relative z-10">Book Workshop</span>
+                    'Book Workshop'
                   )}
                 </button>
               );

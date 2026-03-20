@@ -97,7 +97,7 @@ export default function SchedulePage() {
       ) : (
         <div className="relative pl-6">
           {/* Timeline spine */}
-          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[#E8E8ED]" />
+          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[rgba(0,0,0,0.06)]" />
 
           <StaggerList className="space-y-0">
             {timeGroups.map((group, gIdx) => {
@@ -106,7 +106,7 @@ export default function SchedulePage() {
                 <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
                   {/* Timeline node */}
                   <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
-                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#F5F5F7] ${
+                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#FAFAFA] ${
                       group.items.length === 1
                         ? (categoryDot[group.items[0].category] || 'bg-[#86868B]')
                         : 'bg-[#1D1D1F]'
@@ -152,8 +152,8 @@ export default function SchedulePage() {
             <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
-                <div className="relative z-10 flex items-center gap-2 text-[#86868B]">
+              <div className="card-clean rounded-xl p-3">
+                <div className="flex items-center gap-2 text-[#86868B]">
                   <Clock className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
@@ -164,8 +164,8 @@ export default function SchedulePage() {
                   </div>
                 </div>
               </div>
-              <div className="noise-panel rounded-xl p-3 border border-[#E8E8ED]">
-                <div className="relative z-10 flex items-center gap-2 text-[#86868B]">
+              <div className="card-clean rounded-xl p-3">
+                <div className="flex items-center gap-2 text-[#86868B]">
                   <MapPin className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
@@ -178,10 +178,10 @@ export default function SchedulePage() {
             {selected.speaker && (
               <TapCard
                 onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
-                className="w-full noise-panel rounded-xl p-4 border border-[#E8E8ED] text-left cursor-pointer"
+                className="w-full card-clean rounded-xl p-4 text-left cursor-pointer"
               >
-                <div className="relative z-10 flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/80 border border-[#E8E8ED] overflow-hidden">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
                     {selected.speaker.photo_url ? (
                       <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
                     ) : (
@@ -212,7 +212,7 @@ export default function SchedulePage() {
         {selectedSpeaker && (
           <div className="space-y-5">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border-2 border-[#E8E8ED] overflow-hidden shadow-md">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
                 ) : (
@@ -231,10 +231,10 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
               >
-                <ExternalLink className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">LinkedIn Profile</span>
+                <ExternalLink className="h-4 w-4" />
+                LinkedIn Profile
               </a>
             )}
           </div>
@@ -256,13 +256,13 @@ function EventCard({
   compact?: boolean;
 }) {
   return (
-    <div className={`noise-panel rounded-2xl p-4 space-y-2 border border-[#E8E8ED] shadow-sm ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
+    <div className={`card-clean rounded-2xl p-4 space-y-2 ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
-        <p className="relative z-10 text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
+        <p className="text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
           until {formatTime(item.end_time)}
         </p>
       )}
-      <div className="relative z-10 flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-sm text-[#1D1D1F]">{item.title}</h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
@@ -273,7 +273,7 @@ function EventCard({
         </span>
       </div>
 
-      <div className="relative z-10 flex items-center gap-3 text-xs text-[#86868B]">
+      <div className="flex items-center gap-3 text-xs text-[#86868B]">
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           {item.location}
@@ -287,7 +287,7 @@ function EventCard({
       </div>
 
       {item.description && (
-        <p className="relative z-10 text-xs text-[#86868B] line-clamp-2">{item.description}</p>
+        <p className="text-xs text-[#86868B] line-clamp-2">{item.description}</p>
       )}
     </div>
   );

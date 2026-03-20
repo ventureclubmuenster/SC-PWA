@@ -13,7 +13,9 @@ export default function DashboardLayout({
       <HapticProvider>
         <div className="min-h-screen pb-20">
           <DemoBanner />
-          <main className="mx-auto max-w-lg px-4 pt-6">{children}</main>
+          <main className="mx-auto max-w-lg px-4 pt-6">
+            {children}
+          </main>
           <BottomBar />
         </div>
       </HapticProvider>
