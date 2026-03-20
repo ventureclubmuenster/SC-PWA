@@ -1,0 +1,34 @@
+﻿Name;Datum;Type
+Opening;"June 15; 2026 9:00 AM (GMT+2) → 10:00 AM";Event
+WS1 Spark 1;"June 15; 2026 10:30 AM (GMT+2) → 11:15 AM";Workshop
+WS4 Scale 2;"June 15; 2026 3:15 PM (GMT+2) → 4:00 PM";Workshop
+KN6 Fuel;"June 15; 2026 2:30 PM (GMT+2) → 3:00 PM";Keynote
+Podcast 3 Star Guest;"June 15; 2026 12:45 PM (GMT+2) → 1:45 PM";Podcast
+WS5 Legacy 2 (optional);"June 15; 2026 4:30 PM (GMT+2) → 5:15 PM";Workshop
+Podcast 1 Spark;"June 15; 2026 10:30 AM (GMT+2) → 11:30 AM";Podcast
+WS5 Legacy 1 (optional));"June 15; 2026 4:30 PM (GMT+2) → 5:15 PM";Workshop
+WS2 Build 2;"June 15; 2026 11:45 AM (GMT+2) → 12:30 PM";Workshop
+Afterworkevent;"June 15; 2026 6:00 PM (GMT+2) → 10:00 PM";Event
+KN9 Legacy;"June 15; 2026 4:00 PM (GMT+2) → 4:30 PM";Keynote
+Podcast 2 Build ;"June 15; 2026 11:30 AM (GMT+2) → 12:30 PM";Podcast
+KN1 Spark;"June 15; 2026 10:30 AM (GMT+2) → 11:00 AM";Keynote
+Podcast 5 Scale;"June 15; 2026 3:00 PM (GMT+2) → 4:00 PM";Podcast
+WS1 Spark 2;"June 15; 2026 10:30 AM (GMT+2) → 11:15 AM";Workshop
+KN8 Scale;"June 15; 2026 3:30 PM (GMT+2) → 4:00 PM";Keynote
+Podcast 6 Legacy ;"June 15; 2026 4:00 PM (GMT+2) → 5:00 PM";Podcast
+WS3 Fuel 1;"June 15; 2026 2:00 PM (GMT+2) → 2:45 PM";Workshop
+KN10 Legacy & Closing (Oder optional noch eine KN vorher);"June 15; 2026 4:30 PM (GMT+2) → 5:00 PM";Keynote
+Intro;"June 15; 2026 10:00 AM (GMT+2) → 10:30 AM";Event
+Podcast 4 Fuel;"June 15; 2026 2:00 PM (GMT+2) → 3:00 PM";Podcast
+KN2 Spark;"June 15; 2026 11:00 AM (GMT+2) → 11:30 AM";Keynote
+WS4 Scale 1;"June 15; 2026 3:15 PM (GMT+2) → 4:00 PM";Workshop
+KN5 Fuel;"June 15; 2026 2:00 PM (GMT+2) → 2:30 PM";Keynote
+KN4 Build;"June 15; 2026 12:00 PM (GMT+2) → 12:30 PM";Keynote
+WS0 1 (optional) ;"June 15; 2026 9:00 AM (GMT+2) → 9:45 AM";Workshop
+WS3 Fuel 2;"June 15; 2026 2:00 PM (GMT+2) → 2:45 PM";Workshop
+WS Opening;"June 15; 2026 8:30 AM (GMT+2) → 9:00 AM";Workshop
+KN7 Scale;"June 15; 2026 3:00 PM (GMT+2) → 3:30 PM";Keynote
+KN3 Build;"June 15; 2026 11:30 AM (GMT+2) → 12:00 PM";Keynote
+Breakfast (Anpassung nötig);"June 15; 2026 9:00 AM (GMT+2) → 10:30 AM";Event
+WS0 1 (optional) ;"June 15; 2026 9:00 AM (GMT+2) → 9:45 AM";Workshop
+WS2 Build 1;"June 15; 2026 11:45 AM (GMT+2) → 12:30 PM";Workshop

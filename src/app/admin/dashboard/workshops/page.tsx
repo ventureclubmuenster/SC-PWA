@@ -70,6 +70,10 @@ export default function WorkshopsCmsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.end_time && form.time && form.end_time <= form.time) {
+      alert('End time must be after start time.');
+      return;
+    }
     const body = {
       title: form.title,
       description: form.description || null,
