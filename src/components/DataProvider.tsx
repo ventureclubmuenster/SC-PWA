@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
   useRef,
   type ReactNode,
 } from 'react';
@@ -184,12 +185,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [applyCache]);
 
-  const value: DataContextValue = {
+  const value = useMemo<DataContextValue>(() => ({
     ...store,
     refreshAll,
     refreshBookings,
     refreshProfile,
-  };
+  }), [store, refreshAll, refreshBookings, refreshProfile]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

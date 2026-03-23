@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -22,23 +23,24 @@ export function StaggerList({ children, className }: { children: ReactNode; clas
   );
 }
 
-// Animated list item (fade + slide up)
-export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+// Animated list item (fade + slide up) — GPU-only: opacity + translateY
+export const StaggerItem = memo(function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <motion.div
       variants={{
         hidden: { opacity: 0, y: 14 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease } },
       }}
+      style={{ willChange: 'transform, opacity' }}
       className={className}
     >
       {children}
     </motion.div>
   );
-}
+});
 
-// Interactive card wrapper with hover lift + tap
-export function TapCard({
+// Interactive card wrapper — scale-only tap for GPU perf
+export const TapCard = memo(function TapCard({
   children,
   className,
   onClick,
@@ -49,18 +51,18 @@ export function TapCard({
 }) {
   return (
     <motion.div
-      whileHover={{ y: -2, transition: { duration: 0.15, ease } }}
       whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
+      style={{ willChange: 'transform' }}
       className={className}
       onClick={onClick}
     >
       {children}
     </motion.div>
   );
-}
+});
 
 // Animated button
-export function TapButton({
+export const TapButton = memo(function TapButton({
   children,
   className,
   onClick,
@@ -75,8 +77,8 @@ export function TapButton({
 }) {
   return (
     <motion.button
-      whileHover={disabled ? {} : { scale: 1.02, transition: { duration: 0.15, ease } }}
       whileTap={disabled ? {} : { scale: 0.97, transition: { duration: 0.1 } }}
+      style={{ willChange: 'transform' }}
       className={className}
       onClick={onClick}
       disabled={disabled}
@@ -85,9 +87,9 @@ export function TapButton({
       {children}
     </motion.button>
   );
-}
+});
 
-// Fade-in wrapper
+// Fade-in wrapper — GPU-only
 export function FadeIn({
   children,
   className,
@@ -102,6 +104,7 @@ export function FadeIn({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, delay, ease }}
+      style={{ willChange: 'transform, opacity' }}
       className={className}
     >
       {children}
@@ -117,6 +120,7 @@ export function PageTransition({ children, className }: { children: ReactNode; c
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.22, ease }}
+      style={{ willChange: 'transform, opacity' }}
       className={className}
     >
       {children}
@@ -124,16 +128,16 @@ export function PageTransition({ children, className }: { children: ReactNode; c
   );
 }
 
-// Slide-in from bottom (for forms / panels)
+// Slide-in — uses clipPath instead of height to avoid layout thrashing
 export function SlideIn({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+      animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
+      exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
       transition={{ duration: 0.2, ease }}
+      style={{ willChange: 'clip-path, opacity' }}
       className={className}
-      style={{ overflow: 'hidden' }}
     >
       {children}
     </motion.div>

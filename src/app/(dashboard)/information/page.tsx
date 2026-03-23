@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { usePartners, useSpeakers } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
@@ -31,10 +31,10 @@ export default function InformationPage() {
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
-  const filteredPartners =
-    categoryFilter === 'all'
-      ? partners
-      : partners.filter((p) => p.category === categoryFilter);
+  const filteredPartners = useMemo(
+    () => categoryFilter === 'all' ? partners : partners.filter((p) => p.category === categoryFilter),
+    [partners, categoryFilter],
+  );
 
   const categoryBadge: Record<string, string> = {
     gold: 'bg-yellow-100 text-yellow-700',
@@ -76,6 +76,7 @@ export default function InformationPage() {
                       src={partner.logo_url}
                       alt={partner.name}
                       className="h-8 w-8 object-contain"
+                      loading="lazy"
                     />
                   ) : (
                     <Building2 className="h-5 w-5 text-[#86868B]" />
@@ -134,6 +135,7 @@ export default function InformationPage() {
                       src={speaker.photo_url}
                       alt={speaker.name}
                       className="h-full w-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <Mic2 className="h-5 w-5 text-[#86868B]" />
@@ -159,7 +161,7 @@ export default function InformationPage() {
             <div className="flex items-center gap-3">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white border border-[rgba(0,0,0,0.06)]">
                 {selectedPartner.logo_url ? (
-                  <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" />
+                  <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" loading="lazy" />
                 ) : (
                   <Building2 className="h-6 w-6 text-[#86868B]" />
                 )}
@@ -207,7 +209,7 @@ export default function InformationPage() {
             <div className="flex flex-col items-center text-center">
               <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
                 {selectedSpeaker.photo_url ? (
-                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
+                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
                   <Mic2 className="h-10 w-10 text-[#86868B]" />
                 )}

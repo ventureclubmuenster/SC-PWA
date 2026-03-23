@@ -148,7 +148,7 @@ export default function ProfilePage() {
             type="text"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
+            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-shadow duration-150"
           />
         </div>
 
@@ -158,7 +158,7 @@ export default function ProfilePage() {
             type="text"
             value={form.university}
             onChange={(e) => setForm({ ...form, university: e.target.value })}
-            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
+            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-shadow duration-150"
           />
         </div>
 
@@ -205,7 +205,7 @@ export default function ProfilePage() {
               href={profile.cv_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-all duration-150"
+              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-colors duration-150"
             >
               <FileText className="h-4 w-4" />
               View CV
@@ -213,13 +213,13 @@ export default function ProfilePage() {
             <button
               onClick={handleCvRemove}
               disabled={uploadingCv}
-              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
+              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[rgba(0,0,0,0.08)] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-all duration-150">
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[rgba(0,0,0,0.08)] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-colors duration-150">
             <Upload className="h-4 w-4" />
             {uploadingCv ? 'Uploading...' : 'Upload CV'}
             <input
@@ -241,7 +241,7 @@ export default function ProfilePage() {
           <TapButton
             onClick={subscribe}
             disabled={isSubscribed || isLoading}
-            className="w-full card-clean rounded-2xl p-4 text-left transition-all duration-150 disabled:opacity-100"
+            className="w-full card-clean rounded-2xl p-4 text-left transition-opacity duration-150 disabled:opacity-100"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -265,7 +265,7 @@ export default function ProfilePage() {
       <FadeIn delay={0.4}>
       <TapButton
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[rgba(0,0,0,0.06)] hover:bg-red-50 transition-all duration-150"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[rgba(0,0,0,0.06)] hover:bg-red-50 transition-colors duration-150"
       >
         <LogOut className="h-4 w-4" />
         Sign Out

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { useSchedule } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
@@ -17,63 +17,65 @@ const categoryFilters = [
   { label: 'Event', value: 'event' },
 ];
 
+const timeFormatter = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
+const formatTime = (iso: string) => timeFormatter.format(new Date(iso));
+
+const categoryDot: Record<string, string> = {
+  keynote: 'bg-purple-500',
+  workshop: 'bg-blue-500',
+  podcast: 'bg-amber-500',
+  event: 'bg-green-500',
+};
+
+const categoryColors: Record<string, string> = {
+  keynote: 'bg-purple-100 text-purple-700',
+  workshop: 'bg-blue-100 text-blue-700',
+  podcast: 'bg-amber-100 text-amber-700',
+  event: 'bg-green-100 text-green-700',
+};
+
 export default function SchedulePage() {
   const { items, loading } = useSchedule();
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<ScheduleItem | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
-  const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
-
-  const locations = [...new Set(items.map((i) => i.location))];
+  const locations = useMemo(() => [...new Set(items.map((i) => i.location))], [items]);
   const [locationFilter, setLocationFilter] = useState('all');
-  const locationFilters = [
-    { label: 'All Stages', value: 'all' },
-    ...locations.map((l) => ({ label: l, value: l })),
-  ];
+  const locationFilters = useMemo(
+    () => [{ label: 'All Stages', value: 'all' }, ...locations.map((l) => ({ label: l, value: l }))],
+    [locations],
+  );
 
-  const filteredByLocation =
-    locationFilter === 'all'
-      ? filtered
-      : filtered.filter((i) => i.location === locationFilter);
+  const timeGroups = useMemo(() => {
+    const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
+    const byLocation =
+      locationFilter === 'all' ? filtered : filtered.filter((i) => i.location === locationFilter);
 
-  // Sort by time-of-day (all events occur on the same date)
-  const finalItems = [...filteredByLocation].sort((a, b) => {
-    const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
-    const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
-    return ta - tb;
-  });
+    const sorted = [...byLocation].sort((a, b) => {
+      const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
+      const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
+      return ta - tb;
+    });
 
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const categoryDot: Record<string, string> = {
-    keynote: 'bg-purple-500',
-    workshop: 'bg-blue-500',
-    podcast: 'bg-amber-500',
-    event: 'bg-green-500',
-  };
-
-  const categoryColors: Record<string, string> = {
-    keynote: 'bg-purple-100 text-purple-700',
-    workshop: 'bg-blue-100 text-blue-700',
-    podcast: 'bg-amber-100 text-amber-700',
-    event: 'bg-green-100 text-green-700',
-  };
-
-  // Group items by start time for horizontal stacking
-  const timeGroups: { time: string; items: typeof finalItems }[] = [];
-  for (const item of finalItems) {
-    const t = formatTime(item.time);
-    const existing = timeGroups.find((g) => g.time === t);
-    if (existing) {
-      existing.items.push(item);
-    } else {
-      timeGroups.push({ time: t, items: [item] });
+    const groups: { time: string; items: typeof sorted }[] = [];
+    for (const item of sorted) {
+      const t = formatTime(item.time);
+      const existing = groups.find((g) => g.time === t);
+      if (existing) {
+        existing.items.push(item);
+      } else {
+        groups.push({ time: t, items: [item] });
+      }
     }
-  }
+    return groups;
+  }, [items, filter, locationFilter]);
+
+  const hasItems = timeGroups.some((g) => g.items.length > 0);
+
+  const handleSelect = useCallback((item: ScheduleItem) => setSelected(item), []);
+  const handleCloseSelected = useCallback(() => setSelected(null), []);
+  const handleCloseSpeaker = useCallback(() => setSelectedSpeaker(null), []);
 
   return (
     <div className="space-y-5">
@@ -88,7 +90,7 @@ export default function SchedulePage() {
         />
       )}
 
-      {loading ? null : finalItems.length === 0 ? (
+      {loading ? null : !hasItems ? (
         <FadeIn>
           <p className="text-center text-sm text-[#86868B] py-12">
             No events found.
@@ -121,14 +123,14 @@ export default function SchedulePage() {
                     </p>
 
                     {group.items.length === 1 ? (
-                      <TapCard onClick={() => setSelected(group.items[0])} className="cursor-pointer">
-                        <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
+                      <TapCard onClick={() => handleSelect(group.items[0])} className="cursor-pointer">
+                        <EventCard item={group.items[0]} />
                       </TapCard>
                     ) : (
                       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
                         {group.items.map((item) => (
-                          <TapCard key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
-                            <EventCard item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
+                          <TapCard key={item.id} onClick={() => handleSelect(item)} className="cursor-pointer">
+                            <EventCard item={item} compact />
                           </TapCard>
                         ))}
                       </div>
@@ -142,7 +144,7 @@ export default function SchedulePage() {
       )}
 
       {/* Schedule Detail Modal — tall */}
-      <DetailModal open={!!selected} onClose={() => setSelected(null)} tall>
+      <DetailModal open={!!selected} onClose={handleCloseSelected} tall>
         {selected && (
           <div className="space-y-6">
             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
@@ -183,7 +185,7 @@ export default function SchedulePage() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
                     {selected.speaker.photo_url ? (
-                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
+                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
                       <Mic2 className="h-5 w-5 text-[#86868B]" />
                     )}
@@ -208,13 +210,13 @@ export default function SchedulePage() {
       </DetailModal>
 
       {/* Speaker Detail Modal */}
-      <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
+      <DetailModal open={!!selectedSpeaker} onClose={handleCloseSpeaker}>
         {selectedSpeaker && (
           <div className="space-y-5">
             <div className="flex flex-col items-center text-center">
               <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
                 {selectedSpeaker.photo_url ? (
-                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
+                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
                   <Mic2 className="h-10 w-10 text-[#86868B]" />
                 )}
@@ -244,15 +246,11 @@ export default function SchedulePage() {
   );
 }
 
-function EventCard({
+const EventCard = memo(function EventCard({
   item,
-  categoryColors,
-  formatTime,
   compact,
 }: {
   item: ScheduleItem;
-  categoryColors: Record<string, string>;
-  formatTime: (iso: string) => string;
   compact?: boolean;
 }) {
   return (
@@ -291,4 +289,4 @@ function EventCard({
       )}
     </div>
   );
-}
+});

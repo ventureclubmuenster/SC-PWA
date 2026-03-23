@@ -9,7 +9,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, subtitle }: PageHeaderProps) {
   return (
-    <div className="-mx-4 -mt-6 mb-1 sticky top-0 z-30 bg-[#FAFAFA]/80 backdrop-blur-xl border-b border-[rgba(0,0,0,0.06)] px-5 pt-5 pb-4">
+    <div className="-mx-4 -mt-6 mb-1 sticky top-0 z-30 bg-[#FAFAFA]/80 backdrop-blur-md gpu-layer border-b border-[rgba(0,0,0,0.06)] px-5 pt-5 pb-4">
       <motion.h1
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

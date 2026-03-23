@@ -216,14 +216,14 @@ export default function ApplicantsPage() {
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all duration-150"
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>
@@ -292,14 +292,14 @@ export default function ApplicantsPage() {
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-all duration-150"
+                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-all duration-150"
+                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>

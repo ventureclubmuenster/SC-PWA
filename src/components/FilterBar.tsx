@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 
 interface FilterBarProps {
@@ -8,7 +9,7 @@ interface FilterBarProps {
   onFilterChange: (value: string) => void;
 }
 
-export default function FilterBar({ filters, activeFilter, onFilterChange }: FilterBarProps) {
+const FilterBar = memo(function FilterBar({ filters, activeFilter, onFilterChange }: FilterBarProps) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
       {filters.map((filter) => (
@@ -27,4 +28,6 @@ export default function FilterBar({ filters, activeFilter, onFilterChange }: Fil
       ))}
     </div>
   );
-}
+});
+
+export default FilterBar;
