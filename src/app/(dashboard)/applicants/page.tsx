@@ -158,7 +158,7 @@ export default function ApplicantsPage() {
       )}
 
       {loading ? null : hasNoResults ? (
-        <p className="text-center text-sm text-[#86868B] py-12">
+        <p className="text-center text-sm text-muted py-12">
           No applicants found.
         </p>
       ) : (
@@ -179,16 +179,16 @@ export default function ApplicantsPage() {
                 >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)]">
-                      <User className="h-4 w-4 text-[#86868B]" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--muted-light)] border border-[var(--border)]">
+                      <User className="h-4 w-4 text-muted" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
                         {visitor?.full_name || 'Unnamed'}
                       </p>
-                      <p className="text-xs text-[#86868B]">{visitor?.email}</p>
+                      <p className="text-xs text-muted">{visitor?.email}</p>
                       {visitor?.university && (
-                        <p className="text-xs text-[#86868B]">{visitor.university}</p>
+                        <p className="text-xs text-muted">{visitor.university}</p>
                       )}
                     </div>
                   </div>
@@ -205,7 +205,7 @@ export default function ApplicantsPage() {
                     href={visitor.cv_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A] transition-colors duration-150"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors duration-150"
                   >
                     <FileText className="h-3 w-3" /> View CV
                   </a>
@@ -257,9 +257,9 @@ export default function ApplicantsPage() {
                       <p className="text-sm font-semibold">
                         {visitor?.full_name || 'Unnamed'}
                       </p>
-                      <p className="text-xs text-[#86868B]">{visitor?.email}</p>
+                      <p className="text-xs text-muted">{visitor?.email}</p>
                       {visitor?.university && (
-                        <p className="text-xs text-[#86868B]">{visitor.university}</p>
+                        <p className="text-xs text-muted">{visitor.university}</p>
                       )}
                       {applicant.workshop && (
                         <p className="text-xs font-medium text-blue-600 mt-0.5">
@@ -281,7 +281,7 @@ export default function ApplicantsPage() {
                     href={visitor.cv_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#FF754B] hover:text-[#E8633A] transition-colors duration-150"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors duration-150"
                   >
                     <FileText className="h-3 w-3" /> View CV
                   </a>

@@ -40,37 +40,37 @@ export default function TicketPage() {
       <div className="card-clean rounded-2xl p-6">
         <div className="flex flex-col items-center space-y-5">
           {/* QR Code */}
-          <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-white border border-[rgba(0,0,0,0.06)]">
+          <div className="flex h-52 w-52 items-center justify-center rounded-2xl" style={{ background: 'var(--qr-bg)', border: '1px solid var(--border)' }}>
             {qrValue ? (
               <QRCodeSVG value={qrValue} size={180} level="M" />
             ) : null}
           </div>
 
           {/* Attendee Info */}
-          <div className="w-full space-y-3 pt-4 border-t border-dashed border-[rgba(0,0,0,0.06)]">
+          <div className="w-full space-y-3 pt-4 border-t border-dashed" style={{ borderColor: 'var(--border)' }}>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-[#86868B]">Name</span>
-              <span className="text-sm font-semibold text-[#1D1D1F]">
+              <span className="text-xs text-muted">Name</span>
+              <span className="text-sm font-semibold">
                 {profile?.full_name || 'Not set'}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-[#86868B]">Email</span>
-              <span className="text-sm font-medium text-[#1D1D1F]">
+              <span className="text-xs text-muted">Email</span>
+              <span className="text-sm font-medium">
                 {profile?.email || '—'}
               </span>
             </div>
             {profile?.university && (
               <div className="flex justify-between items-center">
-                <span className="text-xs text-[#86868B]">University</span>
-                <span className="text-sm font-medium text-[#1D1D1F]">
+                <span className="text-xs text-muted">University</span>
+                <span className="text-sm font-medium">
                   {profile.university}
                 </span>
               </div>
             )}
             <div className="flex justify-between items-center">
-              <span className="text-xs text-[#86868B]">Role</span>
-              <span className="text-sm font-medium text-[#1D1D1F] capitalize">
+              <span className="text-xs text-muted">Role</span>
+              <span className="text-sm font-medium capitalize">
                 {profile?.role || '—'}
               </span>
             </div>

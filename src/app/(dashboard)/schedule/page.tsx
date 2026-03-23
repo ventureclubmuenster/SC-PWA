@@ -28,10 +28,10 @@ const categoryDot: Record<string, string> = {
 };
 
 const categoryColors: Record<string, string> = {
-  keynote: 'bg-purple-100 text-purple-700',
-  workshop: 'bg-blue-100 text-blue-700',
-  podcast: 'bg-amber-100 text-amber-700',
-  event: 'bg-green-100 text-green-700',
+  keynote: 'bg-purple-500/15 text-purple-400',
+  workshop: 'bg-blue-500/15 text-blue-400',
+  podcast: 'bg-amber-500/15 text-amber-400',
+  event: 'bg-green-500/15 text-green-400',
 };
 
 export default function SchedulePage() {
@@ -92,14 +92,14 @@ export default function SchedulePage() {
 
       {loading ? null : !hasItems ? (
         <FadeIn>
-          <p className="text-center text-sm text-[#86868B] py-12">
+          <p className="text-center text-sm text-muted py-12">
             No events found.
           </p>
         </FadeIn>
       ) : (
         <div className="relative pl-6">
           {/* Timeline spine */}
-          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[rgba(0,0,0,0.06)]" />
+          <div className="absolute left-[5px] top-2 bottom-2 w-[2px]" style={{ background: 'var(--border)' }} />
 
           <StaggerList className="space-y-0">
             {timeGroups.map((group, gIdx) => {
@@ -108,16 +108,16 @@ export default function SchedulePage() {
                 <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
                   {/* Timeline node */}
                   <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
-                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#FAFAFA] ${
+                    <div className={`h-3 w-3 rounded-full ${
                       group.items.length === 1
-                        ? (categoryDot[group.items[0].category] || 'bg-[#86868B]')
-                        : 'bg-[#1D1D1F]'
-                    }`} />
+                        ? (categoryDot[group.items[0].category] || 'bg-gray-400')
+                        : 'bg-[var(--foreground)]'
+                    }`} style={{ boxShadow: '0 0 0 3px var(--background)' }} />
                   </div>
 
                   {/* Cards */}
                   <div className="space-y-2">
-                    <p className="text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
+                    <p className="text-[11px] font-bold tracking-wider text-muted uppercase">
                       {group.time}
                       {group.items[0].end_time && group.items.length === 1 && ` – ${formatTime(group.items[0].end_time)}`}
                     </p>
@@ -147,19 +147,19 @@ export default function SchedulePage() {
       <DetailModal open={!!selected} onClose={handleCloseSelected} tall>
         {selected && (
           <div className="space-y-6">
-            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
+            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[var(--muted-light)] text-muted'}`}>
               {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
-            <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
+            <h2 className="text-2xl font-bold tracking-tight leading-tight">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-[#86868B]">
+                <div className="flex items-center gap-2 text-muted">
                   <Clock className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
-                    <p className="text-sm font-semibold text-[#1D1D1F]">
+                    <p className="text-sm font-semibold text-primary">
                       {formatTime(selected.time)}
                       {selected.end_time && ` – ${formatTime(selected.end_time)}`}
                     </p>
@@ -167,11 +167,11 @@ export default function SchedulePage() {
                 </div>
               </div>
               <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-[#86868B]">
+                <div className="flex items-center gap-2 text-muted">
                   <MapPin className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
-                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.location}</p>
+                    <p className="text-sm font-semibold text-primary">{selected.location}</p>
                   </div>
                 </div>
               </div>
@@ -183,26 +183,26 @@ export default function SchedulePage() {
                 className="w-full card-clean rounded-xl p-4 text-left cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                     {selected.speaker.photo_url ? (
                       <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
-                      <Mic2 className="h-5 w-5 text-[#86868B]" />
+                      <Mic2 className="h-5 w-5 text-muted" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.speaker.name}</p>
-                    <p className="text-xs text-[#86868B]">Speaker</p>
+                    <p className="text-sm font-semibold">{selected.speaker.name}</p>
+                    <p className="text-xs text-muted">Speaker</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-[#86868B] shrink-0" />
+                  <ChevronRight className="h-4 w-4 text-muted shrink-0" />
                 </div>
               </TapCard>
             )}
 
             {selected.description && (
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#86868B] mb-2">About</h3>
-                <p className="text-sm text-[#1D1D1F] leading-relaxed">{selected.description}</p>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">About</h3>
+                <p className="text-sm leading-relaxed">{selected.description}</p>
               </div>
             )}
           </div>
@@ -214,18 +214,18 @@ export default function SchedulePage() {
         {selectedSpeaker && (
           <div className="space-y-5">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
-                  <Mic2 className="h-10 w-10 text-[#86868B]" />
+                  <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-4 text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
+              <h2 className="mt-4 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
-              <p className="text-sm text-[#86868B] leading-relaxed">{selectedSpeaker.bio}</p>
+              <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
             )}
 
             {selectedSpeaker.linkedin && (
@@ -233,7 +233,7 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile
@@ -256,22 +256,22 @@ const EventCard = memo(function EventCard({
   return (
     <div className={`card-clean rounded-2xl p-4 space-y-2 ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
-        <p className="text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
+        <p className="text-[10px] font-bold tracking-wider text-muted uppercase">
           until {formatTime(item.end_time)}
         </p>
       )}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-sm text-[#1D1D1F]">{item.title}</h3>
+        <h3 className="font-semibold text-sm">{item.title}</h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-            categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
+            categoryColors[item.category] || 'bg-[var(--muted-light)] text-muted'
           }`}
         >
           {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
         </span>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-[#86868B]">
+      <div className="flex items-center gap-3 text-xs text-muted">
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           {item.location}
@@ -279,13 +279,13 @@ const EventCard = memo(function EventCard({
         {item.speaker && (
           <span className="flex items-center gap-1">
             <Mic2 className="h-3 w-3" />
-            <span className="font-medium text-[#1D1D1F]">{item.speaker.name}</span>
+            <span className="font-medium text-primary">{item.speaker.name}</span>
           </span>
         )}
       </div>
 
       {item.description && (
-        <p className="text-xs text-[#86868B] line-clamp-2">{item.description}</p>
+        <p className="text-xs text-muted line-clamp-2">{item.description}</p>
       )}
     </div>
   );

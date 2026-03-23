@@ -1,17 +1,50 @@
 @import "tailwindcss";
 
-:root {
+/* -------------------------------------------------- */
+/*  Dark mode (default)                                */
+/* -------------------------------------------------- */
+:root, .dark {
+  --background: #0C0C0E;
+  --foreground: #F5F5F7;
+  --accent: #FF754B;
+  --accent-hover: #FF8F6B;
+  --card: rgba(255, 255, 255, 0.04);
+  --card-elevated: rgba(255, 255, 255, 0.07);
+  --card-solid: #1A1A1C;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --muted: rgba(255, 255, 255, 0.45);
+  --muted-light: rgba(255, 255, 255, 0.06);
+  --input-bg: rgba(255, 255, 255, 0.06);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --toggle-off: rgba(255, 255, 255, 0.12);
+  --qr-bg: #FFFFFF;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------- */
+/*  Light mode                                         */
+/* -------------------------------------------------- */
+.light {
   --background: #FAFAFA;
   --foreground: #1D1D1F;
   --accent: #FF754B;
   --accent-hover: #E8633A;
   --card: #FFFFFF;
   --card-elevated: #FFFFFF;
+  --card-solid: #FFFFFF;
   --border: rgba(0, 0, 0, 0.06);
   --border-subtle: rgba(0, 0, 0, 0.03);
   --muted: #86868B;
   --muted-light: #F5F5F7;
-  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --input-bg: #F5F5F7;
+  --input-border: rgba(0, 0, 0, 0.06);
+  --overlay: rgba(0, 0, 0, 0.3);
+  --toggle-off: rgba(0, 0, 0, 0.08);
+  --qr-bg: #FFFFFF;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -48,24 +81,6 @@ body {
   to   { opacity: 1; }
 }
 
-@keyframes slide-up-in {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-up-out {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
-  }
-}
-
 @keyframes scale-in {
   from {
     opacity: 0;
@@ -77,7 +92,6 @@ body {
   }
 }
 
-/* Stagger item — uses animation-delay via inline style */
 .anim-stagger-item {
   opacity: 0;
   animation: fade-in-up 0.3s var(--ease-out-expo) forwards;
@@ -85,20 +99,17 @@ body {
   will-change: transform, opacity;
 }
 
-/* Fade-in wrapper */
 .anim-fade-in {
   animation: fade-in-up 0.28s var(--ease-out-expo) both;
   animation-delay: var(--fade-delay, 0ms);
   will-change: transform, opacity;
 }
 
-/* Scale-in (modal content) */
 .anim-scale-in {
   animation: scale-in 0.22s var(--ease-out-expo) both;
   animation-delay: 100ms;
 }
 
-/* Tap feedback — pure CSS, no JS */
 .tap-card {
   will-change: transform;
   transition: transform 0.1s ease;
@@ -122,7 +133,10 @@ body {
   -webkit-transform: translateZ(0);
 }
 
-/* Clean card styling */
+/* -------------------------------------------------- */
+/*  Themed utility classes                             */
+/* -------------------------------------------------- */
+
 .card-clean {
   background: var(--card);
   border: 1px solid var(--border);
@@ -130,25 +144,50 @@ body {
   contain: content;
 }
 
-/* Dark button/panel */
-.btn-dark {
-  background: var(--foreground);
+.card-accent {
+  background: rgba(255, 117, 75, 0.08);
+  border: 1px solid rgba(255, 117, 75, 0.15);
+}
+
+.btn-primary {
+  background: var(--accent);
   color: #FFFFFF;
 }
 
-/* Accent tinted card */
-.card-accent {
-  background: #FFF8F5;
-  border: 1px solid rgba(255, 117, 75, 0.1);
+.btn-dark {
+  background: var(--foreground);
+  color: var(--background);
 }
 
-/* Skeleton shimmer animation */
+.text-primary { color: var(--foreground); }
+.text-muted { color: var(--muted); }
+.bg-surface { background: var(--background); }
+.bg-card { background: var(--card); }
+.border-theme { border-color: var(--border); }
+
+.input-field {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 117, 75, 0.2);
+}
+.input-field::placeholder {
+  color: var(--muted);
+}
+
+/* Skeleton shimmer */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #F0F0F0 25%, #E8E8E8 50%, #F0F0F0 75%);
+  background: linear-gradient(90deg, var(--muted-light) 25%, var(--border) 50%, var(--muted-light) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 8px;
@@ -162,15 +201,11 @@ body {
 /* Safe area for bottom bar */
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-/* Extra bottom spacing when running as installed PWA */
 @media (display-mode: standalone) {
   .pwa-bottom-space { padding-bottom: 25px; }
 }
 
-/* -------------------------------------------------- */
-/*  Modal overlay + panel transitions                  */
-/* -------------------------------------------------- */
-
+/* Modal */
 .modal-backdrop {
   transition: opacity 0.2s var(--ease-out-expo);
 }

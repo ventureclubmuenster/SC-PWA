@@ -37,9 +37,9 @@ export default function InformationPage() {
   );
 
   const categoryBadge: Record<string, string> = {
-    gold: 'bg-yellow-100 text-yellow-700',
-    silver: 'bg-gray-100 text-gray-600',
-    bronze: 'bg-orange-100 text-orange-700',
+    gold: 'bg-yellow-500/15 text-yellow-400',
+    silver: 'bg-gray-500/15 text-gray-400',
+    bronze: 'bg-orange-500/15 text-orange-400',
   };
 
   return (
@@ -59,7 +59,7 @@ export default function InformationPage() {
       {loading && view !== 'lageplan' ? null : view === 'partners' ? (
         <>
         {filteredPartners.length === 0 ? (
-          <p className="text-center text-sm text-[#86868B] py-12">
+          <p className="text-center text-sm text-muted py-12">
             No partners found.
           </p>
         ) : (
@@ -70,7 +70,7 @@ export default function InformationPage() {
                   onClick={() => setSelectedPartner(partner)}
                   className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
                 >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -79,7 +79,7 @@ export default function InformationPage() {
                       loading="lazy"
                     />
                   ) : (
-                    <Building2 className="h-5 w-5 text-[#86868B]" />
+                    <Building2 className="h-5 w-5 text-muted" />
                   )}
                 </div>
                 <div className="flex-1 space-y-1">
@@ -94,10 +94,10 @@ export default function InformationPage() {
                     </span>
                   </div>
                   {partner.booth_number && (
-                    <p className="text-xs text-[#86868B]">Booth {partner.booth_number}</p>
+                    <p className="text-xs text-muted">Booth {partner.booth_number}</p>
                   )}
                   {partner.description && (
-                    <p className="text-xs text-[#86868B] line-clamp-2">{partner.description}</p>
+                    <p className="text-xs text-muted line-clamp-2">{partner.description}</p>
                   )}
                 </div>
               </TapCard>
@@ -108,16 +108,16 @@ export default function InformationPage() {
         </>
       ) : view === 'lageplan' ? (
         <div className="card-clean rounded-2xl overflow-hidden">
-          <div className="flex flex-col items-center justify-center gap-4 py-16 text-[#86868B]">
+          <div className="flex flex-col items-center justify-center gap-4 py-16 text-muted">
             <Map className="h-14 w-14 opacity-40" strokeWidth={1} />
             <div className="text-center space-y-1">
-              <p className="text-sm font-semibold text-[#1D1D1F]">Lageplan</p>
-              <p className="text-xs text-[#86868B]">Der Lageplan wird bald hinzugefügt.</p>
+              <p className="text-sm font-semibold text-primary">Lageplan</p>
+              <p className="text-xs text-muted">Der Lageplan wird bald hinzugefügt.</p>
             </div>
           </div>
         </div>
       ) : speakers.length === 0 ? (
-        <p className="text-center text-sm text-[#86868B] py-12">
+        <p className="text-center text-sm text-muted py-12">
           No speakers found.
         </p>
       ) : (
@@ -129,7 +129,7 @@ export default function InformationPage() {
                 onClick={() => setSelectedSpeaker(speaker)}
                 className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                   {speaker.photo_url ? (
                     <img
                       src={speaker.photo_url}
@@ -138,13 +138,13 @@ export default function InformationPage() {
                       loading="lazy"
                     />
                   ) : (
-                    <Mic2 className="h-5 w-5 text-[#86868B]" />
+                    <Mic2 className="h-5 w-5 text-muted" />
                   )}
                 </div>
                 <div className="flex-1 space-y-1">
                   <h3 className="text-sm font-semibold">{speaker.name}</h3>
                   {speaker.bio && (
-                    <p className="text-xs text-[#86868B] line-clamp-3">{speaker.bio}</p>
+                    <p className="text-xs text-muted line-clamp-3">{speaker.bio}</p>
                   )}
                 </div>
               </TapCard>
@@ -159,15 +159,15 @@ export default function InformationPage() {
         {selectedPartner && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white border border-[rgba(0,0,0,0.06)]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                 {selectedPartner.logo_url ? (
                   <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" loading="lazy" />
                 ) : (
-                  <Building2 className="h-6 w-6 text-[#86868B]" />
+                  <Building2 className="h-6 w-6 text-muted" />
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedPartner.name}</h2>
+                <h2 className="text-xl font-bold tracking-tight">{selectedPartner.name}</h2>
                 <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${categoryBadge[selectedPartner.category]}`}>
                   {selectedPartner.category}
                 </span>
@@ -176,14 +176,14 @@ export default function InformationPage() {
 
             {selectedPartner.booth_number && (
               <div className="card-clean rounded-xl p-3">
-                <p className="text-sm text-[#86868B]">
-                  <span className="font-semibold text-[#1D1D1F]">Booth:</span> {selectedPartner.booth_number}
+                <p className="text-sm text-muted">
+                  <span className="font-semibold text-primary">Booth:</span> {selectedPartner.booth_number}
                 </p>
               </div>
             )}
 
             {selectedPartner.description && (
-              <p className="text-sm text-[#86868B] leading-relaxed">{selectedPartner.description}</p>
+              <p className="text-sm text-muted leading-relaxed">{selectedPartner.description}</p>
             )}
 
             {selectedPartner.website && (
@@ -191,7 +191,7 @@ export default function InformationPage() {
                 href={selectedPartner.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 Visit Website
@@ -205,20 +205,19 @@ export default function InformationPage() {
       <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
         {selectedSpeaker && (
           <div className="space-y-5">
-            {/* Large centered photo */}
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
-                  <Mic2 className="h-10 w-10 text-[#86868B]" />
+                  <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-4 text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
+              <h2 className="mt-4 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
-              <p className="text-sm text-[#86868B] leading-relaxed">{selectedSpeaker.bio}</p>
+              <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
             )}
 
             {selectedSpeaker.linkedin && (
@@ -226,7 +225,7 @@ export default function InformationPage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile

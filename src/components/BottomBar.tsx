@@ -25,7 +25,7 @@ export default function BottomBar() {
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[rgba(0,0,0,0.06)] bg-white/80 backdrop-blur-md gpu-layer safe-area-bottom pwa-bottom-space">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 gpu-layer safe-area-bottom pwa-bottom-space" style={{ background: 'var(--card-solid)', borderTop: '1px solid var(--border)' }}>
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
@@ -37,15 +37,19 @@ export default function BottomBar() {
               className="relative flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium tracking-wide"
             >
               {isActive && (
-                <div className="absolute inset-0 rounded-xl bg-[#FF754B]/8 anim-fade-in" />
+                <div className="absolute inset-0 rounded-xl anim-fade-in" style={{ background: 'rgba(255, 117, 75, 0.08)' }} />
               )}
               <div className="tap-card">
                 <Icon
-                  className={`h-5 w-5 transition-colors duration-150 ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}
+                  className="h-5 w-5 transition-colors duration-150"
+                  style={{ color: isActive ? 'var(--accent)' : 'var(--muted)' }}
                   strokeWidth={isActive ? 2.5 : 1.5}
                 />
               </div>
-              <span className={`relative z-10 transition-colors duration-150 ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}>
+              <span
+                className="relative z-10 transition-colors duration-150"
+                style={{ color: isActive ? 'var(--accent)' : 'var(--muted)' }}
+              >
                 {tab.label}
               </span>
             </Link>

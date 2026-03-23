@@ -17,7 +17,6 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      // Trigger enter animation on next frame
       requestAnimationFrame(() => {
         backdropRef.current?.classList.add('opacity-100');
         backdropRef.current?.classList.remove('opacity-0');
@@ -31,12 +30,10 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
   }, [open]);
 
   const handleClose = useCallback(() => {
-    // Trigger exit animation
     backdropRef.current?.classList.remove('opacity-100');
     backdropRef.current?.classList.add('opacity-0');
     panelRef.current?.classList.remove('translate-y-0');
     panelRef.current?.classList.add('translate-y-full');
-    // Wait for transition to finish, then unmount
     setTimeout(onClose, 280);
   }, [onClose]);
 
@@ -44,26 +41,26 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center">
-      {/* Backdrop */}
       <div
         ref={backdropRef}
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm gpu-layer opacity-0 transition-opacity duration-200 ease-out"
+        className="absolute inset-0 gpu-layer opacity-0 transition-opacity duration-200 ease-out"
+        style={{ background: 'var(--overlay)', backdropFilter: 'blur(4px)' }}
         onClick={handleClose}
       />
 
-      {/* Panel */}
       <div
         ref={panelRef}
-        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] bg-[#FAFAFA] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+        style={{ background: 'var(--card-solid)' }}
       >
-        {/* Handle + close */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 bg-[#FAFAFA]/80 backdrop-blur-md gpu-layer">
-          <div className="mx-auto h-1 w-10 rounded-full bg-[rgba(0,0,0,0.08)]" />
+        <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 gpu-layer" style={{ background: 'var(--card-solid)', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--border)' }} />
           <button
             onClick={handleClose}
-            className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,0,0.05)] active:bg-[rgba(0,0,0,0.08)] transition-colors duration-150"
+            className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
+            style={{ background: 'var(--muted-light)' }}
           >
-            <X className="h-4 w-4 text-[#86868B]" />
+            <X className="h-4 w-4 text-muted" />
           </button>
         </div>
 

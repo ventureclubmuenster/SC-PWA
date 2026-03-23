@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF754B",
+  themeColor: "#0C0C0E",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -34,14 +35,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        {/* Prevent FOUC: set theme class before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('sc-theme')||'dark';document.documentElement.className=t})()`,
+          }}
+        />
       </head>
-      <body
-        className={`${montserrat.variable} antialiased bg-[#FAFAFA] text-[#1D1D1F]`}
-      >
-        {children}
+      <body className={`${montserrat.variable} antialiased`}>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -50,7 +57,6 @@ export default function RootLayout({
                   navigator.serviceWorker.register('/sw.js');
                 });
               }
-              // Lock orientation to portrait when running as installed PWA
               if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait').catch(() => {});
               }

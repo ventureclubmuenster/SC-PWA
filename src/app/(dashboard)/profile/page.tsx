@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDemoUser, isDemoMode } from '@/lib/demo';
 import { useProfile as useCachedProfile } from '@/components/DataProvider';
+import { useTheme } from '@/components/ThemeProvider';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
-import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2 } from 'lucide-react';
+import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon } from 'lucide-react';
 import { FadeIn, TapButton } from '@/components/motion';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
 
 export default function ProfilePage() {
   const { profile: cachedProfile, loading: cacheLoading, refreshProfile } = useCachedProfile();
+  const { theme, toggleTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -24,7 +26,6 @@ export default function ProfilePage() {
   });
   const demoUser = useDemoUser();
 
-  // Hydrate from cache
   useEffect(() => {
     const p = demoUser || cachedProfile;
     if (p) {
@@ -44,7 +45,6 @@ export default function ProfilePage() {
     if (!profile) return;
     setSaving(true);
     if (isDemoMode()) {
-      // Update demo cookie in-place
       const updated = { ...profile, ...form, updated_at: new Date().toISOString() };
       document.cookie = `${DEMO_COOKIE}=${encodeURIComponent(JSON.stringify(updated))}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
       setProfile(updated);
@@ -127,48 +127,73 @@ export default function ProfilePage() {
 
       {/* Avatar & Email */}
       <FadeIn delay={0}>
-        <div className="card-accent flex items-center gap-4 rounded-2xl p-4 border border-[rgba(255,117,75,0.1)]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1D1D1F]">
-            <User className="h-6 w-6 text-white" />
+        <div className="card-accent flex items-center gap-4 rounded-2xl p-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--foreground)' }}>
+            <User className="h-6 w-6" style={{ color: 'var(--background)' }} />
           </div>
         <div>
-          <p className="font-semibold text-sm text-[#1D1D1F]">{form.full_name || 'No name set'}</p>
-          <p className="text-xs text-[#86868B]">{profile?.email}</p>
-          <p className="text-[10px] text-[#86868B] mt-0.5 capitalize font-medium">{profile?.role}</p>
+          <p className="font-semibold text-sm">{form.full_name || 'No name set'}</p>
+          <p className="text-xs text-muted">{profile?.email}</p>
+          <p className="text-[10px] text-muted mt-0.5 capitalize font-medium">{profile?.role}</p>
         </div>
       </div>
+      </FadeIn>
+
+      {/* Theme Toggle */}
+      <FadeIn delay={0.05}>
+        <div className="card-clean rounded-2xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold">Appearance</p>
+              <p className="text-xs text-muted mt-0.5">
+                {theme === 'dark' ? 'Dark mode' : 'Light mode'}
+              </p>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-150"
+              style={{ background: 'var(--muted-light)' }}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+              ) : (
+                <Moon className="h-5 w-5" style={{ color: 'var(--accent)' }} />
+              )}
+            </button>
+          </div>
+        </div>
       </FadeIn>
 
       {/* Edit Form */}
       <FadeIn delay={0.1}>
       <div className="space-y-4 card-clean rounded-2xl p-4">
         <div className="space-y-1">
-          <label className="text-xs font-medium text-[#86868B]">Full Name</label>
+          <label className="text-xs font-medium text-muted">Full Name</label>
           <input
             type="text"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-shadow duration-150"
+            className="w-full rounded-xl px-3 py-2.5 text-sm input-field"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-[#86868B]">University</label>
+          <label className="text-xs font-medium text-muted">University</label>
           <input
             type="text"
             value={form.university}
             onChange={(e) => setForm({ ...form, university: e.target.value })}
-            className="w-full rounded-xl bg-[#FAFAFA] px-3 py-2.5 text-sm outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-shadow duration-150"
+            className="w-full rounded-xl px-3 py-2.5 text-sm input-field"
           />
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-[#86868B]">Afterparty RSVP</label>
+          <label className="text-xs font-medium text-muted">Afterparty RSVP</label>
           <button
             onClick={() => setForm({ ...form, afterparty_rsvp: !form.afterparty_rsvp })}
-            className={`h-6 w-11 rounded-full transition-colors duration-150 ${
-              form.afterparty_rsvp ? 'bg-[#FF754B]' : 'bg-[rgba(0,0,0,0.08)]'
-            }`}
+            className="h-6 w-11 rounded-full transition-colors duration-150"
+            style={{ background: form.afterparty_rsvp ? 'var(--accent)' : 'var(--toggle-off)' }}
           >
             <div
               className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150 ${
@@ -181,7 +206,7 @@ export default function ProfilePage() {
         <TapButton
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#1D1D1F] flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+          className="btn-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           <span>{saving ? 'Saving...' : 'Save Profile'}</span>
@@ -193,8 +218,8 @@ export default function ProfilePage() {
       <FadeIn delay={0.2}>
       <div className="card-clean rounded-2xl p-4 space-y-3">
         <div>
-          <p className="text-sm font-semibold text-[#1D1D1F]">CV / Resume</p>
-          <p className="text-xs text-[#86868B] mt-0.5">
+          <p className="text-sm font-semibold">CV / Resume</p>
+          <p className="text-xs text-muted mt-0.5">
             {profile?.cv_url ? 'Your CV has been uploaded' : 'Upload your CV (PDF recommended)'}
           </p>
         </div>
@@ -205,7 +230,7 @@ export default function ProfilePage() {
               href={profile.cv_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center gap-2 rounded-xl bg-green-50 px-3 py-2.5 text-xs font-medium text-green-600 hover:bg-green-100 transition-colors duration-150"
+              className="flex-1 flex items-center gap-2 rounded-xl bg-green-500/15 px-3 py-2.5 text-xs font-medium text-green-400 transition-colors duration-150"
             >
               <FileText className="h-4 w-4" />
               View CV
@@ -213,13 +238,13 @@ export default function ProfilePage() {
             <button
               onClick={handleCvRemove}
               disabled={uploadingCv}
-              className="rounded-xl bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
+              className="rounded-xl bg-red-500/15 px-3 py-2.5 text-xs font-medium text-red-400 disabled:opacity-50 transition-colors duration-150"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[rgba(0,0,0,0.08)] py-4 text-sm font-medium text-[#86868B] hover:border-[#FF754B] hover:text-[#FF754B] transition-colors duration-150">
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed py-4 text-sm font-medium text-muted transition-colors duration-150" style={{ borderColor: 'var(--border)' }}>
             <Upload className="h-4 w-4" />
             {uploadingCv ? 'Uploading...' : 'Upload CV'}
             <input
@@ -245,15 +270,15 @@ export default function ProfilePage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-[#1D1D1F]">Push Notifications</p>
-                <p className="text-xs text-[#86868B] mt-0.5">
+                <p className="text-sm font-semibold">Push Notifications</p>
+                <p className="text-xs text-muted mt-0.5">
                   {isLoading ? 'Enabling...' : isSubscribed ? 'Notifications are enabled' : 'Tap to enable notifications'}
                 </p>
               </div>
               {isSubscribed ? (
-                <Bell size={20} className="text-[#FF754B]" />
+                <Bell size={20} style={{ color: 'var(--accent)' }} />
               ) : (
-                <BellOff size={20} className="text-[#86868B]" />
+                <BellOff size={20} className="text-muted" />
               )}
             </div>
           </TapButton>
@@ -265,7 +290,7 @@ export default function ProfilePage() {
       <FadeIn delay={0.4}>
       <TapButton
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-red-500 border border-[rgba(0,0,0,0.06)] hover:bg-red-50 transition-colors duration-150"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-red-400 card-clean transition-colors duration-150"
       >
         <LogOut className="h-4 w-4" />
         Sign Out

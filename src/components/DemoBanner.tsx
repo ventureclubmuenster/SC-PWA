@@ -13,7 +13,7 @@ export default function DemoBanner() {
   if (!isDemo) return null;
 
   return (
-    <div className="bg-[#FFF8F5] sticky top-0 z-50 px-4 py-1.5 text-center text-[11px] font-semibold tracking-wide text-[#FF754B] border-b border-[rgba(255,117,75,0.1)]">
+    <div className="sticky top-0 z-50 px-4 py-1.5 text-center text-[11px] font-semibold tracking-wide border-b" style={{ background: 'rgba(255,117,75,0.08)', color: 'var(--accent)', borderColor: 'rgba(255,117,75,0.15)' }}>
       🚧 Demo Mode — no real data
     </div>
   );

@@ -15,11 +15,12 @@ const FilterBar = memo(function FilterBar({ filters, activeFilter, onFilterChang
         <button
           key={filter.value}
           onClick={() => onFilterChange(filter.value)}
-          className={`tap-btn relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors duration-150 min-h-[44px] flex items-center ${
-            activeFilter === filter.value
-              ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white'
-              : 'border-[rgba(0,0,0,0.06)] bg-white text-[#86868B] hover:border-[#1D1D1F] hover:text-[#1D1D1F]'
-          }`}
+          className="tap-btn relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors duration-150 min-h-[44px] flex items-center"
+          style={{
+            background: activeFilter === filter.value ? 'var(--foreground)' : 'var(--card)',
+            color: activeFilter === filter.value ? 'var(--background)' : 'var(--muted)',
+            borderColor: activeFilter === filter.value ? 'var(--foreground)' : 'var(--border)',
+          }}
         >
           {filter.label}
         </button>
