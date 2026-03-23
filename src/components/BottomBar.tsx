@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Calendar, Info, Wrench, User, Users, Ticket } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useRole } from '@/components/DataProvider';
 
 const visitorTabs = [
@@ -38,20 +37,14 @@ export default function BottomBar() {
               className="relative flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium tracking-wide"
             >
               {isActive && (
-                <motion.div
-                  layoutId="bottombar-active"
-                  className="absolute inset-0 rounded-xl bg-[#FF754B]/8"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
+                <div className="absolute inset-0 rounded-xl bg-[#FF754B]/8 anim-fade-in" />
               )}
-              <motion.div
-                whileTap={{ scale: 0.85, transition: { duration: 0.1 } }}
-              >
+              <div className="tap-card">
                 <Icon
                   className={`h-5 w-5 transition-colors duration-150 ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}
                   strokeWidth={isActive ? 2.5 : 1.5}
                 />
-              </motion.div>
+              </div>
               <span className={`relative z-10 transition-colors duration-150 ${isActive ? 'text-[#FF754B]' : 'text-[#86868B]'}`}>
                 {tab.label}
               </span>

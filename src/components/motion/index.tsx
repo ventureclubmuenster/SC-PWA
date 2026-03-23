@@ -1,46 +1,35 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { memo } from 'react';
 import type { ReactNode } from 'react';
 
-const ease = [0.22, 1, 0.36, 1] as const;
+/**
+ * All list/card animations now use CSS @keyframes on the compositor thread.
+ * Framer Motion is only kept where truly needed (AnimatePresence in modals).
+ */
 
-// Staggered list container
+// Staggered list container — just renders children; stagger via CSS delay
 export function StaggerList({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={className}>{children}</div>;
+}
+
+// Animated list item — CSS `animation-delay` set via `--stagger-delay`
+let _staggerCounter = 0;
+export function StaggerItem({ children, className, index }: { children: ReactNode; className?: string; index?: number }) {
+  const i = index ?? _staggerCounter++;
+  // Reset counter on next tick (each StaggerList render)
+  if (i === 0) setTimeout(() => { _staggerCounter = 0; }, 0);
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.03 } },
-      }}
-      className={className}
+    <div
+      className={`anim-stagger-item ${className || ''}`}
+      style={{ '--stagger-delay': `${i * 30}ms` } as React.CSSProperties}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-// Animated list item (fade + slide up) — GPU-only: opacity + translateY
-export const StaggerItem = memo(function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 14 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease } },
-      }}
-      style={{ willChange: 'transform, opacity' }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-});
-
-// Interactive card wrapper — scale-only tap for GPU perf
-export const TapCard = memo(function TapCard({
+// Interactive card — pure CSS tap feedback
+export function TapCard({
   children,
   className,
   onClick,
@@ -50,19 +39,14 @@ export const TapCard = memo(function TapCard({
   onClick?: () => void;
 }) {
   return (
-    <motion.div
-      whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
-      style={{ willChange: 'transform' }}
-      className={className}
-      onClick={onClick}
-    >
+    <div className={`tap-card ${className || ''}`} onClick={onClick}>
       {children}
-    </motion.div>
+    </div>
   );
-});
+}
 
-// Animated button
-export const TapButton = memo(function TapButton({
+// Animated button — pure CSS tap feedback
+export function TapButton({
   children,
   className,
   onClick,
@@ -76,20 +60,18 @@ export const TapButton = memo(function TapButton({
   type?: 'submit' | 'button';
 }) {
   return (
-    <motion.button
-      whileTap={disabled ? {} : { scale: 0.97, transition: { duration: 0.1 } }}
-      style={{ willChange: 'transform' }}
-      className={className}
+    <button
+      className={`tap-btn ${className || ''}`}
       onClick={onClick}
       disabled={disabled}
       type={type}
     >
       {children}
-    </motion.button>
+    </button>
   );
-});
+}
 
-// Fade-in wrapper — GPU-only
+// Fade-in wrapper — CSS animation
 export function FadeIn({
   children,
   className,
@@ -100,47 +82,30 @@ export function FadeIn({
   delay?: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22, delay, ease }}
-      style={{ willChange: 'transform, opacity' }}
-      className={className}
+    <div
+      className={`anim-fade-in ${className || ''}`}
+      style={{ '--fade-delay': `${delay * 1000}ms` } as React.CSSProperties}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-// Page transition wrapper
+// Page transition wrapper — simple CSS fade
 export function PageTransition({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.22, ease }}
-      style={{ willChange: 'transform, opacity' }}
-      className={className}
-    >
+    <div className={`anim-fade-in ${className || ''}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-// Slide-in — uses clipPath instead of height to avoid layout thrashing
+// Slide-in — CSS animation
 export function SlideIn({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-      animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
-      exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-      transition={{ duration: 0.2, ease }}
-      style={{ willChange: 'clip-path, opacity' }}
-      className={className}
-    >
+    <div className={`anim-fade-in ${className || ''}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 

@@ -28,6 +28,93 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* -------------------------------------------------- */
+/*  Compositor-thread animations (60fps guaranteed)   */
+/* -------------------------------------------------- */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Stagger item — uses animation-delay via inline style */
+.anim-stagger-item {
+  opacity: 0;
+  animation: fade-in-up 0.3s var(--ease-out-expo) forwards;
+  animation-delay: var(--stagger-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+/* Fade-in wrapper */
+.anim-fade-in {
+  animation: fade-in-up 0.28s var(--ease-out-expo) both;
+  animation-delay: var(--fade-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+/* Scale-in (modal content) */
+.anim-scale-in {
+  animation: scale-in 0.22s var(--ease-out-expo) both;
+  animation-delay: 100ms;
+}
+
+/* Tap feedback — pure CSS, no JS */
+.tap-card {
+  will-change: transform;
+  transition: transform 0.1s ease;
+}
+.tap-card:active {
+  transform: scale(0.97);
+}
+
+.tap-btn {
+  will-change: transform;
+  transition: transform 0.1s ease;
+}
+.tap-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
 /* GPU-accelerated layers for fixed/sticky chrome */
 .gpu-layer {
   will-change: transform;
@@ -78,4 +165,16 @@ body {
 /* Extra bottom spacing when running as installed PWA */
 @media (display-mode: standalone) {
   .pwa-bottom-space { padding-bottom: 25px; }
+}
+
+/* -------------------------------------------------- */
+/*  Modal overlay + panel transitions                  */
+/* -------------------------------------------------- */
+
+.modal-backdrop {
+  transition: opacity 0.2s var(--ease-out-expo);
+}
+.modal-panel {
+  transition: transform 0.32s var(--ease-out-expo);
+  will-change: transform;
 }
