@@ -43,7 +43,7 @@ export default function InformationPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Information" subtitle="Partners, speakers & Lageplan" />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
@@ -59,7 +59,7 @@ export default function InformationPage() {
       {loading && view !== 'lageplan' ? null : view === 'partners' ? (
         <>
         {filteredPartners.length === 0 ? (
-          <p className="text-center text-sm text-muted py-12">
+          <p className="text-center text-sm text-muted py-16">
             No partners found.
           </p>
         ) : (
@@ -68,9 +68,9 @@ export default function InformationPage() {
               <StaggerItem key={partner.id}>
                 <TapCard
                   onClick={() => setSelectedPartner(partner)}
-                  className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
+                  className="card-clean flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
                 >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -82,7 +82,7 @@ export default function InformationPage() {
                     <Building2 className="h-5 w-5 text-muted" />
                   )}
                 </div>
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold">{partner.name}</h3>
                     <span
@@ -108,16 +108,16 @@ export default function InformationPage() {
         </>
       ) : view === 'lageplan' ? (
         <div className="card-clean rounded-2xl overflow-hidden">
-          <div className="flex flex-col items-center justify-center gap-4 py-16 text-muted">
-            <Map className="h-14 w-14 opacity-40" strokeWidth={1} />
-            <div className="text-center space-y-1">
+          <div className="flex flex-col items-center justify-center gap-5 py-20 text-muted">
+            <Map className="h-14 w-14 opacity-30" strokeWidth={1} />
+            <div className="text-center space-y-1.5">
               <p className="text-sm font-semibold text-primary">Lageplan</p>
               <p className="text-xs text-muted">Der Lageplan wird bald hinzugefügt.</p>
             </div>
           </div>
         </div>
       ) : speakers.length === 0 ? (
-        <p className="text-center text-sm text-muted py-12">
+        <p className="text-center text-sm text-muted py-16">
           No speakers found.
         </p>
       ) : (
@@ -127,9 +127,9 @@ export default function InformationPage() {
             <StaggerItem key={speaker.id}>
               <TapCard
                 onClick={() => setSelectedSpeaker(speaker)}
-                className="card-clean flex items-start gap-3 rounded-2xl p-4 cursor-pointer"
+                className="card-clean flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
                   {speaker.photo_url ? (
                     <img
                       src={speaker.photo_url}
@@ -141,7 +141,7 @@ export default function InformationPage() {
                     <Mic2 className="h-5 w-5 text-muted" />
                   )}
                 </div>
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-1.5">
                   <h3 className="text-sm font-semibold">{speaker.name}</h3>
                   {speaker.bio && (
                     <p className="text-xs text-muted line-clamp-3">{speaker.bio}</p>
@@ -157,9 +157,9 @@ export default function InformationPage() {
       {/* Partner Detail Modal */}
       <DetailModal open={!!selectedPartner} onClose={() => setSelectedPartner(null)}>
         {selectedPartner && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+          <div className="space-y-5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-sm)' }}>
                 {selectedPartner.logo_url ? (
                   <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" loading="lazy" />
                 ) : (
@@ -175,7 +175,7 @@ export default function InformationPage() {
             </div>
 
             {selectedPartner.booth_number && (
-              <div className="card-clean rounded-xl p-3">
+              <div className="card-clean rounded-2xl p-4">
                 <p className="text-sm text-muted">
                   <span className="font-semibold text-primary">Booth:</span> {selectedPartner.booth_number}
                 </p>
@@ -191,7 +191,7 @@ export default function InformationPage() {
                 href={selectedPartner.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 Visit Website
@@ -204,16 +204,16 @@ export default function InformationPage() {
       {/* Speaker Detail Modal */}
       <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
         {selectedSpeaker && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-md)' }}>
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-4 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
+              <h2 className="mt-5 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
@@ -225,7 +225,7 @@ export default function InformationPage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile

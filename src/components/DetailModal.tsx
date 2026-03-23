@@ -44,27 +44,27 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
       <div
         ref={backdropRef}
         className="absolute inset-0 gpu-layer opacity-0 transition-opacity duration-200 ease-out"
-        style={{ background: 'var(--overlay)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'var(--overlay)' }}
         onClick={handleClose}
       />
 
       <div
         ref={panelRef}
-        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[24px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
-        style={{ background: 'var(--card-solid)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid var(--border)', borderBottom: 'none' }}
+        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[28px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+        style={{ background: 'var(--surface-1)', boxShadow: '0 -8px 48px rgba(0,0,0,0.25), 0 -2px 16px rgba(0,0,0,0.15)' }}
       >
-        <div className="sticky top-0 z-20 flex items-center justify-between px-6 pt-4 pb-3 gpu-layer" style={{ background: 'var(--card-solid)', borderBottom: '1px solid var(--border-subtle)' }}>
-          <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--border)' }} />
+        <div className="sticky top-0 z-20 flex items-center justify-between px-6 pt-5 pb-3 gpu-layer" style={{ background: 'var(--surface-1)' }}>
+          <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--muted)', opacity: 0.25 }} />
           <button
             onClick={handleClose}
             className="absolute right-5 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
-            style={{ background: 'var(--muted-light)' }}
+            style={{ background: 'var(--surface-2)' }}
           >
             <X className="h-4 w-4 text-muted" />
           </button>
         </div>
 
-        <div className="px-6 pb-10 anim-scale-in">
+        <div className="px-6 pb-12 anim-scale-in">
           {children}
         </div>
       </div>

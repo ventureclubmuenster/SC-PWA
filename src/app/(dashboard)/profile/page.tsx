@@ -122,26 +122,26 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Profile" subtitle="Manage your account" />
 
       {/* Avatar & Email */}
       <FadeIn delay={0}>
-        <div className="card-accent flex items-center gap-4 rounded-2xl p-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full gradient-accent gradient-glow">
-            <User className="h-6 w-6 text-white" />
+        <div className="card-accent flex items-center gap-5 rounded-2xl p-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-accent gradient-glow">
+            <User className="h-7 w-7 text-white" />
           </div>
         <div>
           <p className="font-semibold text-sm">{form.full_name || 'No name set'}</p>
-          <p className="text-xs text-muted">{profile?.email}</p>
-          <p className="text-[10px] text-muted mt-0.5 capitalize font-medium">{profile?.role}</p>
+          <p className="text-xs text-muted mt-0.5">{profile?.email}</p>
+          <p className="text-[10px] text-muted mt-1 capitalize font-medium">{profile?.role}</p>
         </div>
       </div>
       </FadeIn>
 
       {/* Theme Toggle */}
       <FadeIn delay={0.05}>
-        <div className="card-clean rounded-2xl p-4">
+        <div className="card-clean rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold">Appearance</p>
@@ -152,7 +152,7 @@ export default function ProfilePage() {
             <button
               onClick={toggleTheme}
               className="flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-150"
-              style={{ background: 'var(--muted-light)' }}
+              style={{ background: 'var(--surface-2)' }}
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
@@ -167,24 +167,24 @@ export default function ProfilePage() {
 
       {/* Edit Form */}
       <FadeIn delay={0.1}>
-      <div className="space-y-4 card-clean rounded-2xl p-4">
-        <div className="space-y-1">
+      <div className="space-y-5 card-clean rounded-2xl p-5">
+        <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted">Full Name</label>
           <input
             type="text"
             value={form.full_name}
             onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            className="w-full rounded-xl px-3 py-2.5 text-sm input-field"
+            className="w-full rounded-xl px-4 py-3 text-sm input-field"
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted">University</label>
           <input
             type="text"
             value={form.university}
             onChange={(e) => setForm({ ...form, university: e.target.value })}
-            className="w-full rounded-xl px-3 py-2.5 text-sm input-field"
+            className="w-full rounded-xl px-4 py-3 text-sm input-field"
           />
         </div>
 
@@ -206,7 +206,7 @@ export default function ProfilePage() {
         <TapButton
           onClick={handleSave}
           disabled={saving}
-          className="btn-primary gradient-glow flex w-full items-center justify-center gap-2 py-3 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+          className="btn-primary gradient-glow flex w-full items-center justify-center gap-2 py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           <span>{saving ? 'Saving...' : 'Save Profile'}</span>
@@ -216,7 +216,7 @@ export default function ProfilePage() {
 
       {/* CV Upload */}
       <FadeIn delay={0.2}>
-      <div className="card-clean rounded-2xl p-4 space-y-3">
+      <div className="card-clean rounded-2xl p-5 space-y-4">
         <div>
           <p className="text-sm font-semibold">CV / Resume</p>
           <p className="text-xs text-muted mt-0.5">
@@ -230,7 +230,7 @@ export default function ProfilePage() {
               href={profile.cv_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center gap-2 rounded-xl bg-green-500/15 px-3 py-2.5 text-xs font-medium text-green-400 transition-colors duration-150"
+              className="flex-1 flex items-center gap-2 rounded-xl bg-green-500/10 px-4 py-3 text-xs font-medium text-green-400 transition-colors duration-150"
             >
               <FileText className="h-4 w-4" />
               View CV
@@ -238,13 +238,13 @@ export default function ProfilePage() {
             <button
               onClick={handleCvRemove}
               disabled={uploadingCv}
-              className="rounded-xl bg-red-500/15 px-3 py-2.5 text-xs font-medium text-red-400 disabled:opacity-50 transition-colors duration-150"
+              className="rounded-xl bg-red-500/10 px-3 py-3 text-xs font-medium text-red-400 disabled:opacity-50 transition-colors duration-150"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed py-4 text-sm font-medium text-muted transition-colors duration-150" style={{ borderColor: 'var(--border)' }}>
+          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed py-5 text-sm font-medium text-muted transition-colors duration-150" style={{ borderColor: 'var(--border)' }}>
             <Upload className="h-4 w-4" />
             {uploadingCv ? 'Uploading...' : 'Upload CV'}
             <input
@@ -266,7 +266,7 @@ export default function ProfilePage() {
           <TapButton
             onClick={subscribe}
             disabled={isSubscribed || isLoading}
-            className="w-full card-clean rounded-2xl p-4 text-left transition-opacity duration-150 disabled:opacity-100"
+            className="w-full card-clean rounded-2xl p-5 text-left transition-opacity duration-150 disabled:opacity-100"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -290,7 +290,7 @@ export default function ProfilePage() {
       <FadeIn delay={0.4}>
       <TapButton
         onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-red-400 card-clean transition-colors duration-150"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium text-red-400 card-clean transition-colors duration-150"
       >
         <LogOut className="h-4 w-4" />
         Sign Out

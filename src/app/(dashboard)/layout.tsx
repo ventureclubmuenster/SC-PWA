@@ -9,9 +9,9 @@ export default function DashboardLayout({
 }) {
   return (
     <DataProvider>
-      <div className="bg-bloom min-h-screen pb-20">
+      <div className="bg-mesh min-h-screen pb-24">
         <DemoBanner />
-        <main className="relative z-10 mx-auto max-w-lg px-5 pt-6">
+        <main className="relative z-10 mx-auto max-w-lg px-5 pt-8">
           {children}
         </main>
         <BottomBar />

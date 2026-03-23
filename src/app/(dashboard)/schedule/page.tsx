@@ -78,7 +78,7 @@ export default function SchedulePage() {
   const handleCloseSpeaker = useCallback(() => setSelectedSpeaker(null), []);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Schedule" subtitle="Today's event programme" />
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -92,20 +92,20 @@ export default function SchedulePage() {
 
       {loading ? null : !hasItems ? (
         <FadeIn>
-          <p className="text-center text-sm text-muted py-12">
+          <p className="text-center text-sm text-muted py-16">
             No events found.
           </p>
         </FadeIn>
       ) : (
         <div className="relative pl-6">
           {/* Timeline spine */}
-          <div className="absolute left-[5px] top-2 bottom-2 w-[2px]" style={{ background: 'var(--border)' }} />
+          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] rounded-full" style={{ background: 'linear-gradient(180deg, var(--accent), var(--accent-mid), var(--accent-end))', opacity: 0.15 }} />
 
           <StaggerList className="space-y-0">
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
+                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-4'}`}>
                   {/* Timeline node */}
                   <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
                     <div className={`h-3 w-3 rounded-full ${
@@ -114,7 +114,7 @@ export default function SchedulePage() {
                         : ''
                     }`} style={{
                       boxShadow: '0 0 0 3px var(--background)',
-                      ...(group.items.length > 1 ? { background: 'linear-gradient(135deg, #FF6B35, #FF3CAC)' } : {}),
+                      ...(group.items.length > 1 ? { background: 'linear-gradient(135deg, #FF6B35, #FF3CAC, #8B5CF6)' } : {}),
                     }} />
                   </div>
 
@@ -149,16 +149,16 @@ export default function SchedulePage() {
       {/* Schedule Detail Modal — tall */}
       <DetailModal open={!!selected} onClose={handleCloseSelected} tall>
         {selected && (
-          <div className="space-y-6">
-            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[var(--muted-light)] text-muted'}`}>
+          <div className="space-y-7">
+            <span className={`inline-block rounded-full px-3 py-1.5 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[var(--surface-2)] text-muted'}`}>
               {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
             <h2 className="text-2xl font-bold tracking-tight leading-tight">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-muted">
+              <div className="card-clean rounded-2xl p-4">
+                <div className="flex items-center gap-2.5 text-muted">
                   <Clock className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
@@ -169,8 +169,8 @@ export default function SchedulePage() {
                   </div>
                 </div>
               </div>
-              <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-muted">
+              <div className="card-clean rounded-2xl p-4">
+                <div className="flex items-center gap-2.5 text-muted">
                   <MapPin className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
@@ -183,10 +183,10 @@ export default function SchedulePage() {
             {selected.speaker && (
               <TapCard
                 onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
-                className="w-full card-clean rounded-xl p-4 text-left cursor-pointer"
+                className="w-full card-clean rounded-2xl p-5 text-left cursor-pointer"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
                     {selected.speaker.photo_url ? (
                       <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : (
@@ -204,7 +204,7 @@ export default function SchedulePage() {
 
             {selected.description && (
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">About</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">About</h3>
                 <p className="text-sm leading-relaxed">{selected.description}</p>
               </div>
             )}
@@ -215,16 +215,16 @@ export default function SchedulePage() {
       {/* Speaker Detail Modal */}
       <DetailModal open={!!selectedSpeaker} onClose={handleCloseSpeaker}>
         {selectedSpeaker && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--muted-light)', border: '1px solid var(--border)' }}>
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-md)' }}>
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-4 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
+              <h2 className="mt-5 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
@@ -236,7 +236,7 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile

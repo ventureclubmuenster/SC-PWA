@@ -149,7 +149,7 @@ export default function ApplicantsPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Bewerber" subtitle="Review applicant profiles" />
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -158,11 +158,11 @@ export default function ApplicantsPage() {
       )}
 
       {loading ? null : hasNoResults ? (
-        <p className="text-center text-sm text-muted py-12">
+        <p className="text-center text-sm text-muted py-16">
           No applicants found.
         </p>
       ) : (
-        <StaggerList className="space-y-3">
+        <StaggerList className="space-y-4">
           {/* Direct applicants */}
           {showDirect && filteredDirect.map((applicant) => {
             const visitor = applicant.visitor as unknown as {
@@ -175,11 +175,11 @@ export default function ApplicantsPage() {
             return (
               <StaggerItem key={applicant.id}>
                 <div
-                  className="card-clean rounded-2xl p-4 space-y-3"
+                  className="card-clean rounded-2xl p-5 space-y-4"
                 >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--muted-light)] border border-[var(--border)]">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
                       <User className="h-4 w-4 text-muted" />
                     </div>
                     <div>
@@ -212,18 +212,18 @@ export default function ApplicantsPage() {
                 )}
 
                 {applicant.status === 'pending' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2.5">
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-500/15 py-2.5 text-xs font-semibold text-green-400 hover:bg-green-500/25 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-green-500/10 py-3 text-xs font-semibold text-green-400 hover:bg-green-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-500/15 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-red-500/10 py-3 text-xs font-semibold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>
@@ -246,11 +246,11 @@ export default function ApplicantsPage() {
             return (
               <StaggerItem key={`ws-${applicant.id}`}>
                 <div
-                  className="card-clean rounded-2xl p-4 space-y-3"
+                  className="card-clean rounded-2xl p-5 space-y-4"
                 >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 border border-blue-500/25">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10" style={{ boxShadow: 'var(--shadow-xs)' }}>
                       <Wrench className="h-4 w-4 text-blue-400" />
                     </div>
                     <div>
@@ -288,18 +288,18 @@ export default function ApplicantsPage() {
                 )}
 
                 {applicant.status === 'pending' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2.5">
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-500/15 py-2.5 text-xs font-semibold text-green-400 hover:bg-green-500/25 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-green-500/10 py-3 text-xs font-semibold text-green-400 hover:bg-green-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-500/15 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-red-500/10 py-3 text-xs font-semibold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>

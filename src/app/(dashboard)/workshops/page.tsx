@@ -69,19 +69,19 @@ export default function WorkshopsPage() {
   const bookingStatusLabel = (booking: WorkshopBooking | undefined) => {
     if (!booking) return null;
     switch (booking.status) {
-      case 'pending': return { text: 'Applied — pending review', color: 'bg-amber-500/15 text-amber-400' };
-      case 'accepted': return { text: 'Accepted', color: 'bg-green-500/15 text-green-400' };
-      case 'rejected': return { text: 'Rejected', color: 'bg-red-500/15 text-red-400' };
-      default: return { text: 'Booked — tap to cancel', color: 'bg-green-500/15 text-green-400' };
+      case 'pending': return { text: 'Applied — pending review', color: 'bg-amber-500/10 text-amber-400' };
+      case 'accepted': return { text: 'Accepted', color: 'bg-green-500/10 text-green-400' };
+      case 'rejected': return { text: 'Rejected', color: 'bg-red-500/10 text-red-400' };
+      default: return { text: 'Booked — tap to cancel', color: 'bg-green-500/10 text-green-400' };
     }
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Workshops" subtitle="Book your hands-on sessions" />
 
       {cvError && (
-        <div className="flex items-center gap-2 rounded-xl bg-red-500/15 p-3 text-xs text-red-400">
+        <div className="flex items-center gap-2 rounded-2xl bg-red-500/10 p-4 text-xs text-red-400" style={{ boxShadow: 'var(--shadow-xs)' }}>
           <AlertCircle className="h-4 w-4 shrink-0" />
           {cvError}
         </div>
@@ -89,12 +89,12 @@ export default function WorkshopsPage() {
 
       {loading ? null : workshops.length === 0 ? (
         <FadeIn>
-          <p className="text-center text-sm text-muted py-12">
+          <p className="text-center text-sm text-muted py-16">
             No workshops available.
           </p>
         </FadeIn>
       ) : (
-        <StaggerList className="space-y-3">
+        <StaggerList className="space-y-4">
           {workshops.map((ws) => {
             const booking = getBooking(ws.id);
             const booked = !!booking;
@@ -103,15 +103,15 @@ export default function WorkshopsPage() {
               <StaggerItem key={ws.id}>
                 <div
                   onClick={() => { setSelected(ws); setCvError(null); }}
-                  className="card-clean rounded-2xl p-4 space-y-3 cursor-pointer active:scale-[0.98] transition-transform duration-150"
+                  className="card-clean rounded-2xl p-5 space-y-4 cursor-pointer active:scale-[0.98] transition-transform duration-150"
                 >
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-sm">{ws.title}</h3>
-                    {ws.has_waiting_list && <span className="shrink-0 rounded-full bg-amber-500/15 text-amber-400 px-2 py-0.5 text-[10px] font-medium">Waiting List</span>}
-                    {ws.cv_required && <span className="shrink-0 rounded-full bg-blue-500/15 text-blue-400 px-2 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV</span>}
+                    {ws.has_waiting_list && <span className="shrink-0 rounded-full bg-amber-500/10 text-amber-400 px-2 py-0.5 text-[10px] font-medium">Waiting List</span>}
+                    {ws.cv_required && <span className="shrink-0 rounded-full bg-blue-500/10 text-blue-400 px-2 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV</span>}
                   </div>
-                  <p className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{ws.host}</p>
+                  <p className="text-xs font-medium gradient-accent-text">{ws.host}</p>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs text-muted">
@@ -139,9 +139,9 @@ export default function WorkshopsPage() {
                 <TapButton
                   onClick={(e) => handleBook(e, ws.id)}
                   disabled={bookingInProgress === ws.id || (booked && booking?.status !== 'approved')}
-                  className={`w-full rounded-2xl py-2.5 text-xs font-semibold transition-colors duration-150 ${
+                  className={`w-full rounded-2xl py-3 text-xs font-semibold transition-colors duration-150 ${
                     booked
-                      ? (status?.color || 'bg-green-500/15 text-green-400')
+                      ? (status?.color || 'bg-green-500/10 text-green-400')
                       : 'btn-primary gradient-glow'
                   } disabled:opacity-50`}
                 >
@@ -167,19 +167,19 @@ export default function WorkshopsPage() {
       {/* Detail Modal */}
       <DetailModal open={!!selected} onClose={() => setSelected(null)}>
         {selected && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <h2 className="text-xl font-bold tracking-tight">{selected.title}</h2>
               </div>
-              <p className="text-sm font-medium mt-1" style={{ color: 'var(--accent)' }}>{selected.host}</p>
-              <div className="flex gap-2 mt-2">
-                {selected.has_waiting_list && <span className="rounded-full bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">Waiting List</span>}
-                {selected.cv_required && <span className="rounded-full bg-blue-500/15 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV Required</span>}
+              <p className="text-sm font-medium mt-1 gradient-accent-text">{selected.host}</p>
+              <div className="flex gap-2 mt-2.5">
+                {selected.has_waiting_list && <span className="rounded-full bg-amber-500/10 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">Waiting List</span>}
+                {selected.cv_required && <span className="rounded-full bg-blue-500/10 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV Required</span>}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 text-sm text-muted">
+            <div className="flex flex-wrap gap-4 text-sm text-muted">
               <span className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
                 {formatTime(selected.time)}
@@ -202,7 +202,7 @@ export default function WorkshopsPage() {
             )}
 
             {selected.cv_required && !profile?.cv_url && !isBooked(selected.id) && (
-              <div className="flex items-center gap-2 rounded-xl bg-red-500/15 p-3 text-xs text-red-400">
+              <div className="flex items-center gap-2 rounded-2xl bg-red-500/10 p-4 text-xs text-red-400">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 Upload your CV in your profile to apply for this workshop.
               </div>
@@ -216,9 +216,9 @@ export default function WorkshopsPage() {
                 <button
                   onClick={(e) => handleBook(e, selected.id)}
                   disabled={bookingInProgress === selected.id || (booked && booking?.status !== 'approved') || (selected.cv_required && !profile?.cv_url && !booked)}
-                  className={`w-full rounded-2xl py-3 text-sm font-semibold transition-colors duration-150 ${
+                  className={`w-full rounded-2xl py-3.5 text-sm font-semibold transition-colors duration-150 ${
                     booked
-                      ? (status?.color || 'bg-green-500/15 text-green-400')
+                      ? (status?.color || 'bg-green-500/10 text-green-400')
                       : 'btn-primary gradient-glow'
                   } disabled:opacity-50`}
                 >
