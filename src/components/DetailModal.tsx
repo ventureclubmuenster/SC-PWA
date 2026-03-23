@@ -50,21 +50,21 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
 
       <div
         ref={panelRef}
-        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
-        style={{ background: 'var(--card-solid)' }}
+        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[24px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+        style={{ background: 'var(--card-solid)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid var(--border)', borderBottom: 'none' }}
       >
-        <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 gpu-layer" style={{ background: 'var(--card-solid)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="sticky top-0 z-20 flex items-center justify-between px-6 pt-4 pb-3 gpu-layer" style={{ background: 'var(--card-solid)', borderBottom: '1px solid var(--border-subtle)' }}>
           <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--border)' }} />
           <button
             onClick={handleClose}
-            className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
+            className="absolute right-5 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
             style={{ background: 'var(--muted-light)' }}
           >
             <X className="h-4 w-4 text-muted" />
           </button>
         </div>
 
-        <div className="px-5 pb-8 anim-scale-in">
+        <div className="px-6 pb-10 anim-scale-in">
           {children}
         </div>
       </div>

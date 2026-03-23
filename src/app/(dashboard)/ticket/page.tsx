@@ -32,48 +32,51 @@ export default function TicketPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <PageHeader title="Ticket" subtitle="Your event entry pass" />
+    <div className="space-y-6">
+      <PageHeader title="My Tickets" subtitle="Your event entry pass" />
 
       {/* Ticket Card */}
       <FadeIn delay={0.1}>
-      <div className="card-clean rounded-2xl p-6">
-        <div className="flex flex-col items-center space-y-5">
-          {/* QR Code */}
-          <div className="flex h-52 w-52 items-center justify-center rounded-2xl" style={{ background: 'var(--qr-bg)', border: '1px solid var(--border)' }}>
+      <div className="glass-card p-6 space-y-5">
+        {/* Entry Pass sub-card */}
+        <div className="glass-card-inner p-5 space-y-4">
+          <p className="text-subtitle">Entry Pass</p>
+          <div className="flex items-center gap-4">
+            {/* QR icon tile with vivid gradient */}
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl gradient-accent gradient-glow">
+              {qrValue ? (
+                <QRCodeSVG value={qrValue} size={56} level="M" bgColor="transparent" fgColor="#FFFFFF" />
+              ) : null}
+            </div>
+            <div className="space-y-1">
+              <p className="text-base font-bold tracking-tight">{profile?.full_name || 'Attendee'}</p>
+              <p className="text-xs text-muted">{profile?.email || ''}</p>
+              {profile?.university && (
+                <p className="text-xs text-muted">{profile.university}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Full QR code */}
+        <div className="flex justify-center">
+          <div className="rounded-2xl p-4" style={{ background: 'var(--qr-bg)' }}>
             {qrValue ? (
               <QRCodeSVG value={qrValue} size={180} level="M" />
             ) : null}
           </div>
+        </div>
 
-          {/* Attendee Info */}
-          <div className="w-full space-y-3 pt-4 border-t border-dashed" style={{ borderColor: 'var(--border)' }}>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted">Name</span>
-              <span className="text-sm font-semibold">
-                {profile?.full_name || 'Not set'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted">Email</span>
-              <span className="text-sm font-medium">
-                {profile?.email || '—'}
-              </span>
-            </div>
-            {profile?.university && (
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted">University</span>
-                <span className="text-sm font-medium">
-                  {profile.university}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted">Role</span>
-              <span className="text-sm font-medium capitalize">
-                {profile?.role || '—'}
-              </span>
-            </div>
+        {/* Attendee details */}
+        <div className="space-y-3 pt-2">
+          <div className="flex justify-between items-center">
+            <span className="text-subtitle">Role</span>
+            <span className="text-sm font-semibold capitalize">{profile?.role || '—'}</span>
+          </div>
+          <div className="h-px" style={{ background: 'var(--border-subtle)' }} />
+          <div className="flex justify-between items-center">
+            <span className="text-subtitle">Status</span>
+            <span className="text-xs font-semibold rounded-full px-2.5 py-0.5 bg-green-500/15 text-green-400">Active</span>
           </div>
         </div>
       </div>

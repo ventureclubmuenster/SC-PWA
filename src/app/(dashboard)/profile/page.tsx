@@ -127,9 +127,9 @@ export default function ProfilePage() {
 
       {/* Avatar & Email */}
       <FadeIn delay={0}>
-        <div className="card-accent flex items-center gap-4 rounded-2xl p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--foreground)' }}>
-            <User className="h-6 w-6" style={{ color: 'var(--background)' }} />
+        <div className="card-accent flex items-center gap-4 rounded-2xl p-5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full gradient-accent gradient-glow">
+            <User className="h-6 w-6 text-white" />
           </div>
         <div>
           <p className="font-semibold text-sm">{form.full_name || 'No name set'}</p>
@@ -206,7 +206,7 @@ export default function ProfilePage() {
         <TapButton
           onClick={handleSave}
           disabled={saving}
-          className="btn-dark flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+          className="btn-primary gradient-glow flex w-full items-center justify-center gap-2 py-3 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           <span>{saving ? 'Saving...' : 'Save Profile'}</span>

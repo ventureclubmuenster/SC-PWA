@@ -139,10 +139,10 @@ export default function WorkshopsPage() {
                 <TapButton
                   onClick={(e) => handleBook(e, ws.id)}
                   disabled={bookingInProgress === ws.id || (booked && booking?.status !== 'approved')}
-                  className={`w-full rounded-xl py-2.5 text-xs font-semibold transition-colors duration-150 ${
+                  className={`w-full rounded-2xl py-2.5 text-xs font-semibold transition-colors duration-150 ${
                     booked
                       ? (status?.color || 'bg-green-500/15 text-green-400')
-                      : 'btn-dark'
+                      : 'btn-primary gradient-glow'
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === ws.id ? (
@@ -216,10 +216,10 @@ export default function WorkshopsPage() {
                 <button
                   onClick={(e) => handleBook(e, selected.id)}
                   disabled={bookingInProgress === selected.id || (booked && booking?.status !== 'approved') || (selected.cv_required && !profile?.cv_url && !booked)}
-                  className={`w-full rounded-xl py-3 text-sm font-semibold transition-colors duration-150 ${
+                  className={`w-full rounded-2xl py-3 text-sm font-semibold transition-colors duration-150 ${
                     booked
                       ? (status?.color || 'bg-green-500/15 text-green-400')
-                      : 'btn-dark'
+                      : 'btn-primary gradient-glow'
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === selected.id ? (

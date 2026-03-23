@@ -32,24 +32,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
-      <div className="w-full max-w-sm space-y-8 text-center">
+    <div className="bg-bloom flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="relative z-10 w-full max-w-sm space-y-8 text-center">
         {/* Logo / Branding */}
         <div className="space-y-3 anim-fade-in">
           <div
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl anim-fade-in"
-            style={{ background: 'var(--foreground)', '--fade-delay': '100ms' } as React.CSSProperties}
+            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl gradient-accent gradient-glow anim-fade-in"
+            style={{ '--fade-delay': '100ms' } as React.CSSProperties}
           >
-            <Sparkles className="h-8 w-8" style={{ color: 'var(--background)' }} />
+            <Sparkles className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Startup Contacts</h1>
-          <p className="text-sm font-medium text-muted">
+          <h1 className="text-title text-2xl">Startup Contacts</h1>
+          <p className="text-subtitle">
             Venture Club Münster
           </p>
         </div>
 
         {sent ? (
-          <div className="card-clean space-y-4 rounded-2xl p-6 anim-scale-in">
+          <div className="glass-card space-y-4 p-8 anim-scale-in">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/15">
               <Mail className="h-6 w-6 text-green-400" />
             </div>
@@ -64,7 +64,7 @@ export default function LoginPage() {
             className="space-y-6 anim-fade-in"
             style={{ '--fade-delay': '150ms' } as React.CSSProperties}
           >
-            <div className="card-clean rounded-2xl p-6 space-y-4">
+            <div className="glass-card p-8 space-y-4">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--muted-light)' }}>
                 <Mail className="h-6 w-6 text-muted" />
               </div>
@@ -80,7 +80,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                className="w-full px-4 py-3.5 text-sm input-field"
               />
               {error && (
                 <p className="text-sm text-red-400 anim-fade-in">
@@ -90,7 +90,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="tap-btn w-full rounded-xl btn-dark py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                className="tap-btn w-full btn-primary py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 gradient-glow"
               >
                 {loading ? 'Sending...' : 'Send Magic Link'}
               </button>

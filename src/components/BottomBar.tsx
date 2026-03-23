@@ -25,7 +25,7 @@ export default function BottomBar() {
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 gpu-layer safe-area-bottom pwa-bottom-space" style={{ background: 'var(--card-solid)', borderTop: '1px solid var(--border)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 gpu-layer safe-area-bottom pwa-bottom-space" style={{ background: 'rgba(13, 13, 15, 0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid var(--border)' }}>
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
@@ -37,7 +37,7 @@ export default function BottomBar() {
               className="relative flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium tracking-wide"
             >
               {isActive && (
-                <div className="absolute inset-0 rounded-xl anim-fade-in" style={{ background: 'rgba(255, 117, 75, 0.08)' }} />
+                <div className="absolute inset-0 rounded-xl anim-fade-in" style={{ background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,60,172,0.06))' }} />
               )}
               <div className="tap-card">
                 <Icon

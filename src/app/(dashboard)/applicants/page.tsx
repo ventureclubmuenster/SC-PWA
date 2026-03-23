@@ -216,14 +216,14 @@ export default function ApplicantsPage() {
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-green-500/15 py-2.5 text-xs font-semibold text-green-400 hover:bg-green-500/25 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-red-500/15 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>
@@ -250,8 +250,8 @@ export default function ApplicantsPage() {
                 >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 border border-blue-200">
-                      <Wrench className="h-4 w-4 text-blue-500" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 border border-blue-500/25">
+                      <Wrench className="h-4 w-4 text-blue-400" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
@@ -262,7 +262,7 @@ export default function ApplicantsPage() {
                         <p className="text-xs text-muted">{visitor.university}</p>
                       )}
                       {applicant.workshop && (
-                        <p className="text-xs font-medium text-blue-600 mt-0.5">
+                        <p className="text-xs font-medium text-blue-400 mt-0.5">
                           Workshop: {applicant.workshop.title}
                         </p>
                       )}
@@ -292,14 +292,14 @@ export default function ApplicantsPage() {
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'accepted')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-green-50 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-100 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-green-500/15 py-2.5 text-xs font-semibold text-green-400 hover:bg-green-500/25 disabled:opacity-50 transition-colors duration-150"
                     >
                       Accept
                     </TapButton>
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
-                      className="flex-1 rounded-xl bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors duration-150"
+                      className="flex-1 rounded-xl bg-red-500/15 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/25 disabled:opacity-50 transition-colors duration-150"
                     >
                       Reject
                     </TapButton>

@@ -1,26 +1,30 @@
 @import "tailwindcss";
 
 /* -------------------------------------------------- */
-/*  Dark mode (default)                                */
+/*  Dark mode (default) — Premium glass aesthetic      */
 /* -------------------------------------------------- */
 :root, .dark {
-  --background: #0C0C0E;
+  --background: #0D0D0F;
   --foreground: #F5F5F7;
-  --accent: #FF754B;
+  --accent: #FF6B35;
+  --accent-end: #FF3CAC;
   --accent-hover: #FF8F6B;
+  --glow: #6C47FF;
   --card: rgba(255, 255, 255, 0.04);
-  --card-elevated: rgba(255, 255, 255, 0.07);
-  --card-solid: #1A1A1C;
+  --card-elevated: rgba(255, 255, 255, 0.06);
+  --card-solid: #141416;
   --border: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.04);
-  --muted: rgba(255, 255, 255, 0.45);
+  --muted: #888888;
   --muted-light: rgba(255, 255, 255, 0.06);
-  --input-bg: rgba(255, 255, 255, 0.06);
+  --input-bg: rgba(255, 255, 255, 0.05);
   --input-border: rgba(255, 255, 255, 0.1);
-  --overlay: rgba(0, 0, 0, 0.6);
+  --overlay: rgba(0, 0, 0, 0.7);
   --toggle-off: rgba(255, 255, 255, 0.12);
   --qr-bg: #FFFFFF;
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius-outer: 24px;
+  --radius-inner: 16px;
   color-scheme: dark;
 }
 
@@ -30,16 +34,18 @@
 .light {
   --background: #FAFAFA;
   --foreground: #1D1D1F;
-  --accent: #FF754B;
+  --accent: #FF6B35;
+  --accent-end: #FF3CAC;
   --accent-hover: #E8633A;
-  --card: #FFFFFF;
-  --card-elevated: #FFFFFF;
+  --glow: #6C47FF;
+  --card: rgba(255, 255, 255, 0.85);
+  --card-elevated: rgba(255, 255, 255, 0.92);
   --card-solid: #FFFFFF;
   --border: rgba(0, 0, 0, 0.06);
   --border-subtle: rgba(0, 0, 0, 0.03);
   --muted: #86868B;
   --muted-light: #F5F5F7;
-  --input-bg: #F5F5F7;
+  --input-bg: rgba(0, 0, 0, 0.03);
   --input-border: rgba(0, 0, 0, 0.06);
   --overlay: rgba(0, 0, 0, 0.3);
   --toggle-off: rgba(0, 0, 0, 0.08);
@@ -62,18 +68,33 @@ body {
 }
 
 /* -------------------------------------------------- */
+/*  Gradient bloom background                          */
+/* -------------------------------------------------- */
+.bg-bloom {
+  position: relative;
+}
+.bg-bloom::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(108, 71, 255, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.light .bg-bloom::before {
+  background: radial-gradient(circle, rgba(108, 71, 255, 0.06) 0%, transparent 70%);
+}
+
+/* -------------------------------------------------- */
 /*  Compositor-thread animations (60fps guaranteed)   */
 /* -------------------------------------------------- */
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
@@ -82,14 +103,13 @@ body {
 }
 
 @keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer-line {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
 .anim-stagger-item {
@@ -126,7 +146,6 @@ body {
   transform: scale(0.97);
 }
 
-/* GPU-accelerated layers for fixed/sticky chrome */
 .gpu-layer {
   will-change: transform;
   transform: translateZ(0);
@@ -134,30 +153,119 @@ body {
 }
 
 /* -------------------------------------------------- */
-/*  Themed utility classes                             */
+/*  Glass card system                                  */
 /* -------------------------------------------------- */
 
+.glass-card {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-outer);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer accent line along top edge */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+}
+.light .glass-card::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
+}
+
+.glass-card-inner {
+  background: var(--card-elevated);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-inner);
+}
+
+/* Legacy support — map card-clean to glass-card */
 .card-clean {
   background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  contain: content;
+  border-radius: var(--radius-outer);
+  position: relative;
+  overflow: hidden;
+}
+.card-clean::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+}
+.light .card-clean::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
 }
 
 .card-accent {
-  background: rgba(255, 117, 75, 0.08);
-  border: 1px solid rgba(255, 117, 75, 0.15);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(255, 60, 172, 0.06));
+  border: 1px solid rgba(255, 107, 53, 0.15);
+  border-radius: var(--radius-outer);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
+/* -------------------------------------------------- */
+/*  Gradient accents                                   */
+/* -------------------------------------------------- */
+
+.gradient-accent {
+  background: linear-gradient(135deg, #FF6B35, #FF3CAC);
+}
+
+.gradient-accent-text {
+  background: linear-gradient(135deg, #FF6B35, #FF3CAC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-glow {
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.25), 0 4px 16px rgba(255, 60, 172, 0.15);
+}
+
+/* -------------------------------------------------- */
+/*  Buttons                                            */
+/* -------------------------------------------------- */
+
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, #FF6B35, #FF3CAC);
   color: #FFFFFF;
+  border-radius: var(--radius-inner);
 }
 
 .btn-dark {
   background: var(--foreground);
   color: var(--background);
+  border-radius: var(--radius-inner);
 }
+
+.btn-glass {
+  background: var(--card-elevated);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: var(--radius-inner);
+}
+
+/* -------------------------------------------------- */
+/*  Typography & utility classes                       */
+/* -------------------------------------------------- */
 
 .text-primary { color: var(--foreground); }
 .text-muted { color: var(--muted); }
@@ -165,23 +273,44 @@ body {
 .bg-card { background: var(--card); }
 .border-theme { border-color: var(--border); }
 
+.text-title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.text-subtitle {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+/* -------------------------------------------------- */
+/*  Input fields                                       */
+/* -------------------------------------------------- */
+
 .input-field {
   background: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: 12px;
+  border-radius: var(--radius-inner);
   color: var(--foreground);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .input-field:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255, 117, 75, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
 }
 .input-field::placeholder {
   color: var(--muted);
 }
 
-/* Skeleton shimmer */
+/* -------------------------------------------------- */
+/*  Skeleton shimmer                                   */
+/* -------------------------------------------------- */
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -194,18 +323,23 @@ body {
   will-change: background-position;
 }
 
-/* Scrollbar hide utility */
+/* -------------------------------------------------- */
+/*  Scrollbar, safe areas, PWA                         */
+/* -------------------------------------------------- */
+
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Safe area for bottom bar */
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
 @media (display-mode: standalone) {
   .pwa-bottom-space { padding-bottom: 25px; }
 }
 
-/* Modal */
+/* -------------------------------------------------- */
+/*  Modal                                              */
+/* -------------------------------------------------- */
+
 .modal-backdrop {
   transition: opacity 0.2s var(--ease-out-expo);
 }

@@ -111,8 +111,11 @@ export default function SchedulePage() {
                     <div className={`h-3 w-3 rounded-full ${
                       group.items.length === 1
                         ? (categoryDot[group.items[0].category] || 'bg-gray-400')
-                        : 'bg-[var(--foreground)]'
-                    }`} style={{ boxShadow: '0 0 0 3px var(--background)' }} />
+                        : ''
+                    }`} style={{
+                      boxShadow: '0 0 0 3px var(--background)',
+                      ...(group.items.length > 1 ? { background: 'linear-gradient(135deg, #FF6B35, #FF3CAC)' } : {}),
+                    }} />
                   </div>
 
                   {/* Cards */}
@@ -233,7 +236,7 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile

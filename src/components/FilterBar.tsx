@@ -15,11 +15,13 @@ const FilterBar = memo(function FilterBar({ filters, activeFilter, onFilterChang
         <button
           key={filter.value}
           onClick={() => onFilterChange(filter.value)}
-          className="tap-btn relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors duration-150 min-h-[44px] flex items-center"
+          className="tap-btn relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-150 min-h-[44px] flex items-center"
           style={{
-            background: activeFilter === filter.value ? 'var(--foreground)' : 'var(--card)',
-            color: activeFilter === filter.value ? 'var(--background)' : 'var(--muted)',
-            borderColor: activeFilter === filter.value ? 'var(--foreground)' : 'var(--border)',
+            background: activeFilter === filter.value ? 'linear-gradient(135deg, #FF6B35, #FF3CAC)' : 'var(--card)',
+            backdropFilter: activeFilter !== filter.value ? 'blur(12px)' : undefined,
+            WebkitBackdropFilter: activeFilter !== filter.value ? 'blur(12px)' : undefined,
+            color: activeFilter === filter.value ? '#FFFFFF' : 'var(--muted)',
+            borderColor: activeFilter === filter.value ? 'transparent' : 'var(--border)',
           }}
         >
           {filter.label}
