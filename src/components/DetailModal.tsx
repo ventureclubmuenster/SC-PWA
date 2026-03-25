@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 interface DetailModalProps {
@@ -10,64 +11,64 @@ interface DetailModalProps {
   tall?: boolean;
 }
 
-export default function DetailModal({ open, onClose, children, tall }: DetailModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const backdropRef = useRef<HTMLDivElement>(null);
+const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
+export default function DetailModal({ open, onClose, children, tall }: DetailModalProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      requestAnimationFrame(() => {
-        backdropRef.current?.classList.add('opacity-100');
-        backdropRef.current?.classList.remove('opacity-0');
-        panelRef.current?.classList.add('translate-y-0');
-        panelRef.current?.classList.remove('translate-y-full');
-      });
     } else {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  const handleClose = useCallback(() => {
-    backdropRef.current?.classList.remove('opacity-100');
-    backdropRef.current?.classList.add('opacity-0');
-    panelRef.current?.classList.remove('translate-y-0');
-    panelRef.current?.classList.add('translate-y-full');
-    setTimeout(onClose, 280);
-  }, [onClose]);
-
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center">
-      <div
-        ref={backdropRef}
-        className="absolute inset-0 gpu-layer opacity-0 transition-opacity duration-200 ease-out"
-        style={{ background: 'var(--overlay)' }}
-        onClick={handleClose}
-      />
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease }}
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-      <div
-        ref={panelRef}
-        className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[28px] translate-y-full modal-panel ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
-        style={{ background: 'var(--surface-1)', boxShadow: '0 -8px 48px rgba(0,0,0,0.25), 0 -2px 16px rgba(0,0,0,0.15)' }}
-      >
-        <div className="sticky top-0 z-20 flex items-center justify-between px-6 pt-5 pb-3 gpu-layer" style={{ background: 'var(--surface-1)' }}>
-          <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--muted)', opacity: 0.25 }} />
-          <button
-            onClick={handleClose}
-            className="absolute right-5 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
-            style={{ background: 'var(--surface-2)' }}
+          {/* Panel */}
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+            className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] bg-[#FAFAFA] ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
           >
-            <X className="h-4 w-4 text-muted" />
-          </button>
-        </div>
+            {/* Handle + close */}
+            <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 bg-[#FAFAFA]/80 backdrop-blur-xl">
+              <div className="mx-auto h-1 w-10 rounded-full bg-[rgba(0,0,0,0.08)]" />
+              <motion.button
+                whileHover={{ scale: 1.1, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.9, transition: { duration: 0.1 } }}
+                onClick={onClose}
+                className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,0,0.05)] hover:bg-[rgba(0,0,0,0.08)] transition-colors duration-150"
+              >
+                <X className="h-4 w-4 text-[#86868B]" />
+              </motion.button>
+            </div>
 
-        <div className="px-6 pb-12 anim-scale-in">
-          {children}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.2, ease }}
+              className="px-5 pb-8"
+            >
+              {children}
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

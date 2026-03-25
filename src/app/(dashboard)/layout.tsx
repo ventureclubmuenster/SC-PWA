@@ -1,6 +1,8 @@
 import BottomBar from '@/components/BottomBar';
 import DemoBanner from '@/components/DemoBanner';
+import HapticProvider from '@/components/HapticProvider';
 import { DataProvider } from '@/components/DataProvider';
+import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt';
 
 export default function DashboardLayout({
   children,
@@ -9,13 +11,16 @@ export default function DashboardLayout({
 }) {
   return (
     <DataProvider>
-      <div className="bg-mesh min-h-screen pb-24">
-        <DemoBanner />
-        <main className="relative z-10 mx-auto max-w-lg px-5 pt-8">
-          {children}
-        </main>
-        <BottomBar />
-      </div>
+      <HapticProvider>
+        <div className="min-h-screen pb-20">
+          <DemoBanner />
+          <AddToHomeScreenPrompt />
+          <main className="mx-auto max-w-lg px-4 pt-6">
+            {children}
+          </main>
+          <BottomBar />
+        </div>
+      </HapticProvider>
     </DataProvider>
   );
 }

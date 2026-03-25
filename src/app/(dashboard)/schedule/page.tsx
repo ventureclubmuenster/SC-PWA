@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState } from 'react';
 import { useSchedule } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
@@ -17,68 +17,66 @@ const categoryFilters = [
   { label: 'Event', value: 'event' },
 ];
 
-const timeFormatter = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
-const formatTime = (iso: string) => timeFormatter.format(new Date(iso));
-
-const categoryDot: Record<string, string> = {
-  keynote: 'bg-purple-500',
-  workshop: 'bg-blue-500',
-  podcast: 'bg-amber-500',
-  event: 'bg-green-500',
-};
-
-const categoryColors: Record<string, string> = {
-  keynote: 'bg-purple-500/15 text-purple-400',
-  workshop: 'bg-blue-500/15 text-blue-400',
-  podcast: 'bg-amber-500/15 text-amber-400',
-  event: 'bg-green-500/15 text-green-400',
-};
-
 export default function SchedulePage() {
   const { items, loading } = useSchedule();
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<ScheduleItem | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
-  const locations = useMemo(() => [...new Set(items.map((i) => i.location))], [items]);
+  const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
+
+  const locations = [...new Set(items.map((i) => i.location))];
   const [locationFilter, setLocationFilter] = useState('all');
-  const locationFilters = useMemo(
-    () => [{ label: 'All Stages', value: 'all' }, ...locations.map((l) => ({ label: l, value: l }))],
-    [locations],
-  );
+  const locationFilters = [
+    { label: 'All Stages', value: 'all' },
+    ...locations.map((l) => ({ label: l, value: l })),
+  ];
 
-  const timeGroups = useMemo(() => {
-    const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
-    const byLocation =
-      locationFilter === 'all' ? filtered : filtered.filter((i) => i.location === locationFilter);
+  const filteredByLocation =
+    locationFilter === 'all'
+      ? filtered
+      : filtered.filter((i) => i.location === locationFilter);
 
-    const sorted = [...byLocation].sort((a, b) => {
-      const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
-      const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
-      return ta - tb;
-    });
+  // Sort by time-of-day (all events occur on the same date)
+  const finalItems = [...filteredByLocation].sort((a, b) => {
+    const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
+    const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
+    return ta - tb;
+  });
 
-    const groups: { time: string; items: typeof sorted }[] = [];
-    for (const item of sorted) {
-      const t = formatTime(item.time);
-      const existing = groups.find((g) => g.time === t);
-      if (existing) {
-        existing.items.push(item);
-      } else {
-        groups.push({ time: t, items: [item] });
-      }
+  const formatTime = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const categoryDot: Record<string, string> = {
+    keynote: 'bg-purple-500',
+    workshop: 'bg-blue-500',
+    podcast: 'bg-amber-500',
+    event: 'bg-green-500',
+  };
+
+  const categoryColors: Record<string, string> = {
+    keynote: 'bg-purple-100 text-purple-700',
+    workshop: 'bg-blue-100 text-blue-700',
+    podcast: 'bg-amber-100 text-amber-700',
+    event: 'bg-green-100 text-green-700',
+  };
+
+  // Group items by start time for horizontal stacking
+  const timeGroups: { time: string; items: typeof finalItems }[] = [];
+  for (const item of finalItems) {
+    const t = formatTime(item.time);
+    const existing = timeGroups.find((g) => g.time === t);
+    if (existing) {
+      existing.items.push(item);
+    } else {
+      timeGroups.push({ time: t, items: [item] });
     }
-    return groups;
-  }, [items, filter, locationFilter]);
-
-  const hasItems = timeGroups.some((g) => g.items.length > 0);
-
-  const handleSelect = useCallback((item: ScheduleItem) => setSelected(item), []);
-  const handleCloseSelected = useCallback(() => setSelected(null), []);
-  const handleCloseSpeaker = useCallback(() => setSelectedSpeaker(null), []);
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Schedule" subtitle="Today's event programme" />
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -90,50 +88,47 @@ export default function SchedulePage() {
         />
       )}
 
-      {loading ? null : !hasItems ? (
+      {loading ? null : finalItems.length === 0 ? (
         <FadeIn>
-          <p className="text-center text-sm text-muted py-16">
+          <p className="text-center text-sm text-[#86868B] py-12">
             No events found.
           </p>
         </FadeIn>
       ) : (
         <div className="relative pl-6">
           {/* Timeline spine */}
-          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] rounded-full" style={{ background: 'linear-gradient(180deg, var(--accent), var(--accent-mid), var(--accent-end))', opacity: 0.15 }} />
+          <div className="absolute left-[5px] top-2 bottom-2 w-[2px] bg-[rgba(0,0,0,0.06)]" />
 
           <StaggerList className="space-y-0">
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-4'}`}>
+                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
                   {/* Timeline node */}
                   <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
-                    <div className={`h-3 w-3 rounded-full ${
+                    <div className={`h-3 w-3 rounded-full ring-[3px] ring-[#FAFAFA] ${
                       group.items.length === 1
-                        ? (categoryDot[group.items[0].category] || 'bg-gray-400')
-                        : ''
-                    }`} style={{
-                      boxShadow: '0 0 0 3px var(--background)',
-                      ...(group.items.length > 1 ? { background: 'linear-gradient(135deg, #FF6B35, #FF3CAC, #8B5CF6)' } : {}),
-                    }} />
+                        ? (categoryDot[group.items[0].category] || 'bg-[#86868B]')
+                        : 'bg-[#1D1D1F]'
+                    }`} />
                   </div>
 
                   {/* Cards */}
                   <div className="space-y-2">
-                    <p className="text-[11px] font-bold tracking-wider text-muted uppercase">
+                    <p className="text-[11px] font-bold tracking-wider text-[#86868B] uppercase">
                       {group.time}
                       {group.items[0].end_time && group.items.length === 1 && ` – ${formatTime(group.items[0].end_time)}`}
                     </p>
 
                     {group.items.length === 1 ? (
-                      <TapCard onClick={() => handleSelect(group.items[0])} className="cursor-pointer">
-                        <EventCard item={group.items[0]} />
+                      <TapCard onClick={() => setSelected(group.items[0])} className="cursor-pointer">
+                        <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
                       </TapCard>
                     ) : (
                       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
                         {group.items.map((item) => (
-                          <TapCard key={item.id} onClick={() => handleSelect(item)} className="cursor-pointer">
-                            <EventCard item={item} compact />
+                          <TapCard key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
+                            <EventCard item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
                           </TapCard>
                         ))}
                       </div>
@@ -147,34 +142,34 @@ export default function SchedulePage() {
       )}
 
       {/* Schedule Detail Modal — tall */}
-      <DetailModal open={!!selected} onClose={handleCloseSelected} tall>
+      <DetailModal open={!!selected} onClose={() => setSelected(null)} tall>
         {selected && (
-          <div className="space-y-7">
-            <span className={`inline-block rounded-full px-3 py-1.5 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[var(--surface-2)] text-muted'}`}>
+          <div className="space-y-6">
+            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-[#F5F5F7] text-[#86868B]'}`}>
               {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
-            <h2 className="text-2xl font-bold tracking-tight leading-tight">{selected.title}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="card-clean rounded-2xl p-4">
-                <div className="flex items-center gap-2.5 text-muted">
+              <div className="card-clean rounded-xl p-3">
+                <div className="flex items-center gap-2 text-[#86868B]">
                   <Clock className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
-                    <p className="text-sm font-semibold text-primary">
+                    <p className="text-sm font-semibold text-[#1D1D1F]">
                       {formatTime(selected.time)}
                       {selected.end_time && ` – ${formatTime(selected.end_time)}`}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="card-clean rounded-2xl p-4">
-                <div className="flex items-center gap-2.5 text-muted">
+              <div className="card-clean rounded-xl p-3">
+                <div className="flex items-center gap-2 text-[#86868B]">
                   <MapPin className="h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
-                    <p className="text-sm font-semibold text-primary">{selected.location}</p>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.location}</p>
                   </div>
                 </div>
               </div>
@@ -183,29 +178,29 @@ export default function SchedulePage() {
             {selected.speaker && (
               <TapCard
                 onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
-                className="w-full card-clean rounded-2xl p-5 text-left cursor-pointer"
+                className="w-full card-clean rounded-xl p-4 text-left cursor-pointer"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] overflow-hidden">
                     {selected.speaker.photo_url ? (
-                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" loading="lazy" />
+                      <img src={selected.speaker.photo_url} alt={selected.speaker.name} className="h-full w-full object-cover" />
                     ) : (
-                      <Mic2 className="h-5 w-5 text-muted" />
+                      <Mic2 className="h-5 w-5 text-[#86868B]" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold">{selected.speaker.name}</p>
-                    <p className="text-xs text-muted">Speaker</p>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">{selected.speaker.name}</p>
+                    <p className="text-xs text-[#86868B]">Speaker</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted shrink-0" />
+                  <ChevronRight className="h-4 w-4 text-[#86868B] shrink-0" />
                 </div>
               </TapCard>
             )}
 
             {selected.description && (
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">About</h3>
-                <p className="text-sm leading-relaxed">{selected.description}</p>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#86868B] mb-2">About</h3>
+                <p className="text-sm text-[#1D1D1F] leading-relaxed">{selected.description}</p>
               </div>
             )}
           </div>
@@ -213,22 +208,22 @@ export default function SchedulePage() {
       </DetailModal>
 
       {/* Speaker Detail Modal */}
-      <DetailModal open={!!selectedSpeaker} onClose={handleCloseSpeaker}>
+      <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
         {selectedSpeaker && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-md)' }}>
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-white border border-[rgba(0,0,0,0.06)] overflow-hidden">
                 {selectedSpeaker.photo_url ? (
-                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" />
                 ) : (
-                  <Mic2 className="h-10 w-10 text-muted" />
+                  <Mic2 className="h-10 w-10 text-[#86868B]" />
                 )}
               </div>
-              <h2 className="mt-5 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
+              <h2 className="mt-4 text-xl font-bold tracking-tight text-[#1D1D1F]">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
-              <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
+              <p className="text-sm text-[#86868B] leading-relaxed">{selectedSpeaker.bio}</p>
             )}
 
             {selectedSpeaker.linkedin && (
@@ -236,7 +231,7 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1D1D1F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile
@@ -249,32 +244,36 @@ export default function SchedulePage() {
   );
 }
 
-const EventCard = memo(function EventCard({
+function EventCard({
   item,
+  categoryColors,
+  formatTime,
   compact,
 }: {
   item: ScheduleItem;
+  categoryColors: Record<string, string>;
+  formatTime: (iso: string) => string;
   compact?: boolean;
 }) {
   return (
     <div className={`card-clean rounded-2xl p-4 space-y-2 ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
-        <p className="text-[10px] font-bold tracking-wider text-muted uppercase">
+        <p className="text-[10px] font-bold tracking-wider text-[#86868B] uppercase">
           until {formatTime(item.end_time)}
         </p>
       )}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-sm">{item.title}</h3>
+        <h3 className="font-semibold text-sm text-[#1D1D1F]">{item.title}</h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-            categoryColors[item.category] || 'bg-[var(--muted-light)] text-muted'
+            categoryColors[item.category] || 'bg-[#F5F5F7] text-[#86868B]'
           }`}
         >
           {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
         </span>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-muted">
+      <div className="flex items-center gap-3 text-xs text-[#86868B]">
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           {item.location}
@@ -282,14 +281,14 @@ const EventCard = memo(function EventCard({
         {item.speaker && (
           <span className="flex items-center gap-1">
             <Mic2 className="h-3 w-3" />
-            <span className="font-medium text-primary">{item.speaker.name}</span>
+            <span className="font-medium text-[#1D1D1F]">{item.speaker.name}</span>
           </span>
         )}
       </div>
 
       {item.description && (
-        <p className="text-xs text-muted line-clamp-2">{item.description}</p>
+        <p className="text-xs text-[#86868B] line-clamp-2">{item.description}</p>
       )}
     </div>
   );
-});
+}

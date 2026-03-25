@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { Mail, Sparkles } from 'lucide-react';
 
@@ -32,80 +33,109 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-mesh flex min-h-screen flex-col items-center justify-center px-6">
-      <div className="relative z-10 w-full max-w-sm space-y-10 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo / Branding */}
-        <div className="space-y-4 anim-fade-in">
-          <div
-            className="mx-auto flex h-18 w-18 items-center justify-center rounded-3xl gradient-accent gradient-glow anim-fade-in"
-            style={{ '--fade-delay': '100ms' } as React.CSSProperties}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-3"
+        >
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1D1D1F]"
           >
-            <Sparkles className="h-9 w-9 text-white" />
-          </div>
-          <h1 className="text-title text-3xl gradient-accent-text">Startup Contacts</h1>
-          <p className="text-subtitle">
+            <Sparkles className="h-8 w-8 text-white" />
+          </motion.div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">Startup Contacts</h1>
+          <p className="text-sm font-medium text-[#86868B]">
             Venture Club Münster
           </p>
-        </div>
+        </motion.div>
 
-        {sent ? (
-          <div className="glass-card space-y-5 p-10 anim-scale-in">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10">
-              <Mail className="h-7 w-7 text-green-400" />
-            </div>
-            <h2 className="text-lg font-semibold">Check your email</h2>
-            <p className="text-sm text-muted leading-relaxed">
-              We sent a magic link to <span className="font-medium text-primary">{email}</span>.
-              Click the link to sign in.
-            </p>
-          </div>
-        ) : (
-          <div
-            className="space-y-7 anim-fade-in"
-            style={{ '--fade-delay': '150ms' } as React.CSSProperties}
-          >
-            <div className="glass-card p-10 space-y-5">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-2)' }}>
-                <Mail className="h-7 w-7 text-muted" />
+        <AnimatePresence mode="wait">
+          {sent ? (
+            /* Success state */
+            <motion.div
+              key="sent"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="card-clean space-y-4 rounded-2xl p-6"
+            >
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+                <Mail className="h-6 w-6 text-green-500" />
               </div>
-              <p className="text-sm text-muted leading-relaxed">
-                No account detected. Enter your email or open the link you received by mail to login.
+              <h2 className="text-lg font-semibold text-[#1D1D1F]">Check your email</h2>
+              <p className="text-sm text-[#86868B]">
+                We sent a magic link to <span className="font-medium text-[#1D1D1F]">{email}</span>.
+                Click the link to sign in.
               </p>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-5">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="w-full px-4 py-4 text-sm input-field"
-              />
-              {error && (
-                <p className="text-sm text-red-400 anim-fade-in">
-                  {error}
+            </motion.div>
+          ) : (
+            /* Login form */
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-6"
+            >
+              <div className="card-clean rounded-2xl p-6 space-y-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#FAFAFA]">
+                  <Mail className="h-6 w-6 text-[#86868B]" />
+                </div>
+                <p className="text-sm text-[#86868B]">
+                  No account detected. Enter your email or open the link you received by mail to login.
                 </p>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="tap-btn w-full btn-primary py-4 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 gradient-glow"
-              >
-                {loading ? 'Sending...' : 'Send Magic Link'}
-              </button>
-            </form>
+              </div>
 
-            <div className="text-center">
-              <a
-                href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                className="text-xs font-medium text-muted transition-colors duration-150"
-              >
-                Continue with demo account →
-              </a>
-            </div>
-          </div>
-        )}
+              <form onSubmit={handleLogin} className="space-y-4">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="w-full rounded-xl bg-white px-4 py-3.5 text-sm text-[#1D1D1F] placeholder-[#86868B] outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
+                />
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="text-sm text-red-500"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                >
+                  {loading ? 'Sending...' : 'Send Magic Link'}
+                </motion.button>
+              </form>
+
+              <div className="text-center">
+                <a
+                  href={`/auth/demo?token=SC-DEMO-2024-VCM`}
+                  className="text-xs font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors duration-150"
+                >
+                  Continue with demo account →
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -1,34 +1,43 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
-/**
- * All list/card animations now use CSS @keyframes on the compositor thread.
- * Framer Motion is only kept where truly needed (AnimatePresence in modals).
- */
+const ease = [0.22, 1, 0.36, 1] as const;
 
-// Staggered list container — just renders children; stagger via CSS delay
+// Staggered list container
 export function StaggerList({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>;
-}
-
-// Animated list item — CSS `animation-delay` set via `--stagger-delay`
-let _staggerCounter = 0;
-export function StaggerItem({ children, className, index }: { children: ReactNode; className?: string; index?: number }) {
-  const i = index ?? _staggerCounter++;
-  // Reset counter on next tick (each StaggerList render)
-  if (i === 0) setTimeout(() => { _staggerCounter = 0; }, 0);
   return (
-    <div
-      className={`anim-stagger-item ${className || ''}`}
-      style={{ '--stagger-delay': `${i * 30}ms` } as React.CSSProperties}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.03 } },
+      }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
-// Interactive card — pure CSS tap feedback
+// Animated list item (fade + slide up)
+export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 14 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease } },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Interactive card wrapper with hover lift + tap
 export function TapCard({
   children,
   className,
@@ -39,13 +48,18 @@ export function TapCard({
   onClick?: () => void;
 }) {
   return (
-    <div className={`tap-card ${className || ''}`} onClick={onClick}>
+    <motion.div
+      whileHover={{ y: -2, transition: { duration: 0.15, ease } }}
+      whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
+      className={className}
+      onClick={onClick}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
-// Animated button — pure CSS tap feedback
+// Animated button
 export function TapButton({
   children,
   className,
@@ -60,18 +74,20 @@ export function TapButton({
   type?: 'submit' | 'button';
 }) {
   return (
-    <button
-      className={`tap-btn ${className || ''}`}
+    <motion.button
+      whileHover={disabled ? {} : { scale: 1.02, transition: { duration: 0.15, ease } }}
+      whileTap={disabled ? {} : { scale: 0.97, transition: { duration: 0.1 } }}
+      className={className}
       onClick={onClick}
       disabled={disabled}
       type={type}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
-// Fade-in wrapper — CSS animation
+// Fade-in wrapper
 export function FadeIn({
   children,
   className,
@@ -82,30 +98,45 @@ export function FadeIn({
   delay?: number;
 }) {
   return (
-    <div
-      className={`anim-fade-in ${className || ''}`}
-      style={{ '--fade-delay': `${delay * 1000}ms` } as React.CSSProperties}
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22, delay, ease }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
-// Page transition wrapper — simple CSS fade
+// Page transition wrapper
 export function PageTransition({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`anim-fade-in ${className || ''}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, ease }}
+      className={className}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
-// Slide-in — CSS animation
+// Slide-in from bottom (for forms / panels)
 export function SlideIn({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`anim-fade-in ${className || ''}`}>
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease }}
+      className={className}
+      style={{ overflow: 'hidden' }}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
