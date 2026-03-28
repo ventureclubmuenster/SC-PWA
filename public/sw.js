@@ -1,26 +1,42 @@
-const CACHE_VERSION = 5;
+const CACHE_VERSION = 6;
 const STATIC_CACHE = `sc-static-v${CACHE_VERSION}`;
 const PAGES_CACHE = `sc-pages-v${CACHE_VERSION}`;
 const DATA_CACHE = `sc-data-v${CACHE_VERSION}`;
 const ALL_CACHES = [STATIC_CACHE, PAGES_CACHE, DATA_CACHE];
 
-// Pages to prefetch on install for instant navigation
-const PREFETCH_PAGES = [
+// Routes to prefetch async and cache for offline navigation
+const PRECACHE_ROUTES = [
   '/schedule',
   '/information',
   '/workshops',
   '/ticket',
   '/profile',
 ];
+const PRECACHE_SET = new Set(PRECACHE_ROUTES);
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(PAGES_CACHE).then((cache) =>
-      cache.addAll(PREFETCH_PAGES).catch(() => {
-        // Prefetch is best-effort; don't block install on failure
+// Async prefetch - runs in background, never blocks install/activate
+async function prefetchRoutes() {
+  try {
+    const cache = await caches.open(PAGES_CACHE);
+    await Promise.allSettled(
+      PRECACHE_ROUTES.map(async (route) => {
+        try {
+          const response = await fetch(route);
+          if (response.ok && !response.redirected) {
+            await cache.put(route, response);
+          }
+        } catch {
+          // best-effort - skip on failure
+        }
       })
-    )
-  );
+    );
+  } catch {
+    // cache open failed - ignore
+  }
+}
+
+self.addEventListener('install', () => {
+  // Do not block install - activate immediately
   self.skipWaiting();
 });
 
@@ -32,9 +48,10 @@ self.addEventListener('activate', (event) => {
           .filter((k) => !ALL_CACHES.includes(k))
           .map((k) => caches.delete(k))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
+  // Fire-and-forget: prefetch routes async after activation
+  prefetchRoutes();
 });
 
 function isExcluded(url) {
@@ -58,22 +75,25 @@ function handleStaticAsset(event) {
   );
 }
 
-// Network-first for navigation — let browser handle redirects natively
+// Network-first for navigation - only cache the defined routes
 function handleNavigation(event) {
+  const url = new URL(event.request.url);
+  const shouldCache = PRECACHE_SET.has(url.pathname);
+
   event.respondWith(
     fetch(event.request, { redirect: 'manual' })
       .then((response) => {
-        // Auth redirect — return as-is so the browser follows it natively
+        // Auth redirect - return as-is so the browser follows it natively
         if (response.type === 'opaqueredirect') {
           return response;
         }
-        if (response.ok) {
+        if (response.ok && shouldCache) {
           const clone = response.clone();
           caches.open(PAGES_CACHE).then((cache) => cache.put(event.request, clone));
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => shouldCache ? caches.match(event.request) : undefined)
   );
 }
 
@@ -105,12 +125,12 @@ self.addEventListener('fetch', (event) => {
   // Exclude admin routes entirely
   if (isExcluded(url)) return;
 
-  // Next.js hashed static assets — cache-first (immutable)
+  // Next.js hashed static assets - cache-first (immutable)
   if (url.pathname.startsWith('/_next/static/')) {
     return handleStaticAsset(event);
   }
 
-  // Navigation requests (HTML pages) — network-first with cache fallback
+  // Navigation requests (HTML pages) - network-first, cache only defined routes
   if (event.request.mode === 'navigate') {
     return handleNavigation(event);
   }
@@ -124,21 +144,21 @@ self.addEventListener('fetch', (event) => {
     return handleStaticAsset(event);
   }
 
-  // External fonts (Google Fonts) — cache-first
+  // External fonts (Google Fonts) - cache-first
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
     return handleStaticAsset(event);
   }
 
-  // Supabase Storage images (logos, photos) — cache-first (immutable URLs)
+  // Supabase Storage images (logos, photos) - cache-first (immutable URLs)
   if (url.hostname.includes('supabase.co') && url.pathname.includes('/storage/')) {
     return handleStaticAsset(event);
   }
 
-  // Everything else (API data, images, etc.) — stale-while-revalidate
+  // Everything else (API data, images, etc.) - stale-while-revalidate
   handleData(event);
 });
 
-// Push notification handler — runs even when PWA is closed
+// Push notification handler - runs even when PWA is closed
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'Startup Contacts';
