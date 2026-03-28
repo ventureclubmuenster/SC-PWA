@@ -159,11 +159,8 @@ function LiquidGlassDotsIcon() {
 function MehrAnzeigenIcon() {
   return (
     <IconBadge>
-      <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
-        <circle cx="2" cy="5" r="1.5" fill="var(--foreground)" />
-        <circle cx="7" cy="5" r="1.5" fill="var(--foreground)" />
-        <circle cx="12" cy="5" r="1.5" fill="var(--foreground)" />
-        <path d="M4 8l3 2.5L10 8" stroke="var(--foreground)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <svg width="14" height="9" viewBox="0 0 14 9" fill="none">
+        <path d="M1 1 L7 8 L13 1" stroke="var(--foreground)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     </IconBadge>
   );
@@ -193,34 +190,34 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "55px" : "40px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "28px" : "18px"})`,
         ...(isIOS26
-          ? { right: "22px" }
+          ? { right: "44px" }
           : { left: "50%", transform: "translateX(-50%)" }),
         zIndex: 10001,
         animation: "arrowBounce 1.1s ease-in-out infinite",
       }}
     >
       <svg
-        width="22"
-        height="30"
-        viewBox="0 0 22 30"
+        width="28"
+        height="36"
+        viewBox="0 0 28 36"
         fill="none"
-        style={{ opacity: 0.85 }}
+        style={{ opacity: 0.9 }}
       >
         <line
-          x1="11"
+          x1="14"
           y1="0"
-          x2="11"
-          y2="20"
+          x2="14"
+          y2="24"
           stroke="#ff8a2a"
-          strokeWidth="2.5"
+          strokeWidth="3.5"
           strokeLinecap="round"
         />
         <path
-          d="M3 13 L11 26 L19 13"
+          d="M4 16 L14 31 L24 16"
           stroke="#ff8a2a"
-          strokeWidth="2.5"
+          strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
