@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendEmail, buildOrderConfirmationHtml } from '@/lib/email';
 
 /* ------------------------------------------------------------------ */
 /*  HMAC verification                                                  */
@@ -88,6 +89,23 @@ export async function POST(request: NextRequest) {
     if (dbError) {
       console.error('Failed to insert order:', dbError);
       return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
+    }
+
+    // Send order confirmation email
+    if (email) {
+      try {
+        const html = buildOrderConfirmationHtml(email, ticketIds.length);
+        const { error: emailError } = await sendEmail({
+          to: email,
+          subject: 'Danke für deine Bestellung – Startup Contacts',
+          html,
+        });
+        if (emailError) {
+          console.error('Failed to send order confirmation email:', emailError);
+        }
+      } catch (emailErr) {
+        console.error('Unexpected error sending confirmation email:', emailErr);
+      }
     }
   } catch (err) {
     console.error('Unexpected error inserting order:', err);
