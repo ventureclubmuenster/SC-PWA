@@ -143,6 +143,58 @@ function HamburgerIcon() {
   );
 }
 
+// ─── Bouncing arrow pointing at Safari UI button ─────────────────────────────
+
+function BouncingArrow({ platform }: { platform: Platform }) {
+  const isIOS26 = platform === "ios-safari-26";
+
+  return (
+    <div
+      className="fixed pointer-events-none"
+      style={{
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "78px" : "56px"})`,
+        ...(isIOS26
+          ? { right: "22px" }
+          : { left: "50%", transform: "translateX(-50%)" }),
+        zIndex: 10001,
+        animation: "arrowBounce 1.1s ease-in-out infinite",
+      }}
+    >
+      <svg
+        width="22"
+        height="30"
+        viewBox="0 0 22 30"
+        fill="none"
+        style={{ opacity: 0.85 }}
+      >
+        <line
+          x1="11"
+          y1="0"
+          x2="11"
+          y2="20"
+          stroke="#ff8a2a"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M3 13 L11 26 L19 13"
+          stroke="#ff8a2a"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
+      <style>{`
+        @keyframes arrowBounce {
+          0%, 100% { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(0px); }
+          50%       { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(7px); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // ─── Step component ───────────────────────────────────────────────────────────
 
 function Step({ num, children }: { num: number; children: React.ReactNode }) {
@@ -374,6 +426,8 @@ export default function AddToHomeScreenPrompt() {
 
   if (!platform || !visible) return null;
 
+  const showArrow = platform === "ios-safari" || platform === "ios-safari-26";
+
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center p-5"
@@ -420,6 +474,7 @@ export default function AddToHomeScreenPrompt() {
           onInstalled={() => setVisible(false)}
         />
       </div>
+      {showArrow && <BouncingArrow platform={platform} />}
     </div>
   );
 }
