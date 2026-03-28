@@ -116,13 +116,36 @@ function DotsVerticalIcon() {
   );
 }
 
-function DotsHorizontalIcon() {
+
+function LiquidGlassDotsIcon() {
+  return (
+    <span
+      className="inline-flex items-center justify-center align-middle mx-0.5 gap-[3px] px-2.5"
+      style={{
+        height: 28,
+        borderRadius: 14,
+        background: "rgba(120,120,128,0.18)",
+        border: "1px solid rgba(255,255,255,0.22)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.10)",
+      }}
+    >
+      <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--foreground)", display: "inline-block", opacity: 0.85 }} />
+      <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--foreground)", display: "inline-block", opacity: 0.85 }} />
+      <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--foreground)", display: "inline-block", opacity: 0.85 }} />
+    </span>
+  );
+}
+
+function MehrAnzeigenIcon() {
   return (
     <IconBadge>
-      <svg width="14" height="4" viewBox="0 0 14 4" fill="none">
-        <circle cx="2" cy="2" r="1.5" fill="var(--foreground)" />
-        <circle cx="7" cy="2" r="1.5" fill="var(--foreground)" />
-        <circle cx="12" cy="2" r="1.5" fill="var(--foreground)" />
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+        <circle cx="2" cy="5" r="1.5" fill="var(--foreground)" />
+        <circle cx="7" cy="5" r="1.5" fill="var(--foreground)" />
+        <circle cx="12" cy="5" r="1.5" fill="var(--foreground)" />
+        <path d="M4 8l3 2.5L10 8" stroke="var(--foreground)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     </IconBadge>
   );
@@ -152,7 +175,7 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "78px" : "56px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "55px" : "40px"})`,
         ...(isIOS26
           ? { right: "22px" }
           : { left: "50%", transform: "translateX(-50%)" }),
@@ -270,20 +293,21 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <DotsHorizontalIcon /> rechts neben der Adressleiste
+            Tippe auf <LiquidGlassDotsIcon /> rechts neben der Adressleiste
           </Step>
           <Step num={2}>
             Tippe auf <IOSShareIcon />{" "}
             <strong className="font-semibold">„Teilen"</strong>
           </Step>
           <Step num={3}>
-            Scrolle und tippe auf{" "}
-            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>
+            Scrolle nach unten und tippe auf{" "}
+            <MehrAnzeigenIcon />{" "}
+            <strong className="font-semibold">„Mehr anzeigen…"</strong>
           </Step>
           <Step num={4}>
-            Stelle sicher, dass{" "}
-            <strong className="font-semibold">„Als Web-App öffnen"</strong>{" "}
-            aktiviert ist, dann tippe auf{" "}
+            Tippe auf{" "}
+            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>{" "}
+            und bestätige mit{" "}
             <strong className="font-semibold">„Hinzufügen"</strong>
           </Step>
         </div>
@@ -429,52 +453,54 @@ export default function AddToHomeScreenPrompt() {
   const showArrow = platform === "ios-safari" || platform === "ios-safari-26";
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-5"
-      style={{
-        background: "var(--overlay)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
-      }}
-      onClick={() => setVisible(false)}
-    >
+    <>
       <div
-        className="glass-card w-full max-w-sm p-6 relative anim-scale-in"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-5"
+        style={{
+          background: "var(--overlay)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+        }}
+        onClick={() => setVisible(false)}
       >
-        {/* Close */}
-        <button
-          onClick={() => setVisible(false)}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center tap-btn"
-          style={{ background: "var(--surface-3)", color: "var(--muted)" }}
+        <div
+          className="glass-card w-full max-w-sm p-6 relative anim-scale-in"
+          onClick={(e) => e.stopPropagation()}
         >
-          <X size={13} />
-        </button>
+          {/* Close */}
+          <button
+            onClick={() => setVisible(false)}
+            className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center tap-btn"
+            style={{ background: "var(--surface-3)", color: "var(--muted)" }}
+          >
+            <X size={13} />
+          </button>
 
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-5 pr-6">
-          <img
-            src="/apple-touch-icon.png"
-            alt="App Icon"
-            className="w-11 h-11 rounded-xl flex-shrink-0"
-            style={{ boxShadow: "var(--shadow-sm)" }}
-          />
-          <div>
-            <div className="text-title text-[15px]">App installieren</div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-              Startup Contacts zum Home-Bildschirm hinzufügen
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-5 pr-6">
+            <img
+              src="/apple-touch-icon.png"
+              alt="App Icon"
+              className="w-11 h-11 rounded-xl flex-shrink-0"
+              style={{ boxShadow: "var(--shadow-sm)" }}
+            />
+            <div>
+              <div className="text-title text-[15px]">App installieren</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                Startup Contacts zum Home-Bildschirm hinzufügen
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Steps */}
-        <PlatformContent
-          platform={platform}
-          deferredPrompt={deferredPrompt}
-          onInstalled={() => setVisible(false)}
-        />
+          {/* Steps */}
+          <PlatformContent
+            platform={platform}
+            deferredPrompt={deferredPrompt}
+            onInstalled={() => setVisible(false)}
+          />
+        </div>
       </div>
       {showArrow && <BouncingArrow platform={platform} />}
-    </div>
+    </>
   );
 }
