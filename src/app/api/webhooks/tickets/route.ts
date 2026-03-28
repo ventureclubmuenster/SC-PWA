@@ -110,12 +110,14 @@ export async function POST(request: NextRequest) {
 
   // Persist ticket to Supabase
   try {
-    const payload = body as { data?: { ticket?: { _id?: string } } };
+    const payload = body as { data?: { ticket?: { _id?: string; email?: string } } };
     const ticketId = payload?.data?.ticket?._id ?? '';
+    const email = payload?.data?.ticket?.email ?? '';
 
     const supabase = createAdminClient();
     const { error: dbError } = await supabase.from('tickets').insert({
       ticket_id: ticketId,
+      email,
       all_data: body,
     });
 

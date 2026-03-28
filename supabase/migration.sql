@@ -111,6 +111,7 @@ ALTER TABLE notification_logs DISABLE ROW LEVEL SECURITY;
 CREATE TABLE tickets (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   ticket_id TEXT NOT NULL,
+  email TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'created' CHECK (status IN ('created', 'assigned', 'validated')),
   all_data JSONB NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
