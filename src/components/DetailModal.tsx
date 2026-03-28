@@ -43,18 +43,20 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] bg-[#FAFAFA] ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+            className={`relative z-10 w-full max-w-lg overflow-y-auto rounded-t-[20px] ${tall ? 'min-h-[70vh] max-h-[92vh]' : 'max-h-[85vh]'}`}
+            style={{ background: 'var(--surface-1)' }}
           >
             {/* Handle + close */}
-            <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 bg-[#FAFAFA]/80 backdrop-blur-xl">
-              <div className="mx-auto h-1 w-10 rounded-full bg-[rgba(0,0,0,0.08)]" />
+            <div className="sticky top-0 z-20 flex items-center justify-between px-5 pt-3 pb-2 backdrop-blur-xl" style={{ background: 'color-mix(in srgb, var(--surface-1) 80%, transparent)' }}>
+              <div className="mx-auto h-1 w-10 rounded-full" style={{ background: 'var(--border)' }} />
               <motion.button
                 whileHover={{ scale: 1.1, transition: { duration: 0.15 } }}
                 whileTap={{ scale: 0.9, transition: { duration: 0.1 } }}
                 onClick={onClose}
-                className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,0,0.05)] hover:bg-[rgba(0,0,0,0.08)] transition-colors duration-150"
+                className="absolute right-4 top-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150"
+                style={{ background: 'var(--surface-2)' }}
               >
-                <X className="h-4 w-4 text-[#86868B]" />
+                <X className="h-4 w-4 text-muted" />
               </motion.button>
             </div>
 

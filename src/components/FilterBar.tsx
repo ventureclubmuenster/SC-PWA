@@ -16,11 +16,11 @@ export default function FilterBar({ filters, activeFilter, onFilterChange }: Fil
           key={filter.value}
           whileTap={{ scale: 0.95, transition: { duration: 0.1 } }}
           onClick={() => onFilterChange(filter.value)}
-          className={`relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors duration-150 min-h-[44px] flex items-center ${
-            activeFilter === filter.value
-              ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white'
-              : 'border-[rgba(0,0,0,0.06)] bg-white text-[#86868B] hover:border-[#1D1D1F] hover:text-[#1D1D1F]'
-          }`}
+          className="relative whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors duration-150 min-h-[44px] flex items-center"
+          style={activeFilter === filter.value
+            ? { borderColor: 'var(--foreground)', background: 'var(--foreground)', color: 'var(--background)' }
+            : { borderColor: 'var(--border)', background: 'var(--surface-1)', color: 'var(--muted)' }
+          }
         >
           {filter.label}
         </motion.button>

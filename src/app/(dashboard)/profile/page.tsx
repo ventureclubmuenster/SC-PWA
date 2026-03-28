@@ -152,24 +152,31 @@ export default function ProfilePage() {
       {/* Theme Toggle */}
       <FadeIn delay={0.05}>
         <div className="card-clean rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Appearance</p>
-              <p className="text-xs text-muted mt-0.5">
-                {theme === 'dark' ? 'Dark mode' : 'Light mode'}
-              </p>
-            </div>
+          <p className="text-xs font-semibold tracking-wider uppercase text-muted mb-3">Appearance</p>
+          <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={toggleTheme}
-              className="flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-150"
-              style={{ background: 'var(--surface-2)' }}
-              aria-label="Toggle theme"
+              onClick={() => theme !== 'light' && toggleTheme()}
+              className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-200"
+              style={{
+                background: theme === 'light' ? 'var(--accent)' : 'var(--surface-2)',
+                color: theme === 'light' ? '#fff' : 'var(--muted)',
+                boxShadow: theme === 'light' ? 'var(--shadow-sm)' : 'none',
+              }}
             >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5" style={{ color: 'var(--accent)' }} />
-              ) : (
-                <Moon className="h-5 w-5" style={{ color: 'var(--accent)' }} />
-              )}
+              <Sun className="h-4 w-4" />
+              Light
+            </button>
+            <button
+              onClick={() => theme !== 'dark' && toggleTheme()}
+              className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-200"
+              style={{
+                background: theme === 'dark' ? 'var(--accent)' : 'var(--surface-2)',
+                color: theme === 'dark' ? '#fff' : 'var(--muted)',
+                boxShadow: theme === 'dark' ? 'var(--shadow-sm)' : 'none',
+              }}
+            >
+              <Moon className="h-4 w-4" />
+              Dark
             </button>
           </div>
         </div>

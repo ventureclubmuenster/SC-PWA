@@ -14,6 +14,7 @@ The **Startup Contacts** app is the digital operating system for the Venture Clu
 | Database | Supabase (PostgreSQL) — users, tickets, workshops, scans |
 | CMS | Sanity.io — schedule, speakers, partners, global content |
 | Payments | Stripe (future integration for ticket purchases) |
+| Email | Resend — transactional email via `noreply@startup-contacts.de` |
 
 ---
 
@@ -273,6 +274,93 @@ CREATE TRIGGER on_auth_user_created
 - Explicit opt-in for sharing recruiting data during personalization
 - Magic link sessions use secure, HttpOnly cookies
 - Row Level Security (RLS) enforced on all tables
+
+---
+
+## Email — Resend Integration
+
+### Setup & Credentials
+- **Package:** `resend` (^6.9.4) — install via `npm install resend`
+- **API Key:** stored in `.env.local` as `RESEND_API_KEY`
+- **Sender domain:** `startup-contacts.de` (verified in Resend dashboard)
+- **Default sender address:** `noreply@startup-contacts.de`
+
+### API Route
+All emails are sent via the Next.js API route at:
+```
+POST /api/send-email
+```
+**File:** `src/app/api/send-email/route.ts`
+
+The route uses the Resend SDK server-side (never expose the API key to the client).
+
+### How to Send an Email
+
+**Basic structure inside the route:**
+```typescript
+import { Resend } from 'resend';
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const { data, error } = await resend.emails.send({
+    from: 'SC-PWA <noreply@startup-contacts.de>',  // sender — must use verified domain
+    to: ['empfaenger@example.com'],                  // recipient(s) — array of strings
+    subject: 'Betreff der E-Mail',                   // subject line
+    html: '<p>HTML-Inhalt der E-Mail</p>',           // HTML body
+    // text: 'Plaintext fallback',                   // optional plaintext version
+    // replyTo: 'reply@example.com',                 // optional reply-to address
+  });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ id: data?.id });
+}
+```
+
+**Calling the route from the frontend:**
+```typescript
+const res = await fetch('/api/send-email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ to: 'user@example.com', subject: '...', html: '...' }),
+});
+```
+> Note: pass dynamic values (`to`, `subject`, `html`) in the request body and read them in the route via `await request.json()`.
+
+### Key Rules
+1. **Always use the verified sender domain** `startup-contacts.de` — Resend will reject emails from unverified domains.
+2. **Never call Resend from the client** — the API key must stay server-side only (API routes or Server Actions).
+3. **`to` is always an array** — even for a single recipient: `to: ['user@example.com']`.
+4. **Check `error` before using `data`** — Resend returns `{ data, error }`, one of which will be `null`.
+5. **HTML is the primary body** — always provide at least a `html` field; add `text` as plaintext fallback for email clients that block HTML.
+
+### Extending with React Email Templates (recommended for complex mails)
+Install `@react-email/components` and create templates in `src/emails/`:
+```typescript
+import { Html, Body, Heading, Text } from '@react-email/components';
+
+export function WelcomeEmail({ name }: { name: string }) {
+  return (
+    <Html>
+      <Body>
+        <Heading>Willkommen, {name}!</Heading>
+        <Text>Dein Konto wurde erfolgreich erstellt.</Text>
+      </Body>
+    </Html>
+  );
+}
+```
+Then render it to HTML in the route:
+```typescript
+import { render } from '@react-email/render';
+import { WelcomeEmail } from '@/emails/WelcomeEmail';
+
+const html = await render(<WelcomeEmail name="Lucas" />);
+await resend.emails.send({ from: '...', to: [...], subject: '...', html });
+```
 
 ---
 
