@@ -118,3 +118,14 @@ CREATE TABLE tickets (
 );
 
 ALTER TABLE tickets DISABLE ROW LEVEL SECURITY;
+
+-- Orders table (vivenu transaction webhook data)
+CREATE TABLE orders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL DEFAULT '',
+  tickets TEXT[] NOT NULL DEFAULT '{}',
+  all_data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
