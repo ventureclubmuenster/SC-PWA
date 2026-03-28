@@ -70,8 +70,8 @@ export default function SpeakersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Speakers</h1>
-        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg noise-panel-dark px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-          <Plus className="h-4 w-4" /> Add
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }} className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
+          <Plus className="h-4 w-4" aria-hidden="true" /> Add
         </motion.button>
       </div>
 
@@ -84,20 +84,20 @@ export default function SpeakersPage() {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           style={{ overflow: 'hidden' }}
         >
-        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-[#E8E8ED]">
-          <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Name *" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+        <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-2xl bg-white p-4 border border-gray-200">
+          <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Name *" aria-label="Name" className="w-full rounded-lg bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" />
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] hover:border-[#ccc]">
-              <Upload className="h-4 w-4" /> {uploading ? 'Uploading...' : 'Photo'}
+            <label className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-gray-50 px-3 py-2 text-sm border border-gray-200 hover:border-[#ccc] focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-1">
+              <Upload className="h-4 w-4" aria-hidden="true" /> {uploading ? 'Uploading...' : 'Photo'}
               <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
             </label>
-            {form.photo_url && <img src={form.photo_url} alt="" className="h-8 w-8 rounded-full object-cover" />}
+            {form.photo_url && <img src={form.photo_url} alt="Preview" className="h-8 w-8 rounded-full object-cover" />}
           </div>
-          <input value={form.linkedin} onChange={(e) => setForm((f) => ({ ...f, linkedin: e.target.value }))} placeholder="LinkedIn URL" className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
-          <textarea value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} placeholder="Bio" rows={3} className="w-full rounded-lg bg-[#F5F5F7] px-3 py-2 text-sm border border-[#E8E8ED] focus:border-[#FF754B] focus:outline-none" />
+          <input value={form.linkedin} onChange={(e) => setForm((f) => ({ ...f, linkedin: e.target.value }))} placeholder="LinkedIn URL" aria-label="LinkedIn URL" className="w-full rounded-lg bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" />
+          <textarea value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} placeholder="Bio" aria-label="Bio" rows={3} className="w-full rounded-lg bg-gray-50 px-3 py-2 text-sm border border-gray-200 focus:border-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" />
           <div className="flex gap-2">
-            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="rounded-lg noise-panel-dark px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">{editId ? 'Update' : 'Create'}</motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-[#F5F5F7] px-4 py-2.5 text-sm font-medium hover:bg-[#E8E8ED]">Cancel</motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} type="submit" className="rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">{editId ? 'Update' : 'Create'}</motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => setShowForm(false)} className="rounded-lg bg-gray-50 px-4 py-2.5 text-sm font-medium hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Cancel</motion.button>
           </div>
         </form>
         </motion.div>
@@ -111,20 +111,20 @@ export default function SpeakersPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
-            className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-[#E8E8ED]"
+            className="flex items-center gap-3 rounded-2xl bg-white p-3 border border-gray-200"
           >
-            <div className="h-10 w-10 shrink-0 rounded-full bg-[#F5F5F7] overflow-hidden">
+            <div className="h-10 w-10 shrink-0 rounded-full bg-gray-50 overflow-hidden">
               {s.photo_url && <img src={s.photo_url} alt={s.name} className="h-full w-full object-cover" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{s.name}</p>
-              {s.bio && <p className="text-xs text-[#86868B] truncate">{s.bio}</p>}
+              {s.bio && <p className="text-xs text-gray-500 truncate">{s.bio}</p>}
             </div>
-            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleEdit(s)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Pencil className="h-4 w-4 text-[#86868B]" /></motion.button>
-            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleDelete(s.id)} className="p-1.5 rounded hover:bg-[#F5F5F7]"><Trash2 className="h-4 w-4 text-red-500" /></motion.button>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleEdit(s)} aria-label={`Edit ${s.name}`} className="p-2 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><Pencil className="h-4 w-4 text-gray-500" aria-hidden="true" /></motion.button>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleDelete(s.id)} aria-label={`Delete ${s.name}`} className="p-2 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><Trash2 className="h-4 w-4 text-red-500" aria-hidden="true" /></motion.button>
           </motion.div>
         ))}
-        {items.length === 0 && <p className="text-sm text-[#86868B] text-center py-8">No speakers yet</p>}
+        {items.length === 0 && <p className="text-sm text-gray-500 text-center py-8">No speakers yet</p>}
       </div>
     </div>
   );
