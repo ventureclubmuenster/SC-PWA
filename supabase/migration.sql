@@ -106,3 +106,13 @@ ALTER TABLE notification_logs DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE workshops ADD COLUMN exhibitor_id UUID REFERENCES profiles(id) ON DELETE SET NULL;
 -- ALTER TABLE schedule_items ADD COLUMN workshop_id UUID REFERENCES workshops(id) ON DELETE CASCADE;
 -- ALTER TABLE workshop_bookings ADD COLUMN status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'accepted', 'rejected'));
+
+-- Tickets table (vivenu webhook data)
+CREATE TABLE tickets (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  ticket_id TEXT NOT NULL,
+  all_data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE tickets DISABLE ROW LEVEL SECURITY;
