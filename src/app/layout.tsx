@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   title: "Startup Contacts",
   description: "The digital operating system for the Startup Contacts trade show",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

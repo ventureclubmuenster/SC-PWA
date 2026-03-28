@@ -39,12 +39,30 @@ The **Startup Contacts** app is the digital operating system for the Venture Clu
 
 ## Authentication Flow
 
+### Primary: Auto-Login via Ticket Purchase
 1. **No explicit login page** — users arrive at a landing screen:
    > *"No account detected. Open the link you received by mail to login."*
-2. User clicks a **magic link** sent to their email → redirected to `/auth/callback`
+2. After ticket purchase, user receives a magic link → redirected to `/auth/callback`
 3. On first login, a **persistent session cookie** is stored so the user never needs to log in again
 4. The app checks the cookie on every visit; if valid, auto-redirects to the appropriate dashboard
 5. User role (`visitor` or `exhibitor`) is determined from the Supabase `profiles` table
+
+### Manual: Magic Link Login
+For cases where the user has logged out, switched devices, or the session expired:
+
+1. User navigates to landing page (`/`) and enters their **email address**
+2. Click **"Anmelden"** → calls `supabase.auth.signInWithOtp({ email, emailRedirectTo: /auth/callback })`
+3. Supabase sends a **magic link** to the email
+4. UI shows confirmation: "Schaue in dein E-Mail-Postfach und bestätige deinen Login."
+5. User clicks link in email → redirected to `/auth/callback` → session created → redirect to `/schedule`
+
+**Security (all managed by Supabase):**
+- Rate limiting on login requests
+- Magic link expiry (default 60 minutes)
+- Session cookies: secure, HttpOnly
+
+### Profile Page: Logout
+- **"Abmelden"** button on profile page → signs out current session, redirects to `/` for fresh login
 
 ---
 

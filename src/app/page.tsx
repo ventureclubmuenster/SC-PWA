@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
-import { Mail, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { Mail } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -46,19 +47,19 @@ export default function LoginPage() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1D1D1F]"
+            className="mx-auto h-20 w-20 overflow-hidden rounded-2xl"
           >
-            <Sparkles className="h-8 w-8 text-white" />
+            <Image src="/icons/icon-192x192.png" alt="Startup Contacts" width={80} height={80} priority />
           </motion.div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">Startup Contacts</h1>
-          <p className="text-sm font-medium text-[#86868B]">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>Startup Contacts</h1>
+          <p className="text-sm font-medium text-muted">
             Venture Club Münster
           </p>
         </motion.div>
 
         <AnimatePresence mode="wait">
           {sent ? (
-            /* Success state */
+            /* Success — check email */
             <motion.div
               key="sent"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -67,17 +68,24 @@ export default function LoginPage() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean space-y-4 rounded-2xl p-6"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
-                <Mail className="h-6 w-6 text-green-500" />
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <Mail className="h-6 w-6" style={{ color: 'var(--accent)' }} />
               </div>
-              <h2 className="text-lg font-semibold text-[#1D1D1F]">Check your email</h2>
-              <p className="text-sm text-[#86868B]">
-                We sent a magic link to <span className="font-medium text-[#1D1D1F]">{email}</span>.
-                Click the link to sign in.
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>E-Mail gesendet</h2>
+              <p className="text-sm text-muted">
+                Schaue in dein E-Mail-Postfach und bestätige deinen Login.
+                <br />
+                <span className="font-medium" style={{ color: 'var(--foreground)' }}>{email}</span>
               </p>
+              <button
+                onClick={() => { setSent(false); setError(''); }}
+                className="text-xs font-medium text-muted transition-colors duration-150"
+              >
+                Andere E-Mail verwenden
+              </button>
             </motion.div>
           ) : (
-            /* Login form */
+            /* Email Form */
             <motion.div
               key="form"
               initial={{ opacity: 0, y: 16 }}
@@ -87,11 +95,11 @@ export default function LoginPage() {
               className="space-y-6"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#FAFAFA]">
-                  <Mail className="h-6 w-6 text-[#86868B]" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                  <Mail className="h-6 w-6 text-muted" />
                 </div>
-                <p className="text-sm text-[#86868B]">
-                  No account detected. Enter your email or open the link you received by mail to login.
+                <p className="text-sm text-muted">
+                  Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.
                 </p>
               </div>
 
@@ -100,9 +108,9 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder="deine@email.com"
                   required
-                  className="w-full rounded-xl bg-white px-4 py-3.5 text-sm text-[#1D1D1F] placeholder-[#86868B] outline-none ring-1 ring-[rgba(0,0,0,0.06)] focus:ring-2 focus:ring-[#FF754B] transition-all duration-150"
+                  className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                 />
                 {error && (
                   <motion.p
@@ -121,16 +129,16 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
                 >
-                  {loading ? 'Sending...' : 'Send Magic Link'}
+                  {loading ? 'Wird gesendet...' : 'Anmelden'}
                 </motion.button>
               </form>
 
               <div className="text-center">
                 <a
                   href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                  className="text-xs font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors duration-150"
+                  className="text-xs font-medium text-muted transition-colors duration-150"
                 >
-                  Continue with demo account →
+                  Demo-Account verwenden →
                 </a>
               </div>
             </motion.div>

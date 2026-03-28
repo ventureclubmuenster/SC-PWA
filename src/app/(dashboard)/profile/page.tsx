@@ -7,7 +7,7 @@ import { useProfile as useCachedProfile } from '@/components/DataProvider';
 import { useTheme } from '@/components/ThemeProvider';
 import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
-import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon } from 'lucide-react';
+import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon, Mail } from 'lucide-react';
 import { FadeIn, TapButton } from '@/components/motion';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingCv, setUploadingCv] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [form, setForm] = useState({
     full_name: '',
     university: '',
@@ -104,6 +105,15 @@ export default function ProfilePage() {
     setProfile((p) => p ? { ...p, cv_url: null } : p);
     refreshProfile();
     setUploadingCv(false);
+  };
+
+  const handleSendEmail = async () => {
+    setSendingEmail(true);
+    const res = await fetch('/api/send-email', { method: 'POST' });
+    setSendingEmail(false);
+    if (!res.ok) {
+      alert('E-Mail konnte nicht gesendet werden.');
+    }
   };
 
   const handleLogout = async () => {
@@ -259,6 +269,25 @@ export default function ProfilePage() {
       </div>
       </FadeIn>
 
+      {/* Send Email */}
+      <FadeIn delay={0.25}>
+        <TapButton
+          onClick={handleSendEmail}
+          disabled={sendingEmail}
+          className="w-full card-clean rounded-2xl p-5 text-left transition-opacity duration-150 disabled:opacity-60"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold">E-Mail senden</p>
+              <p className="text-xs text-muted mt-0.5">
+                {sendingEmail ? 'Wird gesendet...' : 'Sendet eine E-Mail an das Team'}
+              </p>
+            </div>
+            <Mail size={20} style={{ color: 'var(--accent)' }} />
+          </div>
+        </TapButton>
+      </FadeIn>
+
       {/* Push Notifications */}
       <FadeIn delay={0.3}>
       <PushNotificationManager>
@@ -293,7 +322,7 @@ export default function ProfilePage() {
         className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium text-red-400 card-clean transition-colors duration-150"
       >
         <LogOut className="h-4 w-4" />
-        Sign Out
+        Abmelden
       </TapButton>
       </FadeIn>
     </div>
