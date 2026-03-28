@@ -12,6 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 type Platform =
   | "ios-safari"
+  | "ios-safari-26"
   | "ios-chrome"
   | "ios-firefox"
   | "ios-edge"
@@ -23,6 +24,11 @@ type Platform =
 
 // ─── Detection ───────────────────────────────────────────────────────────────
 
+function getIOSMajorVersion(ua: string): number {
+  const match = /CPU (?:iPhone )?OS (\d+)_/.exec(ua);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
 function detectPlatform(): Platform | null {
   if (typeof navigator === "undefined") return null;
   const ua = navigator.userAgent;
@@ -33,7 +39,9 @@ function detectPlatform(): Platform | null {
     if (/CriOS/.test(ua)) return "ios-chrome";
     if (/FxiOS/.test(ua)) return "ios-firefox";
     if (/EdgiOS/.test(ua)) return "ios-edge";
-    if (/Safari/.test(ua)) return "ios-safari";
+    if (/Safari/.test(ua)) {
+      return getIOSMajorVersion(ua) >= 26 ? "ios-safari-26" : "ios-safari";
+    }
     return null;
   }
 
@@ -103,6 +111,18 @@ function DotsVerticalIcon() {
         <circle cx="2" cy="2" r="1.5" fill="var(--foreground)" />
         <circle cx="2" cy="7" r="1.5" fill="var(--foreground)" />
         <circle cx="2" cy="12" r="1.5" fill="var(--foreground)" />
+      </svg>
+    </IconBadge>
+  );
+}
+
+function DotsHorizontalIcon() {
+  return (
+    <IconBadge>
+      <svg width="14" height="4" viewBox="0 0 14 4" fill="none">
+        <circle cx="2" cy="2" r="1.5" fill="var(--foreground)" />
+        <circle cx="7" cy="2" r="1.5" fill="var(--foreground)" />
+        <circle cx="12" cy="2" r="1.5" fill="var(--foreground)" />
       </svg>
     </IconBadge>
   );
@@ -189,6 +209,29 @@ function PlatformContent({
           </Step>
           <Step num={3}>
             Bestätige mit{" "}
+            <strong className="font-semibold">„Hinzufügen"</strong>
+          </Step>
+        </div>
+      );
+
+    case "ios-safari-26":
+      return (
+        <div className="flex flex-col gap-4">
+          <Step num={1}>
+            Tippe auf <DotsHorizontalIcon /> rechts neben der Adressleiste
+          </Step>
+          <Step num={2}>
+            Tippe auf <IOSShareIcon />{" "}
+            <strong className="font-semibold">„Teilen"</strong>
+          </Step>
+          <Step num={3}>
+            Scrolle und tippe auf{" "}
+            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>
+          </Step>
+          <Step num={4}>
+            Stelle sicher, dass{" "}
+            <strong className="font-semibold">„Als Web-App öffnen"</strong>{" "}
+            aktiviert ist, dann tippe auf{" "}
             <strong className="font-semibold">„Hinzufügen"</strong>
           </Step>
         </div>
