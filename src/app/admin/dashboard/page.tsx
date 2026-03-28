@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, Ticket, TrendingUp } from 'lucide-react';
 
 interface DayData {
@@ -15,6 +15,8 @@ interface Analytics {
   days: DayData[];
   totalUsers: number;
   totalValidated: number;
+  ticketStatuses: { created: number; assigned: number; validated: number };
+  totalTickets: number;
 }
 
 function formatDate(dateStr: string) {
@@ -86,15 +88,24 @@ export default function AdminDashboardPage() {
           {[1, 2, 3].map((i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200" />)}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl bg-gray-200" />)}
+          {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl bg-gray-200" />)}
         </div>
       </div>
     );
   }
 
-  const { days, totalUsers, totalValidated } = analytics;
+  const { days, totalUsers, totalValidated, ticketStatuses, totalTickets } = analytics;
   const validationRate = totalUsers > 0 ? Math.round((totalValidated / totalUsers) * 100) : 0;
   const chartData = days.map((d) => ({ ...d, label: formatDate(d.date) }));
+
+  const STATUS_COLORS: Record<string, string> = { created: '#3b82f6', assigned: '#f59e0b', validated: '#10b981' };
+  const STATUS_LABELS: Record<string, string> = { created: 'Created', assigned: 'Assigned', validated: 'Validated' };
+  const pieData = Object.entries(ticketStatuses).map(([key, value]) => ({
+    name: STATUS_LABELS[key],
+    value,
+    color: STATUS_COLORS[key],
+    percentage: totalTickets > 0 ? ((value / totalTickets) * 100).toFixed(1) : '0.0',
+  }));
 
   return (
     <div>
@@ -107,6 +118,49 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
+        <ChartCard title="Ticket Status Distribution">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={48}
+                outerRadius={76}
+                paddingAngle={3}
+                dataKey="value"
+                stroke="none"
+              >
+                {pieData.map((entry, idx) => (
+                  <Cell key={idx} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const d = payload[0].payload as (typeof pieData)[number];
+                  return (
+                    <div className="rounded-xl bg-white px-4 py-3 border border-gray-200 shadow-lg text-[13px]">
+                      <p className="font-semibold text-gray-900">{d.name}</p>
+                      <p className="text-gray-500 mt-1">{d.value} ticket{d.value !== 1 ? 's' : ''}</p>
+                      <p className="text-gray-500">{d.percentage}% of total</p>
+                      <p className="text-gray-400 text-[11px] mt-1">{totalTickets} tickets total</p>
+                    </div>
+                  );
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="flex justify-center gap-5 -mt-2">
+            {pieData.map((entry) => (
+              <div key={entry.name} className="flex items-center gap-1.5 text-[12px] text-gray-500">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                {entry.name} ({entry.value})
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+
         <ChartCard title="Cumulative Validated Tickets">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
