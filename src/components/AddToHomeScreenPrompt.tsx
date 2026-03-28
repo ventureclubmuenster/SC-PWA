@@ -29,18 +29,36 @@ function getIOSMajorVersion(ua: string): number {
   return match ? parseInt(match[1], 10) : 0;
 }
 
+function getSafariMajorVersion(ua: string): number {
+  const match = /Version\/(\d+)/.exec(ua);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function isNewSafariUI(ua: string): boolean {
+  const iosV = getIOSMajorVersion(ua);
+  const safariV = getSafariMajorVersion(ua);
+  // iOS 26 könnte intern als 26 oder 19 gemeldet werden (Namensänderung Apple).
+  // Version/26 im UA ist ein zweiter zuverlässiger Ankerpunkt.
+  return iosV >= 26 || safariV >= 26;
+}
+
 function detectPlatform(): Platform | null {
   if (typeof navigator === "undefined") return null;
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua);
   const isAndroid = /Android/.test(ua);
 
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[A2HS] UA:", ua);
+    console.log("[A2HS] iOS version:", getIOSMajorVersion(ua), "| Safari Version:", getSafariMajorVersion(ua));
+  }
+
   if (isIOS) {
     if (/CriOS/.test(ua)) return "ios-chrome";
     if (/FxiOS/.test(ua)) return "ios-firefox";
     if (/EdgiOS/.test(ua)) return "ios-edge";
     if (/Safari/.test(ua)) {
-      return getIOSMajorVersion(ua) >= 26 ? "ios-safari-26" : "ios-safari";
+      return isNewSafariUI(ua) ? "ios-safari-26" : "ios-safari";
     }
     return null;
   }
