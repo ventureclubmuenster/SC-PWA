@@ -48,5 +48,18 @@ export async function GET() {
   const totalUsers = allProfiles.length;
   const totalValidated = allProfiles.filter((p) => p.full_name).length;
 
-  return NextResponse.json({ days, totalUsers, totalValidated });
+  // Ticket status distribution from tickets table
+  const { data: tickets } = await supabase
+    .from('tickets')
+    .select('status');
+
+  const allTickets = tickets || [];
+  const ticketStatuses = {
+    created: allTickets.filter((t) => t.status === 'created').length,
+    assigned: allTickets.filter((t) => t.status === 'assigned').length,
+    validated: allTickets.filter((t) => t.status === 'validated').length,
+  };
+  const totalTickets = allTickets.length;
+
+  return NextResponse.json({ days, totalUsers, totalValidated, ticketStatuses, totalTickets });
 }

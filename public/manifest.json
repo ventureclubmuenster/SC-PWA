@@ -1,6 +1,7 @@
 {
   "name": "Startup Contacts",
   "short_name": "SC App",
+  "id": "/",
   "description": "The digital operating system for the Startup Contacts trade show",
   "scope": "/",
   "start_url": "/",
@@ -8,6 +9,7 @@
   "background_color": "#FAFAFA",
   "theme_color": "#FF754B",
   "orientation": "portrait",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Users, Ticket, TrendingUp } from 'lucide-react';
 
 interface DayData {
   date: string;
@@ -13,82 +15,36 @@ interface Analytics {
   days: DayData[];
   totalUsers: number;
   totalValidated: number;
+  ticketStatuses: { created: number; assigned: number; validated: number };
+  totalTickets: number;
 }
 
-function BarChart({ data, dataKey, color, label }: { data: DayData[]; dataKey: keyof DayData; color: string; label: string }) {
-  const values = data.map((d) => d[dataKey] as number);
-  const max = Math.max(...values, 1);
-
-  return (
-    <div className="noise-panel rounded-2xl p-5 border border-[#E8E8ED] shadow-sm">
-      <p className="relative z-10 text-sm font-semibold text-[#1D1D1F] mb-4">{label}</p>
-      <div className="relative z-10 flex items-end gap-[3px] h-36">
-        {data.map((d, i) => {
-          const h = (values[i] / max) * 100;
-          return (
-            <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group relative">
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block bg-[#1D1D1F] text-white text-[10px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap z-20">
-                {values[i]}
-              </div>
-              <div
-                className="w-full rounded-t-sm transition-all duration-300"
-                style={{ height: `${Math.max(h, 2)}%`, backgroundColor: color, opacity: h > 2 ? 1 : 0.3 }}
-              />
-            </div>
-          );
-        })}
-      </div>
-      <div className="relative z-10 flex justify-between mt-2">
-        <span className="text-[10px] text-[#86868B]">{formatDate(data[0]?.date)}</span>
-        <span className="text-[10px] text-[#86868B]">{formatDate(data[data.length - 1]?.date)}</span>
-      </div>
-    </div>
-  );
-}
-
-function AreaChart({ data, dataKey, color, label }: { data: DayData[]; dataKey: keyof DayData; color: string; label: string }) {
-  const values = data.map((d) => d[dataKey] as number);
-  const max = Math.max(...values, 1);
-  const w = 400;
-  const h = 144;
-  const padding = 4;
-
-  const points = values.map((v, i) => ({
-    x: padding + (i / (values.length - 1)) * (w - padding * 2),
-    y: h - padding - (v / max) * (h - padding * 2),
-  }));
-
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  const areaPath = `${linePath} L${points[points.length - 1].x},${h} L${points[0].x},${h} Z`;
-
-  return (
-    <div className="noise-panel rounded-2xl p-5 border border-[#E8E8ED] shadow-sm">
-      <p className="relative z-10 text-sm font-semibold text-[#1D1D1F] mb-4">{label}</p>
-      <svg viewBox={`0 0 ${w} ${h}`} className="relative z-10 w-full h-36" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id={`grad-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-            <stop offset="100%" stopColor={color} stopOpacity={0.02} />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill={`url(#grad-${dataKey})`} />
-        <path d={linePath} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="white" stroke={color} strokeWidth="2" />
-        ))}
-      </svg>
-      <div className="relative z-10 flex justify-between mt-2">
-        <span className="text-[10px] text-[#86868B]">{formatDate(data[0]?.date)}</span>
-        <span className="text-[10px] text-[#86868B]">{formatDate(data[data.length - 1]?.date)}</span>
-      </div>
-    </div>
-  );
-}
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return '';
+function formatDate(dateStr: string) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl bg-white p-5 border border-gray-200/60 shadow-sm">
+      <p className="text-[13px] font-semibold text-gray-500 mb-4">{title}</p>
+      <div className="h-48">{children}</div>
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string | number; color: string }) {
+  return (
+    <div className="rounded-2xl bg-white p-5 border border-gray-200/60 shadow-sm flex items-start gap-4">
+      <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="h-5 w-5 text-white" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+        <p className="text-[13px] text-gray-500 mt-0.5">{label}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminDashboardPage() {
@@ -100,19 +56,18 @@ export default function AdminDashboardPage() {
       .then(setAnalytics);
   }, []);
 
-  // Poll for webhook events and log to console
   useEffect(() => {
     const seen = new Set<string>();
     const poll = () => {
       fetch('/api/admin/webhooks')
         .then((r) => r.ok ? r.json() : [])
-        .then((events: { id: string; receivedAt: string; body: unknown; verified: boolean; headers: Record<string, string> }[]) => {
+        .then((events: { id: string; receivedAt: string; body: unknown; verified: boolean }[]) => {
           for (const evt of events) {
             if (seen.has(evt.id)) continue;
             seen.add(evt.id);
             console.log(
               `%c[Ticket Webhook]%c ${evt.receivedAt} | verified=${evt.verified}`,
-              'color: #FF754B; font-weight: bold',
+              'color: #f97316; font-weight: bold',
               'color: inherit',
             );
             console.log(evt.body);
@@ -128,50 +83,143 @@ export default function AdminDashboardPage() {
   if (!analytics) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded-xl bg-[#E8E8ED]" />
+        <div className="h-8 w-48 animate-pulse rounded-xl bg-gray-200" />
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200" />)}
+        </div>
         <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-56 animate-pulse rounded-2xl bg-[#E8E8ED]" />
-          ))}
+          {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl bg-gray-200" />)}
         </div>
       </div>
     );
   }
 
-  const { days, totalUsers, totalValidated } = analytics;
+  const { days, totalUsers, totalValidated, ticketStatuses, totalTickets } = analytics;
   const validationRate = totalUsers > 0 ? Math.round((totalValidated / totalUsers) * 100) : 0;
+  const chartData = days.map((d) => ({ ...d, label: formatDate(d.date) }));
+
+  const STATUS_COLORS: Record<string, string> = { created: '#3b82f6', assigned: '#f59e0b', validated: '#10b981' };
+  const STATUS_LABELS: Record<string, string> = { created: 'Created', assigned: 'Assigned', validated: 'Validated' };
+  const pieData = Object.entries(ticketStatuses).map(([key, value]) => ({
+    name: STATUS_LABELS[key],
+    value,
+    color: STATUS_COLORS[key],
+    percentage: totalTickets > 0 ? ((value / totalTickets) * 100).toFixed(1) : '0.0',
+  }));
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-6">Dashboard</h1>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-          <p className="relative z-10 text-2xl font-bold">{totalUsers}</p>
-          <p className="relative z-10 text-sm font-medium text-[#86868B]">Total Users</p>
-        </div>
-        <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-          <p className="relative z-10 text-2xl font-bold">{totalValidated}</p>
-          <p className="relative z-10 text-sm font-medium text-[#86868B]">Validated Tickets</p>
-        </div>
-        <div className="noise-panel rounded-2xl p-4 border border-[#E8E8ED] shadow-sm">
-          <p className="relative z-10 text-2xl font-bold">{validationRate}%</p>
-          <p className="relative z-10 text-sm font-medium text-[#86868B]">Validation Rate</p>
-        </div>
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <StatCard icon={Users} label="Total Users" value={totalUsers} color="bg-blue-500" />
+        <StatCard icon={Ticket} label="Validated Tickets" value={totalValidated} color="bg-emerald-500" />
+        <StatCard icon={TrendingUp} label="Validation Rate" value={`${validationRate}%`} color="bg-violet-500" />
       </div>
 
-      {/* Graphs */}
       <div className="grid grid-cols-2 gap-4">
-        <AreaChart data={days} dataKey="validatedTickets" color="#34C759" label="Cumulative Validated Tickets" />
-        <BarChart data={days} dataKey="activeUsers" color="#FF754B" label="Active Users (Daily)" />
-        <BarChart data={days} dataKey="registrations" color="#007AFF" label="New Registrations (Daily)" />
-        <AreaChart
-          data={days}
-          dataKey="registrations"
-          color="#5856D6"
-          label="Registration Trend"
-        />
+        <ChartCard title="Ticket Status Distribution">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={48}
+                outerRadius={76}
+                paddingAngle={3}
+                dataKey="value"
+                stroke="none"
+              >
+                {pieData.map((entry, idx) => (
+                  <Cell key={idx} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const d = payload[0].payload as (typeof pieData)[number];
+                  return (
+                    <div className="rounded-xl bg-white px-4 py-3 border border-gray-200 shadow-lg text-[13px]">
+                      <p className="font-semibold text-gray-900">{d.name}</p>
+                      <p className="text-gray-500 mt-1">{d.value} ticket{d.value !== 1 ? 's' : ''}</p>
+                      <p className="text-gray-500">{d.percentage}% of total</p>
+                      <p className="text-gray-400 text-[11px] mt-1">{totalTickets} tickets total</p>
+                    </div>
+                  );
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="flex justify-center gap-5 -mt-2">
+            {pieData.map((entry) => (
+              <div key={entry.name} className="flex items-center gap-1.5 text-[12px] text-gray-500">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                {entry.name} ({entry.value})
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+
+        <ChartCard title="Cumulative Validated Tickets">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="gradValidated" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={36} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
+              <Area type="monotone" dataKey="validatedTickets" stroke="#10b981" strokeWidth={2} fill="url(#gradValidated)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Active Users (Daily)">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={36} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
+              <Bar dataKey="activeUsers" fill="#f97316" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="New Registrations (Daily)">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={36} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
+              <Bar dataKey="registrations" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Registration Trend">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="gradReg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={36} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
+              <Area type="monotone" dataKey="registrations" stroke="#8b5cf6" strokeWidth={2} fill="url(#gradReg)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
     </div>
   );

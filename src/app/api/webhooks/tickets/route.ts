@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /* ------------------------------------------------------------------ */
 /*  In-memory store for recent webhook events (last 100)              */
@@ -105,6 +106,28 @@ export async function POST(request: NextRequest) {
 
   if (!verified) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+
+  // Persist ticket to Supabase
+  try {
+    const payload = body as { data?: { ticket?: { _id?: string; email?: string } } };
+    const ticketId = payload?.data?.ticket?._id ?? '';
+    const email = payload?.data?.ticket?.email ?? '';
+
+    const supabase = createAdminClient();
+    const { error: dbError } = await supabase.from('tickets').insert({
+      ticket_id: ticketId,
+      email,
+      all_data: body,
+    });
+
+    if (dbError) {
+      console.error('Failed to insert ticket:', dbError);
+      return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
+    }
+  } catch (err) {
+    console.error('Unexpected error inserting ticket:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true, id: event.id });
