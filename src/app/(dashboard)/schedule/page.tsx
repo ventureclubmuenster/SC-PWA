@@ -113,7 +113,6 @@ export default function SchedulePage() {
                           : ''
                       }`}
                       style={{
-                        ringColor: 'var(--background)',
                         boxShadow: '0 0 0 3px var(--background)',
                         ...(group.items.length > 1 ? { background: 'var(--foreground)' } : {}),
                       }}
