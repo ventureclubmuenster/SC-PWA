@@ -192,9 +192,9 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "4px" : "18px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "10px" : "18px"})`,
         ...(isIOS26
-          ? { right: "calc(10vw - 24px)" }
+          ? { right: "calc(16vw - 24px)" }
           : { left: "50%", transform: "translateX(-50%)" }),
         zIndex: 10001,
         animation: "arrowBounce 1.3s cubic-bezier(0.37, 0, 0.63, 1) infinite",

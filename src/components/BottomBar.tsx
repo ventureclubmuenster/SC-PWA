@@ -27,7 +27,7 @@ export default function BottomBar() {
 
   return (
     <nav className="bottom-nav fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl safe-area-bottom pwa-bottom-space">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
+      <div className="mx-auto flex max-w-lg items-center py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
           const Icon = tab.icon;
