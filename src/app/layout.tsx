@@ -43,13 +43,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         {/* Prevent FOUC: set theme class before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('sc-theme')||'dark';document.documentElement.className=t})()`,
+            __html: `(function(){var t=localStorage.getItem('sc-theme')||'light';document.documentElement.className=t})()`,
           }}
         />
       </head>

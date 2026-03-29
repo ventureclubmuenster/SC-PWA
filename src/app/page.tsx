@@ -7,6 +7,33 @@ import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { Mail, Loader2 } from 'lucide-react';
 
+function WatermarkBackground() {
+  const rows = ['STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS'];
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 overflow-hidden select-none"
+      style={{ zIndex: 0 }}
+    >
+      <div
+        className="absolute inset-0 flex flex-col justify-center gap-6"
+        style={{ transform: 'rotate(-12deg) scale(1.4)' }}
+      >
+        {rows.map((text, i) => (
+          <div key={i} className="whitespace-nowrap text-center font-black tracking-widest" style={{
+            fontSize: 'clamp(3rem, 10vw, 7rem)',
+            color: 'var(--foreground)',
+            opacity: 0.045,
+            letterSpacing: '0.12em',
+          }}>
+            {text}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LoginFlow() {
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
@@ -22,7 +49,6 @@ function LoginFlow() {
 
     const supabase = createClient();
 
-    // Build redirect URL: preserve `next` so user returns to their intended page
     const callbackUrl = next
       ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
       : `${window.location.origin}/auth/callback`;
@@ -43,7 +69,7 @@ function LoginFlow() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-6" style={{ zIndex: 1 }}>
       <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo / Branding */}
         <motion.div
@@ -101,17 +127,8 @@ function LoginFlow() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6"
+              className="space-y-4"
             >
-              <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
-                  <Mail className="h-6 w-6 text-muted" />
-                </div>
-                <p className="text-sm text-muted">
-                  Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.
-                </p>
-              </div>
-
               <form onSubmit={handleLogin} className="space-y-4">
                 <input
                   type="email"
@@ -136,7 +153,8 @@ function LoginFlow() {
                   whileTap={{ scale: 0.97 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                  className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity duration-150 disabled:opacity-50 gradient-glow"
+                  style={{ background: 'linear-gradient(135deg, #ff4d42, #ff8a2a)' }}
                 >
                   {loading ? 'Wird gesendet...' : 'Anmelden'}
                 </motion.button>
@@ -160,14 +178,17 @@ function LoginFlow() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted" />
-        </div>
-      }
-    >
-      <LoginFlow />
-    </Suspense>
+    <>
+      <WatermarkBackground />
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted" />
+          </div>
+        }
+      >
+        <LoginFlow />
+      </Suspense>
+    </>
   );
 }

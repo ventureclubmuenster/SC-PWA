@@ -190,62 +190,31 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "2px" : "18px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "6px" : "20px"})`,
         ...(isIOS26
-          ? { right: "calc(10vw - 28px)" }
+          ? { right: "14px" }
           : { left: "50%", transform: "translateX(-50%)" }),
         zIndex: 10001,
         animation: "arrowBounce 1.3s cubic-bezier(0.37, 0, 0.63, 1) infinite",
       }}
     >
-      {isIOS26 ? (
-        /* Liquid glass pill */
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 56,
-            height: 68,
-            borderRadius: 28,
-            background: "rgba(255,255,255,0.13)",
-            border: "1px solid rgba(255,255,255,0.28)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            boxShadow:
-              "0 4px 20px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.22)",
-          }}
-        >
-          <svg width="28" height="38" viewBox="0 0 22 30" fill="none">
-            {/* shaft ends at y=16, arrowhead base at y=14 → overlap → no gap */}
-            <line
-              x1="11" y1="2" x2="11" y2="16"
-              stroke="rgba(255,255,255,0.88)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M2 14 L11 27 L20 14 Z"
-              fill="rgba(255,255,255,0.88)"
-            />
-          </svg>
-        </div>
-      ) : (
-        /* Classic orange arrow for regular Safari */
-        <svg width="28" height="36" viewBox="0 0 28 36" fill="none" style={{ opacity: 0.9 }}>
-          {/* shaft ends at y=18, arrowhead base at y=16 → overlap → no gap */}
-          <line
-            x1="14" y1="0" x2="14" y2="18"
-            stroke="#ff8a2a"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M4 16 L14 31 L24 16 Z"
-            fill="#ff8a2a"
-          />
-        </svg>
-      )}
+      {/* Single rounded orange arrow for both platforms */}
+      <svg width="36" height="48" viewBox="0 0 36 48" fill="none">
+        <line
+          x1="18" y1="2" x2="18" y2="30"
+          stroke="#ff8a2a"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 22 L18 44 L32 22"
+          stroke="#ff8a2a"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
       <style>{`
         @keyframes arrowBounce {
           0%, 100% { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(0px); }
