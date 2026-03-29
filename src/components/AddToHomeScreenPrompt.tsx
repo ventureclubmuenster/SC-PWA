@@ -190,7 +190,7 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "28px" : "18px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "14px" : "18px"})`,
         ...(isIOS26
           ? { right: "44px" }
           : { left: "50%", transform: "translateX(-50%)" }),
@@ -475,6 +475,7 @@ export default function AddToHomeScreenPrompt() {
           background: "var(--overlay)",
           backdropFilter: "blur(6px)",
           WebkitBackdropFilter: "blur(6px)",
+          paddingTop: platform === "ios-safari-26" ? "25%" : undefined,
         }}
         onClick={() => setVisible(false)}
       >
