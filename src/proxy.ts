@@ -38,6 +38,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Ticket claim page + API are accessible without auth (page handles auth flow)
+  if (pathname.startsWith('/claim') || pathname.startsWith('/api/tickets')) {
+    return NextResponse.next({ request });
+  }
+
   return await updateSession(request);
 }
 

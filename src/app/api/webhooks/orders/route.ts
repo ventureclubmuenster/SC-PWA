@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail, buildOrderConfirmationHtml } from '@/lib/email';
+import { createClaimTokensForOrder } from '@/lib/ticket-claims';
 
 /* ------------------------------------------------------------------ */
 /*  HMAC verification                                                  */
@@ -70,12 +71,13 @@ export async function POST(request: NextRequest) {
     const payload = body as {
       data?: {
         transaction?: { email?: string };
-        tickets?: { _id?: string }[];
+        tickets?: { _id?: string; ticketName?: string }[];
       };
     };
 
     const email = payload?.data?.transaction?.email ?? '';
-    const ticketIds = (payload?.data?.tickets ?? [])
+    const tickets = payload?.data?.tickets ?? [];
+    const ticketIds = tickets
       .map((t) => t._id)
       .filter(Boolean) as string[];
 
@@ -91,10 +93,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database insert failed' }, { status: 500 });
     }
 
-    // Send order confirmation email
+    // Generate claim tokens for each ticket
+    const claimTokens = await createClaimTokensForOrder(ticketIds);
+
+    // Build claim links with ticket labels
+    const claimLinks = claimTokens.map((ct) => {
+      const ticket = tickets.find((t) => t._id === ct.ticketId);
+      return {
+        ticketId: ct.ticketId,
+        token: ct.rawToken,
+        label: ticket?.ticketName ?? '',
+      };
+    });
+
+    // Send order confirmation email with claim links
     if (email) {
       try {
-        const html = buildOrderConfirmationHtml(email, ticketIds.length);
+        const html = buildOrderConfirmationHtml(email, ticketIds.length, claimLinks);
         const { error: emailError } = await sendEmail({
           to: email,
           subject: 'Danke für deine Bestellung – Startup Contacts',
