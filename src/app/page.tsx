@@ -7,26 +7,29 @@ import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { Mail, Loader2 } from 'lucide-react';
 
+const OFFSETS = ['0%', '-33%', '-66%', '-22%', '-55%', '-11%', '-44%', '-77%', '-30%', '-60%', '-15%', '-50%', '-5%', '-40%', '-70%'];
+
 function WatermarkBackground() {
-  const rows = ['STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS', 'STARTUP CONTACTS'];
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 overflow-hidden select-none"
       style={{ zIndex: 0 }}
     >
-      <div
-        className="absolute inset-0 flex flex-col justify-center gap-6"
-        style={{ transform: 'rotate(-12deg) scale(1.4)' }}
-      >
-        {rows.map((text, i) => (
-          <div key={i} className="whitespace-nowrap text-center font-black tracking-widest" style={{
-            fontSize: 'clamp(3rem, 10vw, 7rem)',
-            color: 'var(--foreground)',
-            opacity: 0.045,
-            letterSpacing: '0.12em',
-          }}>
-            {text}
+      <div className="absolute inset-0 flex flex-col" style={{ gap: '1.1rem', paddingTop: '0.5rem' }}>
+        {OFFSETS.map((offset, i) => (
+          <div
+            key={i}
+            className="whitespace-nowrap font-black"
+            style={{
+              fontSize: 'clamp(2rem, 6vw, 4.5rem)',
+              color: 'var(--foreground)',
+              opacity: 0.028,
+              letterSpacing: '0.14em',
+              transform: `translateX(${offset})`,
+            }}
+          >
+            {'STARTUP\u00A0CONTACTS\u00A0\u00A0\u00A0STARTUP\u00A0CONTACTS\u00A0\u00A0\u00A0STARTUP\u00A0CONTACTS\u00A0\u00A0\u00A0STARTUP\u00A0CONTACTS'}
           </div>
         ))}
       </div>

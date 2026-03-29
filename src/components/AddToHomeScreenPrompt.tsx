@@ -186,39 +186,41 @@ function HamburgerIcon() {
 function BouncingArrow({ platform }: { platform: Platform }) {
   const isIOS26 = platform === "ios-safari-26";
 
+  // ios-safari-26: center arrow over the "..." button which sits at ~10vw from right.
+  // Arrow is 48px wide → right edge at calc(10vw - 24px) centers it perfectly.
   return (
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "6px" : "20px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "4px" : "18px"})`,
         ...(isIOS26
-          ? { right: "14px" }
+          ? { right: "calc(10vw - 24px)" }
           : { left: "50%", transform: "translateX(-50%)" }),
         zIndex: 10001,
         animation: "arrowBounce 1.3s cubic-bezier(0.37, 0, 0.63, 1) infinite",
       }}
     >
-      {/* Single rounded orange arrow for both platforms */}
-      <svg width="36" height="48" viewBox="0 0 36 48" fill="none">
+      {/*
+        Shaft: line from top down to y=38.
+        Arrowhead: filled triangle, base at y=32 — overlaps shaft by 6px → zero gap.
+        ViewBox 48×68, rendered at 48×68px.
+      */}
+      <svg width="48" height="68" viewBox="0 0 48 68" fill="none" style={{ opacity: 0.92 }}>
         <line
-          x1="18" y1="2" x2="18" y2="30"
+          x1="24" y1="3" x2="24" y2="38"
           stroke="#ff8a2a"
-          strokeWidth="4"
+          strokeWidth="6"
           strokeLinecap="round"
         />
         <path
-          d="M4 22 L18 44 L32 22"
-          stroke="#ff8a2a"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
+          d="M5 32 L24 62 L43 32 Z"
+          fill="#ff8a2a"
         />
       </svg>
       <style>{`
         @keyframes arrowBounce {
           0%, 100% { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(0px); }
-          50%       { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(8px); }
+          50%       { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(9px); }
         }
       `}</style>
     </div>
