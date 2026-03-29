@@ -190,43 +190,66 @@ function BouncingArrow({ platform }: { platform: Platform }) {
     <div
       className="fixed pointer-events-none"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "14px" : "18px"})`,
+        bottom: `calc(env(safe-area-inset-bottom) + ${isIOS26 ? "2px" : "18px"})`,
         ...(isIOS26
-          ? { right: "44px" }
+          ? { right: "calc(10vw - 28px)" }
           : { left: "50%", transform: "translateX(-50%)" }),
         zIndex: 10001,
-        animation: "arrowBounce 1.1s ease-in-out infinite",
+        animation: "arrowBounce 1.3s cubic-bezier(0.37, 0, 0.63, 1) infinite",
       }}
     >
-      <svg
-        width="28"
-        height="36"
-        viewBox="0 0 28 36"
-        fill="none"
-        style={{ opacity: 0.9 }}
-      >
-        <line
-          x1="14"
-          y1="0"
-          x2="14"
-          y2="24"
-          stroke="#ff8a2a"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M4 16 L14 31 L24 16"
-          stroke="#ff8a2a"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </svg>
+      {isIOS26 ? (
+        /* Liquid glass pill */
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 56,
+            height: 68,
+            borderRadius: 28,
+            background: "rgba(255,255,255,0.13)",
+            border: "1px solid rgba(255,255,255,0.28)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            boxShadow:
+              "0 4px 20px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.22)",
+          }}
+        >
+          <svg width="28" height="38" viewBox="0 0 22 30" fill="none">
+            {/* shaft ends at y=16, arrowhead base at y=14 → overlap → no gap */}
+            <line
+              x1="11" y1="2" x2="11" y2="16"
+              stroke="rgba(255,255,255,0.88)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M2 14 L11 27 L20 14 Z"
+              fill="rgba(255,255,255,0.88)"
+            />
+          </svg>
+        </div>
+      ) : (
+        /* Classic orange arrow for regular Safari */
+        <svg width="28" height="36" viewBox="0 0 28 36" fill="none" style={{ opacity: 0.9 }}>
+          {/* shaft ends at y=18, arrowhead base at y=16 → overlap → no gap */}
+          <line
+            x1="14" y1="0" x2="14" y2="18"
+            stroke="#ff8a2a"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M4 16 L14 31 L24 16 Z"
+            fill="#ff8a2a"
+          />
+        </svg>
+      )}
       <style>{`
         @keyframes arrowBounce {
           0%, 100% { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(0px); }
-          50%       { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(7px); }
+          50%       { transform: ${isIOS26 ? "" : "translateX(-50%) "}translateY(8px); }
         }
       `}</style>
     </div>
@@ -328,8 +351,31 @@ function PlatformContent({
         </div>
       );
 
-    case "ios-chrome":
     case "ios-firefox":
+      return (
+        <div className="flex flex-col gap-4">
+          <Step num={1}>
+            Tippe auf <DotsVerticalIcon /> (die drei Punkte) unten rechts im Browser
+          </Step>
+          <Step num={2}>
+            Tippe auf <strong className="font-semibold">„Mehr"</strong>
+          </Step>
+          <Step num={3}>
+            Tippe auf <IOSShareIcon />{" "}
+            <strong className="font-semibold">„Teilen"</strong>
+          </Step>
+          <Step num={4}>
+            Tippe auf{" "}
+            <strong className="font-semibold">„Mehr anzeigen"</strong>
+          </Step>
+          <Step num={5}>
+            Tippe auf{" "}
+            <strong className="font-semibold">„Zum Homebildschirm hinzufügen"</strong>
+          </Step>
+        </div>
+      );
+
+    case "ios-chrome":
     case "ios-edge":
       return (
         <div className="flex flex-col gap-4">
