@@ -31,7 +31,8 @@ export interface GeneratedClaimToken {
 
 /**
  * Create claim tokens for all tickets in an order.
- * Returns raw tokens (for email links) — only hashes are stored in DB.
+ * Stores hashed tokens directly on the tickets row.
+ * Returns raw tokens (for email links).
  */
 export async function createClaimTokensForOrder(
   ticketIds: string[],
@@ -48,21 +49,16 @@ export async function createClaimTokensForOrder(
     const rawToken = generateClaimToken();
     const tokenHash = await hashToken(rawToken);
 
-    // Invalidate any previous unclaimed token for this ticket
-    await supabase
-      .from('ticket_claim_tokens')
-      .update({ claimed_at: new Date().toISOString() })
-      .eq('ticket_id', ticketId)
-      .is('claimed_at', null);
-
-    const { error } = await supabase.from('ticket_claim_tokens').insert({
-      ticket_id: ticketId,
-      token_hash: tokenHash,
-      expires_at: expiresAt,
-    });
+    const { error } = await supabase
+      .from('tickets')
+      .update({
+        token_hash: tokenHash,
+        token_expires_at: expiresAt,
+      })
+      .eq('ticket_id', ticketId);
 
     if (error) {
-      console.error(`Failed to create claim token for ticket ${ticketId}:`, error);
+      console.error(`Failed to set claim token for ticket ${ticketId}:`, error);
       continue;
     }
 
@@ -74,7 +70,7 @@ export async function createClaimTokensForOrder(
 
 /**
  * Validate and redeem a claim token. Returns the ticket_id on success.
- * Uses constant-time hash comparison by looking up the computed hash directly.
+ * Looks up the ticket by its hashed token, then atomically claims it.
  */
 export async function redeemClaimToken(
   rawToken: string,
@@ -86,36 +82,43 @@ export async function redeemClaimToken(
   const tokenHash = await hashToken(rawToken);
   const supabase = createAdminClient();
 
-  // Look up token by hash (unique index ensures at most one result)
-  const { data: claimToken, error: lookupError } = await supabase
-    .from('ticket_claim_tokens')
+  // Look up ticket by token hash
+  const { data: ticket, error: lookupError } = await supabase
+    .from('tickets')
     .select('*')
     .eq('token_hash', tokenHash)
     .single();
 
-  if (lookupError || !claimToken) {
+  if (lookupError || !ticket) {
     return { ok: false, error: 'Ungültiger oder abgelaufener Link.' };
   }
 
   // Check if already claimed
-  if (claimToken.claimed_at) {
+  if (ticket.claimed_by) {
     return { ok: false, error: 'Dieses Ticket wurde bereits beansprucht.' };
   }
 
   // Check expiry
-  if (new Date(claimToken.expires_at) < new Date()) {
+  if (!ticket.token_expires_at || new Date(ticket.token_expires_at) < new Date()) {
     return { ok: false, error: 'Dieser Link ist abgelaufen.' };
   }
 
-  // Atomically claim the token (conditional update prevents race conditions)
+  // Get the authenticated user's email
+  const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+  const userEmail = user?.email ?? '';
+
+  // Atomically claim: conditional update prevents race conditions
   const { data: updated, error: claimError } = await supabase
-    .from('ticket_claim_tokens')
+    .from('tickets')
     .update({
-      claimed_at: new Date().toISOString(),
       claimed_by: userId,
+      email: userEmail,
+      status: 'assigned',
+      token_hash: null,        // Invalidate token after use
+      token_expires_at: null,
     })
-    .eq('id', claimToken.id)
-    .is('claimed_at', null) // Ensures no race condition
+    .eq('id', ticket.id)
+    .is('claimed_by', null)    // Only succeeds if still unclaimed
     .select()
     .single();
 
@@ -123,25 +126,5 @@ export async function redeemClaimToken(
     return { ok: false, error: 'Dieses Ticket wurde bereits beansprucht.' };
   }
 
-  // Get the authenticated user's email
-  const { data: { user } } = await supabase.auth.admin.getUserById(userId);
-  const userEmail = user?.email ?? '';
-
-  // Update the ticket record — assign to user
-  const { error: ticketError } = await supabase
-    .from('tickets')
-    .update({
-      claimed_by: userId,
-      email: userEmail,
-      status: 'assigned',
-    })
-    .eq('ticket_id', claimToken.ticket_id);
-
-  if (ticketError) {
-    console.error('Failed to update ticket after claim:', ticketError);
-    // Token is already consumed — ticket update failure is non-critical
-    // The claim is still valid; admin can reconcile
-  }
-
-  return { ok: true, ticketId: claimToken.ticket_id };
+  return { ok: true, ticketId: ticket.ticket_id };
 }

@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
-import { Mail } from 'lucide-react';
+import { Mail, Loader2 } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginFlow() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next');
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,10 +21,16 @@ export default function LoginPage() {
     setError('');
 
     const supabase = createClient();
+
+    // Build redirect URL: preserve `next` so user returns to their intended page
+    const callbackUrl = next
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+      : `${window.location.origin}/auth/callback`;
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: callbackUrl,
       },
     });
 
@@ -146,5 +155,19 @@ export default function LoginPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted" />
+        </div>
+      }
+    >
+      <LoginFlow />
+    </Suspense>
   );
 }

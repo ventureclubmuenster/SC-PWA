@@ -45,21 +45,25 @@ export async function updateSession(request: NextRequest) {
     // Supabase not configured — only demo mode available
   }
 
-  // If no user and trying to access dashboard, redirect to login
+  // If no user and trying to access dashboard, redirect to login with return URL
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     request.nextUrl.pathname !== '/'
   ) {
     const url = request.nextUrl.clone();
+    const returnTo = request.nextUrl.pathname + request.nextUrl.search;
     url.pathname = '/';
+    url.search = `?next=${encodeURIComponent(returnTo)}`;
     return NextResponse.redirect(url);
   }
 
-  // If user is logged in and on login page, redirect to schedule
+  // If user is logged in and on login page, redirect to intended destination or schedule
   if (user && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone();
-    url.pathname = '/schedule';
+    const next = request.nextUrl.searchParams.get('next');
+    url.pathname = next || '/schedule';
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 6;
+const CACHE_VERSION = 7;
 const STATIC_CACHE = `sc-static-v${CACHE_VERSION}`;
 const PAGES_CACHE = `sc-pages-v${CACHE_VERSION}`;
 const DATA_CACHE = `sc-data-v${CACHE_VERSION}`;
@@ -57,6 +57,14 @@ self.addEventListener('activate', (event) => {
 function isExcluded(url) {
   const path = url.pathname;
   return path.startsWith('/admin') || path.startsWith('/api/admin');
+}
+
+// Never cache Supabase auth endpoints or auth callback
+function isAuthRequest(url) {
+  return (
+    (url.hostname.includes('supabase.co') && url.pathname.includes('/auth/')) ||
+    url.pathname.startsWith('/auth/')
+  );
 }
 
 // Cache-first for immutable static assets (_next/static, icons, fonts)
@@ -125,6 +133,9 @@ self.addEventListener('fetch', (event) => {
   // Exclude admin routes entirely
   if (isExcluded(url)) return;
 
+  // Never intercept auth requests — always go to network
+  if (isAuthRequest(url)) return;
+
   // Next.js hashed static assets - cache-first (immutable)
   if (url.pathname.startsWith('/_next/static/')) {
     return handleStaticAsset(event);
@@ -156,6 +167,18 @@ self.addEventListener('fetch', (event) => {
 
   // Everything else (API data, images, etc.) - stale-while-revalidate
   handleData(event);
+});
+
+// Handle sign-out message from AuthProvider — clear all user data caches
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SIGN_OUT') {
+    event.waitUntil(
+      Promise.all([
+        caches.delete(PAGES_CACHE),
+        caches.delete(DATA_CACHE),
+      ])
+    );
+  }
 });
 
 // Push notification handler - runs even when PWA is closed

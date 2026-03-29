@@ -94,17 +94,9 @@ export interface Ticket {
   ticket_id: string;
   email: string;
   status: 'created' | 'assigned' | 'validated';
+  token_hash: string | null;
+  token_expires_at: string | null;
   claimed_by: string | null;
   all_data: Record<string, unknown>;
-  created_at: string;
-}
-
-export interface TicketClaimToken {
-  id: string;
-  ticket_id: string;
-  token_hash: string;
-  expires_at: string;
-  claimed_at: string | null;
-  claimed_by: string | null;
   created_at: string;
 }
