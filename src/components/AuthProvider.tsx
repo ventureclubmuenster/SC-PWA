@@ -3,7 +3,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { isDemoMode } from '@/lib/demo';
 
 const AUTH_CHANNEL = 'sc-auth-sync';
 const REFRESH_BEFORE_EXPIRY_MS = 60 * 1000; // refresh 60s before token expires
@@ -24,9 +23,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const channelRef = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
-    // Demo mode bypasses Supabase auth entirely
-    if (isDemoMode()) return;
-
     const supabase = createClient();
 
     // ── BroadcastChannel for cross-tab auth sync ──

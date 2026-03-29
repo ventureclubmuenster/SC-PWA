@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useDemoUser, isDemoMode } from '@/lib/demo';
 import { useProfile as useCachedProfile } from '@/components/DataProvider';
 import { useTheme } from '@/components/ThemeProvider';
-import { DEMO_COOKIE } from '@/app/auth/demo/route';
 import PageHeader from '@/components/PageHeader';
 import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon, Mail } from 'lucide-react';
 import { FadeIn, TapButton } from '@/components/motion';
@@ -25,10 +23,9 @@ export default function ProfilePage() {
     university: '',
     afterparty_rsvp: false,
   });
-  const demoUser = useDemoUser();
 
   useEffect(() => {
-    const p = demoUser || cachedProfile;
+    const p = cachedProfile;
     if (p) {
       setProfile(p);
       setForm({
@@ -40,18 +37,11 @@ export default function ProfilePage() {
     } else if (!cacheLoading) {
       setLoading(false);
     }
-  }, [demoUser, cachedProfile, cacheLoading]);
+  }, [cachedProfile, cacheLoading]);
 
   const handleSave = async () => {
     if (!profile) return;
     setSaving(true);
-    if (isDemoMode()) {
-      const updated = { ...profile, ...form, updated_at: new Date().toISOString() };
-      document.cookie = `${DEMO_COOKIE}=${encodeURIComponent(JSON.stringify(updated))}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
-      setProfile(updated);
-      setSaving(false);
-      return;
-    }
     const supabase = createClient();
     await supabase
       .from('profiles')
@@ -117,11 +107,6 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    if (isDemoMode()) {
-      document.cookie = `${DEMO_COOKIE}=; max-age=0; path=/`;
-      window.location.href = '/';
-      return;
-    }
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = '/';

@@ -163,14 +163,7 @@ function LoginFlow() {
                 </motion.button>
               </form>
 
-              <div className="text-center">
-                <a
-                  href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                  className="text-xs font-medium text-muted transition-colors duration-150"
-                >
-                  Demo-Account verwenden →
-                </a>
-              </div>
+
             </motion.div>
           )}
         </AnimatePresence>
