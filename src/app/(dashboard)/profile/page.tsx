@@ -20,6 +20,10 @@ export default function ProfilePage() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [form, setForm] = useState({
     full_name: '',
+    first_name: '',
+    last_name: '',
+    age: '' as string | number,
+    attendee_role: '' as string,
     university: '',
     afterparty_rsvp: false,
   });
@@ -30,6 +34,10 @@ export default function ProfilePage() {
       setProfile(p);
       setForm({
         full_name: p.full_name || '',
+        first_name: p.first_name || '',
+        last_name: p.last_name || '',
+        age: p.age ?? '',
+        attendee_role: p.attendee_role || '',
         university: p.university || '',
         afterparty_rsvp: p.afterparty_rsvp || false,
       });
@@ -46,7 +54,11 @@ export default function ProfilePage() {
     await supabase
       .from('profiles')
       .update({
+        first_name: form.first_name,
+        last_name: form.last_name,
         full_name: form.full_name,
+        age: form.age ? Number(form.age) : null,
+        attendee_role: form.attendee_role || null,
         university: form.university,
         afterparty_rsvp: form.afterparty_rsvp,
         updated_at: new Date().toISOString(),
@@ -127,7 +139,7 @@ export default function ProfilePage() {
             <User className="h-7 w-7 text-white" />
           </div>
         <div>
-          <p className="font-semibold text-sm">{form.full_name || 'No name set'}</p>
+          <p className="font-semibold text-sm">{[form.first_name, form.last_name].filter(Boolean).join(' ') || form.full_name || 'No name set'}</p>
           <p className="text-xs text-muted mt-0.5">{profile?.email}</p>
           <p className="text-[10px] text-muted mt-1 capitalize font-medium">{profile?.role}</p>
         </div>
@@ -171,13 +183,59 @@ export default function ProfilePage() {
       <FadeIn delay={0.1}>
       <div className="space-y-5 card-clean rounded-2xl p-5">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted">Full Name</label>
+          <label className="text-xs font-medium text-muted">First Name</label>
           <input
             type="text"
-            value={form.full_name}
-            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            value={form.first_name}
+            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
             className="w-full rounded-xl px-4 py-3 text-sm input-field"
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted">Last Name</label>
+          <input
+            type="text"
+            value={form.last_name}
+            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+            className="w-full rounded-xl px-4 py-3 text-sm input-field"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted">Age</label>
+          <input
+            type="number"
+            value={form.age}
+            onChange={(e) => setForm({ ...form, age: e.target.value })}
+            min={1}
+            max={120}
+            className="w-full rounded-xl px-4 py-3 text-sm input-field"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted">Role</label>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { value: 'student', label: 'Studierende/r' },
+              { value: 'entrepreneur', label: 'Unternehmer' },
+              { value: 'other', label: 'Sonstiges' },
+            ] as const).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setForm({ ...form, attendee_role: option.value })}
+                className={`rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
+                  form.attendee_role === option.value
+                    ? 'bg-[#1D1D1F] text-white'
+                    : 'input-field'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-1.5">

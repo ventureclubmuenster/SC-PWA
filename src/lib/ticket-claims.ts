@@ -115,7 +115,7 @@ export async function redeemClaimToken(
   const { data: { user } } = await supabase.auth.admin.getUserById(userId);
   const userEmail = user?.email ?? '';
 
-  // Save profile data
+  // Save profile data including ticket_id
   const fullName = `${profileData.firstName} ${profileData.lastName}`.trim();
   await supabase
     .from('profiles')
@@ -125,6 +125,7 @@ export async function redeemClaimToken(
       full_name: fullName,
       age: profileData.age,
       attendee_role: profileData.attendeeRole,
+      ticket_id: ticket.ticket_id,
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId);

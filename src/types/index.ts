@@ -9,6 +9,7 @@ export interface Profile {
   last_name: string | null;
   age: number | null;
   attendee_role: AttendeeRole | null;
+  ticket_id: string | null;
   role: UserRole;
   university: string | null;
   cv_url: string | null;
