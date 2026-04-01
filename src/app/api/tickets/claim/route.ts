@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
     !profile ||
     !profile.firstName?.trim() ||
     !profile.lastName?.trim() ||
-    !profile.age ||
     !profile.attendeeRole
   ) {
     return NextResponse.json({ error: 'Bitte fülle alle Felder aus.' }, { status: 400 });

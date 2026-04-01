@@ -5,16 +5,41 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
-import { Mail, CheckCircle, XCircle, Ticket, Loader2, User } from 'lucide-react';
+import { Mail, CheckCircle, XCircle, Ticket, Loader2 } from 'lucide-react';
 
 type AttendeeRole = 'student' | 'entrepreneur' | 'other';
+
+interface ClaimFormData {
+  firstName: string;
+  lastName: string;
+  university: string;
+  afterpartyRsvp: boolean;
+  attendeeRole: AttendeeRole;
+}
+
+const STORAGE_KEY = 'claim_profile_data';
+
+function saveFormToStorage(data: ClaimFormData) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function loadFormFromStorage(): ClaimFormData | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function clearFormStorage() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
 
 type ClaimState =
   | { step: 'loading' }
   | { step: 'already-claimed' }
-  | { step: 'login'; token: string }
+  | { step: 'form'; token: string; needsAuth: boolean }
   | { step: 'login-sent'; token: string; email: string }
-  | { step: 'profile'; token: string }
   | { step: 'claiming'; token: string }
   | { step: 'success'; ticketId: string }
   | { step: 'error'; message: string };
@@ -24,17 +49,16 @@ function ClaimFlow() {
   const token = searchParams.get('token') ?? '';
   const [state, setState] = useState<ClaimState>({ step: 'loading' });
   const [email, setEmail] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [age, setAge] = useState('');
+  const [university, setUniversity] = useState('');
+  const [afterpartyRsvp, setAfterpartyRsvp] = useState(false);
   const [attendeeRole, setAttendeeRole] = useState<AttendeeRole | ''>('');
-  const [profileError, setProfileError] = useState('');
-  const [profileLoading, setProfileLoading] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [formLoading, setFormLoading] = useState(false);
 
   const claimTicket = useCallback(
-    async (claimToken: string, profile: { firstName: string; lastName: string; age: number; attendeeRole: AttendeeRole }) => {
+    async (claimToken: string, profile: ClaimFormData) => {
       setState({ step: 'claiming', token: claimToken });
 
       try {
@@ -51,6 +75,7 @@ function ClaimFlow() {
           return;
         }
 
+        clearFormStorage();
         setState({ step: 'success', ticketId: data.ticketId });
       } catch {
         setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
@@ -59,17 +84,19 @@ function ClaimFlow() {
     [],
   );
 
-  // On mount: validate token format, check token status, then check auth state
+  // On mount: validate token, check status, check auth, auto-claim if returning from email confirmation
   useEffect(() => {
     if (!token || token.length !== 64) {
       setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
       return;
     }
 
-    // Check token status first (no auth required)
     fetch(`/api/tickets/claim?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((data) => {
+      .then((res) => {
+        if (!res.ok) throw new Error('Status check failed');
+        return res.json();
+      })
+      .then((data: { status?: string }) => {
         if (data.status === 'already-claimed') {
           setState({ step: 'already-claimed' });
           return;
@@ -78,35 +105,65 @@ function ClaimFlow() {
           setState({ step: 'error', message: 'Dieser Link ist abgelaufen.' });
           return;
         }
-        if (data.status === 'invalid') {
+        if (data.status !== 'claimable') {
           setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
           return;
         }
 
-        // Token is claimable — check auth state
         const supabase = createClient();
         supabase.auth.getUser().then(({ data: { user } }) => {
           if (user) {
-            setState({ step: 'profile', token });
+            // Returning from email confirmation — auto-claim with stored data
+            const stored = loadFormFromStorage();
+            if (stored) {
+              claimTicket(token, stored);
+            } else {
+              // Authenticated but no stored data — show form
+              setState({ step: 'form', token, needsAuth: false });
+            }
           } else {
-            setState({ step: 'login', token });
+            setState({ step: 'form', token, needsAuth: true });
           }
         });
       })
       .catch(() => {
         setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
       });
-  }, [token]);
+  }, [token, claimTicket]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const getFormData = (): ClaimFormData | null => {
+    if (!firstName.trim() || !lastName.trim() || !attendeeRole) {
+      setFormError('Bitte fülle alle Pflichtfelder aus.');
+      return null;
+    }
+    return {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      university: university.trim(),
+      afterpartyRsvp,
+      attendeeRole,
+    };
+  };
+
+  // Submit for unauthenticated users: save data, trigger email auth
+  const handleSubmitWithAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
-    setLoginError('');
+    setFormError('');
+
+    if (!email.trim()) {
+      setFormError('Bitte gib deine E-Mail-Adresse ein.');
+      return;
+    }
+
+    const profile = getFormData();
+    if (!profile) return;
+
+    setFormLoading(true);
+    saveFormToStorage(profile);
 
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/claim?token=${token}`)}`;
 
-    // Sign up new user → triggers "Confirm Sign Up" email
     const { data, error } = await supabase.auth.signUp({
       email,
       password: crypto.randomUUID(),
@@ -114,26 +171,38 @@ function ClaimFlow() {
     });
 
     if (error) {
-      setLoginError(error.message);
-      setLoginLoading(false);
+      setFormError(error.message);
+      setFormLoading(false);
       return;
     }
 
-    // User already exists (empty identities) → fall back to magic link
     if (data?.user?.identities?.length === 0) {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectTo },
       });
       if (otpError) {
-        setLoginError(otpError.message);
-        setLoginLoading(false);
+        setFormError(otpError.message);
+        setFormLoading(false);
         return;
       }
     }
 
     setState({ step: 'login-sent', token, email });
-    setLoginLoading(false);
+    setFormLoading(false);
+  };
+
+  // Submit for authenticated users: claim directly
+  const handleSubmitDirect = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+
+    const profile = getFormData();
+    if (!profile) return;
+
+    setFormLoading(true);
+    await claimTicket(token, profile);
+    setFormLoading(false);
   };
 
   return (
@@ -202,10 +271,10 @@ function ClaimFlow() {
             </motion.div>
           )}
 
-          {/* Login form */}
-          {state.step === 'login' && (
+          {/* Combined form: profile data + email (if not authenticated) */}
+          {state.step === 'form' && (
             <motion.div
-              key="login"
+              key="form"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
@@ -217,37 +286,114 @@ function ClaimFlow() {
                   <Ticket className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
-                  Bestätige deine E-Mail-Adresse, um dein Ticket zu aktivieren.
+                  Gib deine Daten ein, um dein Ticket zu aktivieren.
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form
+                onSubmit={state.needsAuth ? handleSubmitWithAuth : handleSubmitDirect}
+                className="space-y-4"
+              >
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Vorname *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Nachname *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                </div>
+
+                {state.needsAuth && (
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="E-Mail *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                )}
+
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="deine@email.com"
-                  required
+                  type="text"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  placeholder="Universität / Hochschule"
                   className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                 />
-                {loginError && (
+
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>Rolle *</p>
+                  <div className="flex gap-2">
+                    {([
+                      { value: 'student' as const, label: 'Studierende/r' },
+                      { value: 'entrepreneur' as const, label: 'Unternehmer' },
+                      { value: 'other' as const, label: 'Sonstiges' },
+                    ]).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setAttendeeRole(option.value)}
+                        className={`flex-1 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
+                          attendeeRole === option.value
+                            ? 'bg-[#1D1D1F] text-white'
+                            : 'input-field'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl px-4 py-3.5 input-field">
+                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>Afterparty RSVP</span>
+                  <button
+                    type="button"
+                    onClick={() => setAfterpartyRsvp(!afterpartyRsvp)}
+                    className="h-6 w-11 rounded-full transition-colors duration-150"
+                    style={{ background: afterpartyRsvp ? 'var(--accent, #1D1D1F)' : 'var(--toggle-off, #ccc)' }}
+                  >
+                    <div
+                      className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150 ${
+                        afterpartyRsvp ? 'translate-x-5.5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {formError && (
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
                     className="text-sm text-red-500"
                   >
-                    {loginError}
+                    {formError}
                   </motion.p>
                 )}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   type="submit"
-                  disabled={loginLoading}
+                  disabled={formLoading}
                   className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
                 >
-                  {loginLoading ? 'Wird gesendet...' : 'E-Mail bestätigen'}
+                  {formLoading
+                    ? 'Wird verarbeitet...'
+                    : state.needsAuth
+                      ? 'E-Mail bestätigen & aktivieren'
+                      : 'Ticket aktivieren'}
                 </motion.button>
               </form>
             </motion.div>
@@ -273,128 +419,8 @@ function ClaimFlow() {
                 <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>
               </p>
               <p className="text-xs text-muted">
-                Nach der Bestätigung wirst du zur Ticket-Aktivierung weitergeleitet.
+                Nach der Bestätigung wird dein Ticket automatisch aktiviert.
               </p>
-            </motion.div>
-          )}
-
-          {/* Profile form */}
-          {state.step === 'profile' && (
-            <motion.div
-              key="profile"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-6"
-            >
-              <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
-                  <User className="h-6 w-6 text-muted" />
-                </div>
-                <p className="text-sm text-muted">
-                  Bitte gib deine Daten an, um dein Ticket zu aktivieren.
-                </p>
-              </div>
-
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setProfileError('');
-
-                  if (!firstName.trim() || !lastName.trim() || !age || !attendeeRole) {
-                    setProfileError('Bitte fülle alle Felder aus.');
-                    return;
-                  }
-
-                  const ageNum = parseInt(age, 10);
-                  if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
-                    setProfileError('Bitte gib ein gültiges Alter an.');
-                    return;
-                  }
-
-                  setProfileLoading(true);
-                  await claimTicket(state.token, {
-                    firstName: firstName.trim(),
-                    lastName: lastName.trim(),
-                    age: ageNum,
-                    attendeeRole,
-                  });
-                  setProfileLoading(false);
-                }}
-                className="space-y-4"
-              >
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Vorname"
-                    required
-                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
-                  />
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Nachname"
-                    required
-                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
-                  />
-                </div>
-                <input
-                  type="number"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  placeholder="Alter"
-                  required
-                  min={1}
-                  max={120}
-                  className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
-                />
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>Rolle</p>
-                  <div className="flex gap-2">
-                    {([
-                      { value: 'student' as const, label: 'Studierende/r' },
-                      { value: 'entrepreneur' as const, label: 'Unternehmer' },
-                      { value: 'other' as const, label: 'Sonstiges' },
-                    ]).map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setAttendeeRole(option.value)}
-                        className={`flex-1 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
-                          attendeeRole === option.value
-                            ? 'bg-[#1D1D1F] text-white'
-                            : 'input-field'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {profileError && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="text-sm text-red-500"
-                  >
-                    {profileError}
-                  </motion.p>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  type="submit"
-                  disabled={profileLoading}
-                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
-                >
-                  {profileLoading ? 'Wird aktiviert...' : 'Ticket aktivieren'}
-                </motion.button>
-              </form>
             </motion.div>
           )}
 

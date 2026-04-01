@@ -75,7 +75,8 @@ export async function createClaimTokensForOrder(
 export interface ClaimProfileData {
   firstName: string;
   lastName: string;
-  age: number;
+  university: string;
+  afterpartyRsvp: boolean;
   attendeeRole: 'student' | 'entrepreneur' | 'other';
 }
 
@@ -123,7 +124,8 @@ export async function redeemClaimToken(
       first_name: profileData.firstName,
       last_name: profileData.lastName,
       full_name: fullName,
-      age: profileData.age,
+      university: profileData.university || null,
+      afterparty_rsvp: profileData.afterpartyRsvp,
       attendee_role: profileData.attendeeRole,
       ticket_id: ticket.ticket_id,
       updated_at: new Date().toISOString(),
