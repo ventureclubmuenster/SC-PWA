@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { redeemClaimToken, checkClaimTokenStatus, type ClaimProfileData } from '@/lib/ticket-claims';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token');
 
@@ -10,7 +12,11 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await checkClaimTokenStatus(token);
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+  });
 }
 
 export async function POST(request: NextRequest) {

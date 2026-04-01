@@ -67,7 +67,7 @@ function ClaimFlow() {
     }
 
     // Check token status first (no auth required)
-    fetch(`/api/tickets/claim?token=${encodeURIComponent(token)}`)
+    fetch(`/api/tickets/claim?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'already-claimed') {
