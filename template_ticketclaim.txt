@@ -1,0 +1,5 @@
+<h2>Startup Contacts</h2>
+
+<p>Bestätige deine E-Mail-Adresse, um dein Ticket bei der Startup Contacts 2026 zu aktivieren.</p>
+
+<p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=signup">Ticket aktivieren</a></p>

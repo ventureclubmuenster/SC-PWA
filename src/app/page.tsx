@@ -52,9 +52,8 @@ function LoginFlow() {
 
     const supabase = createClient();
 
-    const callbackUrl = next
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
-      : `${window.location.origin}/auth/callback`;
+    // Always include ?next= so the email template can append &token_hash=
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/schedule')}`;
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
