@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { usePartners, useSpeakers } from '@/components/DataProvider';
 import FilterBar from '@/components/FilterBar';
 import PageHeader from '@/components/PageHeader';
@@ -63,14 +63,14 @@ export default function InformationPage() {
             No partners found.
           </p>
         ) : (
-          <StaggerList className="space-y-3">
+          <StaggerList className="space-y-4">
             {filteredPartners.map((partner) => (
               <StaggerItem key={partner.id}>
                 <TapCard
                   onClick={() => setSelectedPartner(partner)}
                   className="card-clean flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
                 >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-2)' }}>
                   {partner.logo_url ? (
                     <img
                       src={partner.logo_url}
@@ -84,9 +84,9 @@ export default function InformationPage() {
                 </div>
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold uppercase tracking-wide">{partner.name}</h3>
+                    <h3 className="text-sm font-bold tracking-wide">{partner.name}</h3>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      className={`pill px-2.5 py-0.5 text-[10px] font-semibold ${
                         categoryBadge[partner.category]
                       }`}
                     >
@@ -97,7 +97,7 @@ export default function InformationPage() {
                     <p className="text-xs text-muted">Booth {partner.booth_number}</p>
                   )}
                   {partner.description && (
-                    <p className="text-xs text-muted line-clamp-2">{partner.description}</p>
+                    <p className="text-xs text-muted line-clamp-2 leading-relaxed">{partner.description}</p>
                   )}
                 </div>
               </TapCard>
@@ -107,11 +107,11 @@ export default function InformationPage() {
         )}
         </>
       ) : view === 'lageplan' ? (
-        <div className="card-glow rounded-2xl overflow-hidden">
-          <div className="flex flex-col items-center justify-center gap-5 py-20 text-muted">
-            <Map className="h-14 w-14 opacity-30" strokeWidth={1} />
-            <div className="text-center space-y-1.5">
-              <p className="text-sm font-bold text-primary uppercase tracking-wide">Lageplan</p>
+        <div className="card-clean rounded-2xl overflow-hidden">
+          <div className="flex flex-col items-center justify-center gap-5 py-24 text-muted">
+            <Map className="h-14 w-14 opacity-20" strokeWidth={1} />
+            <div className="text-center space-y-2">
+              <p className="text-sm font-bold text-primary tracking-wide">Lageplan</p>
               <p className="text-xs text-muted">Der Lageplan wird bald hinzugefügt.</p>
             </div>
           </div>
@@ -121,15 +121,14 @@ export default function InformationPage() {
           No speakers found.
         </p>
       ) : (
-        <>
-        <StaggerList className="space-y-3">
+        <StaggerList className="space-y-4">
           {speakers.map((speaker) => (
             <StaggerItem key={speaker.id}>
               <TapCard
                 onClick={() => setSelectedSpeaker(speaker)}
-                className="card-glow flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
+                className="card-clean flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-sm)' }}>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)' }}>
                   {speaker.photo_url ? (
                     <img
                       src={speaker.photo_url}
@@ -142,24 +141,23 @@ export default function InformationPage() {
                   )}
                 </div>
                 <div className="flex-1 space-y-1.5">
-                  <h3 className="text-sm font-bold uppercase tracking-wide">{speaker.name}</h3>
+                  <h3 className="text-sm font-bold tracking-wide">{speaker.name}</h3>
                   {speaker.bio && (
-                    <p className="text-xs text-muted line-clamp-3">{speaker.bio}</p>
+                    <p className="text-xs text-muted line-clamp-3 leading-relaxed">{speaker.bio}</p>
                   )}
                 </div>
               </TapCard>
             </StaggerItem>
           ))}
         </StaggerList>
-        </>
       )}
 
       {/* Partner Detail Modal */}
       <DetailModal open={!!selectedPartner} onClose={() => setSelectedPartner(null)}>
         {selectedPartner && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-2)' }}>
                 {selectedPartner.logo_url ? (
                   <img src={selectedPartner.logo_url} alt={selectedPartner.name} className="h-10 w-10 object-contain" loading="lazy" />
                 ) : (
@@ -167,8 +165,8 @@ export default function InformationPage() {
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-extrabold tracking-tight uppercase">{selectedPartner.name}</h2>
-                <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${categoryBadge[selectedPartner.category]}`}>
+                <h2 className="text-xl font-extrabold tracking-tight">{selectedPartner.name}</h2>
+                <span className={`inline-block mt-1.5 pill px-2.5 py-0.5 text-xs font-semibold capitalize ${categoryBadge[selectedPartner.category]}`}>
                   {selectedPartner.category}
                 </span>
               </div>
@@ -194,7 +192,7 @@ export default function InformationPage() {
                 href={selectedPartner.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
+                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
                 Website besuchen
@@ -209,7 +207,7 @@ export default function InformationPage() {
         {selectedSpeaker && (
           <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-md)' }}>
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)' }}>
                 {selectedSpeaker.photo_url ? (
                   <img src={selectedSpeaker.photo_url} alt={selectedSpeaker.name} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
@@ -217,7 +215,7 @@ export default function InformationPage() {
                 )}
               </div>
               <p className="section-label mt-5">Speaker</p>
-              <h2 className="mt-1 text-xl font-extrabold tracking-tight uppercase">{selectedSpeaker.name}</h2>
+              <h2 className="mt-1 text-xl font-extrabold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
@@ -232,7 +230,7 @@ export default function InformationPage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
+                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profil

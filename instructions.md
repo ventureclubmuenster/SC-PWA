@@ -25,16 +25,22 @@ The **Startup Contacts** app is the digital operating system for the Venture Clu
 | Tab | Description |
 |---|---|
 | **Schedule** | Timetable of all events on the trade show day. Filterable by stage and format type. Content managed via Sanity. |
-| **Information** | List of partners, exhibitors, and speakers. Filterable. Content managed via Sanity. |
-| **Workshops** | List of all workshops. Bookable with one click. Content managed via Sanity. |
-| **Profile** | Standard profile page (name, university, CV, afterparty RSVP). |
+| **Info** | List of partners, exhibitors, and speakers. Filterable. Content managed via Sanity. |
+| **Home** | Central home page. Uses SC Logo as icon in the nav bar. |
+| **Ticket** | QR code entry pass with ticket info. |
+| **Lageplan** | Floor plan / venue map. |
+
+**Workshops** are accessible via the Profile page (not in the bottom nav).
+**Profile** is accessible via the profile button in the TopBar (top right).
 
 ### 2. Exhibitor
 **Bottom Bar Tabs:**
 | Tab | Description |
 |---|---|
 | **Bewerber** | List of all applicants with ability to accept/reject. |
-| **Profile** | Standard profile page. |
+| **Lageplan** | Floor plan / venue map. |
+
+**Profile** is accessible via the TopBar profile button (top right).
 
 ---
 
@@ -265,6 +271,133 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
+
+---
+
+## Development Mode — Demo Data
+
+When running locally with `npm run dev`, the app operates without Supabase authentication. The middleware in `src/lib/supabase/middleware.ts` skips auth checks in development and redirects unauthenticated users directly to `/schedule`.
+
+Since there is no authenticated user, the `DataProvider` (`src/components/DataProvider.tsx`) injects a **demo profile** automatically so that all features — including the QR code on the ticket page — work without needing to log in.
+
+### Demo Profile Details
+| Field | Value |
+|---|---|
+| Name | Demo User |
+| Email | demo@startup-contacts.de |
+| Role | visitor |
+| University | Universität Münster |
+| Attendee Role | student |
+| Ticket ID | DEMO-TICKET-001 |
+
+This demo profile is **only active** when `NODE_ENV === 'development'` and no real user is authenticated. It has no effect in production builds.
+
+### What works in demo mode
+- **Ticket page:** QR code is generated from the demo profile ID
+- **Profile page:** Shows demo user data (read-only — saves will fail without a real Supabase user)
+- **Schedule, Information, Workshops:** Load from Supabase as normal (public data, no auth required)
+
+### What does NOT work in demo mode
+- Saving profile changes (no real user in Supabase)
+- Workshop bookings (require a real `user_id`)
+- Applicant features (require real exhibitor/visitor relationships)
+
+---
+
+## App Layout Architecture
+
+The dashboard uses a layered card-on-gradient layout:
+
+### Structure
+1. **Fixed gradient background** (`fixed inset-0 z-0 top-bar-gradient`) — always visible behind everything, never scrolls. Vertical gradient from CI orange (`#f76c07`) at top to CI red (`#fe281f`) at bottom.
+2. **TopBar** (`fixed z-40`) — transparent, sits on the gradient. Shows SC Logo + "SC-PWA-v1" on the left, notification bell + profile button on the right. Profile button links to `/profile`.
+3. **Main content card** (`mt-20 rounded-t-3xl`) — white/dark card with rounded top corners that slides over the gradient. All page content renders inside this card.
+4. **BottomBar** (`fixed z-50`) — floating pill-shaped navigation bar at the bottom.
+
+### Pull-to-refresh
+The `body` background is set to the gradient start color (`#f76c07`) so that when the user pulls down to refresh on mobile, the orange gradient background remains visible behind the main content card.
+
+### Key files
+- `src/app/(dashboard)/layout.tsx` — assembles the layers
+- `src/components/TopBar.tsx` — top bar with logo, title, and action buttons
+- `src/components/BottomBar.tsx` — bottom navigation with role-based tabs
+- `src/app/globals.css` — `.top-bar-gradient` class defines the gradient
+
+### CI Brand Colors
+- **Orange:** `#f76c07`
+- **Red:** `#fe281f`
+- Used in the background gradient (vertical: orange top → red bottom) and the SC logo
+
+---
+
+## Design System — CSS Variables
+
+All colors, radii, and visual tokens are defined as CSS custom properties in `src/app/globals.css`. Both dark mode (`:root, .dark`) and light mode (`.light`) have their own set of values. Changing a variable in one place updates the entire app.
+
+### Color Variables
+
+| Variable | Dark Mode | Light Mode | Purpose |
+|---|---|---|---|
+| `--background` | `#121212` | `#F4F4F5` | Page background |
+| `--foreground` | `#EDEBE8` | `#1A1A1A` | Primary text (warm beige in dark, soft dark in light) |
+| `--foreground-pure` | `#F5F5F5` | `#111111` | Pure white/black fallback when needed |
+| `--highlight` | `#EDEBE8` | `#3A3A3A` | Active states: nav tabs, filter pills, buttons |
+| `--highlight-text` | `#1A1A1A` | `#EDEBE8` | Text color on highlight backgrounds |
+| `--accent` | `#FF5E00` | `#FF5E00` | Brand orange (gradient start) |
+| `--accent-mid` | `#FF7A1A` | `#FF7A1A` | Gradient midpoint |
+| `--accent-end` | `#FF9233` | `#FF9233` | Gradient end |
+| `--surface-1/2/3` | `#1A/#22/#2A` | `#FFF/#F0/#E8` | Elevation layers |
+| `--card` | `#1A1A1A` | `#FFFFFF` | Card backgrounds |
+| `--ticket-card` | `#EDEBE8` | `#FFFFFF` | Ticket card background |
+| `--ticket-text` | `#4A4A4A` | `#3A3A3A` | Text on ticket card |
+| `--ticket-muted` | `#9A9A96` | `#9A9A96` | Muted text on ticket card |
+| `--selected-bg` | `#EDEBE8` | `#3A3A3A` | Selected option background (e.g. role buttons) |
+| `--selected-text` | `#1A1A1A` | `#EDEBE8` | Selected option text |
+| `--muted` | `#888888` | `#71717A` | Secondary/muted text |
+| `--border` | `rgba(255,255,255,0.07)` | `rgba(0,0,0,0.06)` | Borders & dividers |
+
+### Status Colors (semantic)
+
+| Variable | Dark Mode | Light Mode | Purpose |
+|---|---|---|---|
+| `--status-success` / `--status-success-bg` | `#4ade80` | `#16a34a` | Active, accepted, booked |
+| `--status-error` / `--status-error-bg` | `#f87171` | `#dc2626` | Errors, rejected, delete |
+| `--status-warning` / `--status-warning-bg` | `#fbbf24` | `#d97706` | Pending, waiting list |
+| `--status-info` / `--status-info-bg` | `#60a5fa` | `#2563eb` | CV required, info badges |
+
+### Radius Variables
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `--radius-card` | `24px` | Card border radius |
+| `--radius-inner` | `16px` | Inner elements, buttons, inputs |
+| `--radius-pill` | `20px` | Pill-shaped elements: filter pills, badges, nav bar, status tags |
+
+### Key CSS Classes
+
+| Class | Description |
+|---|---|
+| `.pill` | Applies `border-radius: var(--radius-pill)` — use on badges, filter buttons, nav elements |
+| `.selected-state` | Applies `--selected-bg` + `--selected-text` — for role toggles, option buttons |
+| `.btn-dark` | Uses `--highlight` background and `--highlight-text` color |
+| `.btn-primary` | Orange gradient with `--highlight` text |
+| `.card-clean` | Standard card with `--surface-1` background and border |
+| `.text-subtitle` | Muted uppercase label style |
+
+### Ticket Page Layout
+
+The ticket page (`src/app/(dashboard)/ticket/page.tsx`) uses the standard layout (gradient background + white content card):
+- **Ticket card** uses `--ticket-card` / `--ticket-text` / `--ticket-muted` for the beige card with QR code
+- **Wallet buttons** (Apple Wallet, Google Wallet) placed below the card — functionality TBD
+- **Title** uses standard `PageHeader` component inside the main content card
+
+### How to Customize
+
+To adjust the overall tone of the app, edit these key variables in `src/app/globals.css`:
+- **Softer/warmer whites:** Change `--highlight` and `--foreground` in dark mode
+- **Less contrast in light mode:** Change `--highlight` (currently `#3A3A3A`, increase for softer)
+- **Pill roundness:** Change `--radius-pill` (14px = square-ish, 20px = current, 100px = fully round)
+- **Accent color:** Change `--accent`, `--accent-mid`, `--accent-end` together
 
 ---
 

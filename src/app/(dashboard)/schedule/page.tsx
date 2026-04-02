@@ -37,7 +37,6 @@ export default function SchedulePage() {
       ? filtered
       : filtered.filter((i) => i.location === locationFilter);
 
-  // Sort by time-of-day (all events occur on the same date)
   const finalItems = [...filteredByLocation].sort((a, b) => {
     const ta = new Date(a.time).getHours() * 60 + new Date(a.time).getMinutes();
     const tb = new Date(b.time).getHours() * 60 + new Date(b.time).getMinutes();
@@ -63,7 +62,7 @@ export default function SchedulePage() {
     event: 'bg-green-500/15 text-green-400',
   };
 
-  // Group items by start time for horizontal stacking
+  // Group items by start time
   const timeGroups: { time: string; items: typeof finalItems }[] = [];
   for (const item of finalItems) {
     const t = formatTime(item.time);
@@ -76,38 +75,40 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Schedule" accent="Schedule" subtitle="Today's event programme" />
 
-      <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
-      {locations.length > 1 && (
-        <FilterBar
-          filters={locationFilters}
-          activeFilter={locationFilter}
-          onFilterChange={setLocationFilter}
-        />
-      )}
+      <div className="space-y-3">
+        <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
+        {locations.length > 1 && (
+          <FilterBar
+            filters={locationFilters}
+            activeFilter={locationFilter}
+            onFilterChange={setLocationFilter}
+          />
+        )}
+      </div>
 
       {loading ? null : finalItems.length === 0 ? (
         <FadeIn>
-          <p className="text-center text-sm text-muted py-12">
+          <p className="text-center text-sm text-muted py-16">
             No events found.
           </p>
         </FadeIn>
       ) : (
-        <div className="relative pl-6">
+        <div className="relative pl-7">
           {/* Timeline spine */}
-          <div className="absolute left-[5px] top-2 bottom-2 w-[2px]" style={{ background: 'var(--border)' }} />
+          <div className="absolute left-[5px] top-3 bottom-3 w-[2px] rounded-full" style={{ background: 'var(--border)' }} />
 
-          <StaggerList className="space-y-0">
+          <StaggerList className="space-y-1">
             {timeGroups.map((group, gIdx) => {
               const isLast = gIdx === timeGroups.length - 1;
               return (
-                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-3'}`}>
+                <StaggerItem key={group.time + gIdx} className={`relative ${isLast ? '' : 'mb-4'}`}>
                   {/* Timeline node */}
-                  <div className="absolute -left-6 top-1 z-10 flex items-center justify-center w-[12px]">
+                  <div className="absolute -left-7 top-1.5 z-10 flex items-center justify-center w-[12px]">
                     <div
-                      className={`h-3 w-3 rounded-full ring-[3px] ${
+                      className={`h-2.5 w-2.5 rounded-full ring-[3px] ${
                         group.items.length === 1
                           ? (categoryDot[group.items[0].category] || 'bg-muted')
                           : ''
@@ -119,11 +120,13 @@ export default function SchedulePage() {
                     />
                   </div>
 
-                  {/* Cards */}
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-bold tracking-wider text-muted uppercase">
+                  {/* Time label + cards */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted">
                       {group.time}
-                      {group.items[0].end_time && group.items.length === 1 && ` – ${formatTime(group.items[0].end_time)}`}
+                      {group.items[0].end_time && group.items.length === 1 && (
+                        <span className="font-normal"> – {formatTime(group.items[0].end_time)}</span>
+                      )}
                     </p>
 
                     {group.items.length === 1 ? (
@@ -131,7 +134,7 @@ export default function SchedulePage() {
                         <EventCard item={group.items[0]} categoryColors={categoryColors} formatTime={formatTime} />
                       </TapCard>
                     ) : (
-                      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mr-4 pr-4">
+                      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mr-5 pr-5">
                         {group.items.map((item) => (
                           <TapCard key={item.id} onClick={() => setSelected(item)} className="cursor-pointer">
                             <EventCard item={item} categoryColors={categoryColors} formatTime={formatTime} compact />
@@ -147,35 +150,39 @@ export default function SchedulePage() {
         </div>
       )}
 
-      {/* Schedule Detail Modal — tall */}
+      {/* Schedule Detail Modal */}
       <DetailModal open={!!selected} onClose={() => setSelected(null)} tall>
         {selected && (
           <div className="space-y-6">
-            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-surface-2 text-muted'}`}>
+            <span className={`inline-block pill px-3.5 py-1 text-xs font-semibold ${categoryColors[selected.category] || 'bg-surface-2 text-muted'}`}>
               {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
-            <h2 className="text-2xl font-extrabold tracking-tight leading-tight uppercase">{selected.title}</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight leading-tight">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-muted">
-                  <Clock className="h-4 w-4 shrink-0" />
+              <div className="card-clean rounded-2xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)' }}>
+                    <Clock className="h-4 w-4 text-muted" />
+                  </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-semibold">Time</p>
-                    <p className="text-sm font-semibold text-primary">
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">Time</p>
+                    <p className="text-sm font-semibold">
                       {formatTime(selected.time)}
                       {selected.end_time && ` – ${formatTime(selected.end_time)}`}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="card-clean rounded-xl p-3">
-                <div className="flex items-center gap-2 text-muted">
-                  <MapPin className="h-4 w-4 shrink-0" />
+              <div className="card-clean rounded-2xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)' }}>
+                    <MapPin className="h-4 w-4 text-muted" />
+                  </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-semibold">Location</p>
-                    <p className="text-sm font-semibold text-primary">{selected.location}</p>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">Location</p>
+                    <p className="text-sm font-semibold">{selected.location}</p>
                   </div>
                 </div>
               </div>
@@ -184,7 +191,7 @@ export default function SchedulePage() {
             {selected.speaker && (
               <TapCard
                 onClick={() => { setSelectedSpeaker(selected.speaker!); setSelected(null); }}
-                className="w-full card-clean rounded-xl p-4 text-left cursor-pointer"
+                className="w-full card-clean rounded-2xl p-4 text-left cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border overflow-hidden" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)' }}>
@@ -206,7 +213,7 @@ export default function SchedulePage() {
             {selected.description && (
               <div>
                 <p className="section-label mb-2">About</p>
-                <p className="text-sm leading-relaxed">{selected.description}</p>
+                <p className="text-sm leading-relaxed text-muted">{selected.description}</p>
               </div>
             )}
           </div>
@@ -216,7 +223,7 @@ export default function SchedulePage() {
       {/* Speaker Detail Modal */}
       <DetailModal open={!!selectedSpeaker} onClose={() => setSelectedSpeaker(null)}>
         {selectedSpeaker && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
               <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full border overflow-hidden" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)' }}>
                 {selectedSpeaker.photo_url ? (
@@ -225,8 +232,8 @@ export default function SchedulePage() {
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <p className="section-label mt-4">Speaker</p>
-              <h2 className="mt-1 text-xl font-extrabold tracking-tight uppercase">{selectedSpeaker.name}</h2>
+              <p className="section-label mt-5">Speaker</p>
+              <h2 className="mt-1 text-xl font-extrabold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
@@ -238,7 +245,7 @@ export default function SchedulePage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
                 LinkedIn Profile
@@ -263,16 +270,16 @@ function EventCard({
   compact?: boolean;
 }) {
   return (
-    <div className={`card-clean rounded-2xl p-4 space-y-2 ${compact ? 'min-w-[200px] flex-shrink-0' : ''}`}>
+    <div className={`card-clean rounded-2xl p-5 space-y-3 ${compact ? 'min-w-[210px] flex-shrink-0' : ''}`}>
       {compact && item.end_time && (
-        <p className="text-[10px] font-bold tracking-wider text-muted uppercase">
+        <p className="text-[10px] font-semibold tracking-wider text-muted uppercase">
           until {formatTime(item.end_time)}
         </p>
       )}
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-bold text-sm uppercase tracking-wide">{item.title}</h3>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-bold text-sm tracking-wide">{item.title}</h3>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+          className={`shrink-0 pill px-2.5 py-0.5 text-[10px] font-semibold ${
             categoryColors[item.category] || 'bg-surface-2 text-muted'
           }`}
         >
@@ -281,20 +288,20 @@ function EventCard({
       </div>
 
       <div className="flex items-center gap-3 text-xs text-muted">
-        <span className="flex items-center gap-1">
-          <MapPin className="h-3 w-3" />
+        <span className="flex items-center gap-1.5">
+          <MapPin className="h-3.5 w-3.5" />
           {item.location}
         </span>
         {item.speaker && (
-          <span className="flex items-center gap-1">
-            <Mic2 className="h-3 w-3" />
+          <span className="flex items-center gap-1.5">
+            <Mic2 className="h-3.5 w-3.5" />
             <span className="font-semibold" style={{ color: 'var(--accent)' }}>{item.speaker.name}</span>
           </span>
         )}
       </div>
 
       {item.description && (
-        <p className="text-xs text-muted line-clamp-2">{item.description}</p>
+        <p className="text-xs text-muted line-clamp-2 leading-relaxed">{item.description}</p>
       )}
     </div>
   );

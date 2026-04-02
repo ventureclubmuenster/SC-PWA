@@ -25,12 +25,25 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  const isDev = process.env.NODE_ENV === 'development';
+
   let user = null;
   try {
     const result = await supabase.auth.getUser();
     user = result.data.user;
   } catch {
     // Supabase not configured
+  }
+
+  // In development, skip auth and redirect login page to /schedule
+  if (isDev && !user) {
+    if (request.nextUrl.pathname === '/') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/home';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
   }
 
   // If no user and trying to access dashboard, redirect to login with return URL
@@ -50,7 +63,7 @@ export async function updateSession(request: NextRequest) {
   if (user && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone();
     const next = request.nextUrl.searchParams.get('next');
-    url.pathname = next || '/schedule';
+    url.pathname = next || '/home';
     url.search = '';
     return NextResponse.redirect(url);
   }

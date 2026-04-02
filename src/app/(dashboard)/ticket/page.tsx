@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useProfile } from '@/components/DataProvider';
-import PageHeader from '@/components/PageHeader';
 import { FadeIn } from '@/components/motion';
+import PageHeader from '@/components/PageHeader';
 import { QRCodeSVG } from 'qrcode.react';
+import { Wallet, Smartphone } from 'lucide-react';
 
 async function hashId(id: string): Promise<string> {
   const data = new TextEncoder().encode(id);
@@ -29,55 +30,113 @@ export default function TicketPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="My Tickets" accent="Tickets" subtitle="Your event entry pass" />
+    <>
+      <div className="space-y-5">
+        <PageHeader title="My Ticket" accent="Ticket" subtitle="Your event entry pass" />
 
-      {/* Ticket Card */}
-      <FadeIn delay={0.1}>
-      <div className="glass-card p-7 space-y-6">
-        {/* Entry Pass sub-card */}
-        <div className="glass-card-inner p-5 space-y-4">
-          <p className="text-subtitle">Entry Pass</p>
-          <div className="flex items-center gap-5">
-            {/* QR icon tile with vivid gradient */}
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl gradient-accent gradient-glow">
-              {qrValue ? (
-                <QRCodeSVG value={qrValue} size={56} level="M" bgColor="transparent" fgColor="#FFFFFF" />
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <p className="text-base font-bold tracking-tight">{profile?.full_name || 'Attendee'}</p>
-              <p className="text-xs text-muted">{profile?.email || ''}</p>
-              {profile?.university && (
-                <p className="text-xs text-muted">{profile.university}</p>
+        {/* Ticket Card */}
+        <FadeIn delay={0.1}>
+          <div
+            className="relative mx-auto w-full overflow-hidden rounded-3xl px-5 pt-5 pb-16"
+            style={{
+              background: 'var(--ticket-card)',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            {/* Top row */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--ticket-muted)' }}>
+                Entry Pass
+              </span>
+              {profile?.ticket_id && (
+                <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--ticket-muted)' }}>
+                  {profile.ticket_id}
+                </span>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Full QR code */}
-        <div className="flex justify-center">
-          <div className="rounded-2xl p-5" style={{ background: 'var(--qr-bg)', boxShadow: 'var(--shadow-sm)' }}>
-            {qrValue ? (
-              <QRCodeSVG value={qrValue} size={180} level="M" />
-            ) : null}
-          </div>
-        </div>
+            {/* QR code */}
+            <div className="flex items-center justify-center py-6">
+              {qrValue ? (
+                <QRCodeSVG value={qrValue} size={230} level="M" bgColor="transparent" fgColor="var(--ticket-text)" />
+              ) : (
+                <div className="h-[230px] w-[230px] rounded-2xl" style={{ background: 'var(--surface-2)' }} />
+              )}
+            </div>
 
-        {/* Attendee details */}
-        <div className="space-y-3 pt-2">
-          <div className="flex justify-between items-center">
-            <span className="text-subtitle">Role</span>
-            <span className="text-sm font-semibold capitalize">{profile?.role || '—'}</span>
+            {/* Bottom row — role + status */}
+            <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
+              <span className="text-sm font-semibold capitalize" style={{ color: 'var(--ticket-text)' }}>
+                {profile?.role || 'Visitor'}
+              </span>
+              <span className="pill px-3 py-1 text-xs font-semibold" style={{ background: 'var(--status-success-bg)', color: 'var(--status-success)' }}>
+                Active
+              </span>
+            </div>
           </div>
-          <div className="h-px" style={{ background: 'var(--border)' }} />
-          <div className="flex justify-between items-center">
-            <span className="text-subtitle">Status</span>
-            <span className="text-xs font-semibold rounded-full px-2.5 py-0.5 bg-green-500/10 text-green-400">Active</span>
+        </FadeIn>
+
+        {/* Wallet buttons */}
+        <FadeIn delay={0.15}>
+          <div className="flex gap-3">
+            <button
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
+              style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+            >
+              <Wallet className="h-4 w-4" />
+              Apple Wallet
+            </button>
+            <button
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
+              style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+            >
+              <Smartphone className="h-4 w-4" />
+              Google Wallet
+            </button>
           </div>
-        </div>
+        </FadeIn>
+
+        {/* Ticket info */}
+        <FadeIn delay={0.2}>
+          <div className="card-clean p-6 space-y-4">
+            <p className="text-subtitle">Ticket info</p>
+
+            <div className="space-y-3">
+              <InfoRow label="Name" value={profile?.full_name || 'Attendee'} />
+              <Divider />
+              <InfoRow label="Email" value={profile?.email || '—'} />
+              {profile?.university && (
+                <>
+                  <Divider />
+                  <InfoRow label="University" value={profile.university} />
+                </>
+              )}
+              <Divider />
+              <InfoRow label="Role" value={profile?.role || 'visitor'} capitalize />
+              <Divider />
+              <InfoRow label="Status" value="Active" status />
+            </div>
+          </div>
+        </FadeIn>
       </div>
-      </FadeIn>
+    </>
+  );
+}
+
+function InfoRow({ label, value, capitalize, status }: { label: string; value: string; capitalize?: boolean; status?: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-subtitle">{label}</span>
+      <span
+        className={`text-sm font-semibold ${capitalize ? 'capitalize' : ''}`}
+        style={{ color: status ? 'var(--status-success)' : 'var(--foreground)' }}
+      >
+        {value}
+      </span>
     </div>
   );
+}
+
+function Divider() {
+  return <div className="h-px" style={{ background: 'var(--border)' }} />;
 }

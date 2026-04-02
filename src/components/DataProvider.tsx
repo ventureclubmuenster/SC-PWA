@@ -22,6 +22,29 @@ import type {
 } from '@/types';
 
 /* ------------------------------------------------------------------ */
+/*  Demo profile for local development (no auth required)             */
+/* ------------------------------------------------------------------ */
+
+const DEMO_PROFILE: Profile = {
+  id: 'demo-user-00000000-0000-0000-0000-000000000000',
+  email: 'demo@startup-contacts.de',
+  full_name: 'Demo User',
+  first_name: 'Demo',
+  last_name: 'User',
+  age: null,
+  attendee_role: 'student',
+  ticket_id: 'DEMO-TICKET-001',
+  role: 'visitor',
+  university: 'Universität Münster',
+  cv_url: null,
+  afterparty_rsvp: false,
+  company: null,
+  booth_number: null,
+  created_at: '2025-01-01T00:00:00.000Z',
+  updated_at: '2025-01-01T00:00:00.000Z',
+};
+
+/* ------------------------------------------------------------------ */
 /*  Cache store — lives outside React so it survives navigations      */
 /* ------------------------------------------------------------------ */
 
@@ -81,7 +104,12 @@ async function prefetchAll(): Promise<CacheStore> {
         : Promise.resolve({ data: null as Profile | null }),
     ]);
 
-  const profile = profileRes.data as Profile | null;
+  let profile = profileRes.data as Profile | null;
+
+  // In development without auth, use the demo profile
+  if (!profile && !user && process.env.NODE_ENV === 'development') {
+    profile = DEMO_PROFILE;
+  }
 
   return {
     profile,

@@ -1,96 +1,158 @@
 @import "tailwindcss";
 
 /* ================================================== */
-/*  "Aura" Design System                               */
-/*  Depth through layered shadows · Rich gradients     */
-/*  Airy whitespace · Warm tones                       */
+/*  "Aura" Design System — v2                         */
+/*  Clean · Spacious · Soft depth · Warm accents      */
 /* ================================================== */
 
 /* -------------------------------------------------- */
-/*  Dark mode (default) — Neutral depth                */
+/*  Dark mode (default)                                */
 /* -------------------------------------------------- */
 :root, .dark {
-  --background: #161616;
-  --background-raised: #1E1E1E;
-  --foreground: #F1F4F4;
+  --background: #121212;
+  --background-raised: #1A1A1A;
+  --foreground: #EDEBE8;
+  --foreground-pure: #F5F5F5;
   --accent: #FF5E00;
   --accent-mid: #FF7A1A;
   --accent-end: #FF9233;
   --accent-hover: #FF7520;
   --glow: #FF6A10;
 
+  /* CI brand colors */
+  --ci-orange: #f76c07;
+  --ci-red: #fe281f;
+
+  /* Muted background variants */
+  --bg-orange: #B5441A;
+  --bg-red: #8A3018;
+
   /* Surface elevation palette */
-  --surface-1: #1E1E1E;
-  --surface-2: #252525;
-  --surface-3: #2E2E2E;
-  --card: #1E1E1E;
-  --card-elevated: #252525;
-  --card-solid: #1E1E1E;
+  --surface-1: #1A1A1A;
+  --surface-2: #222222;
+  --surface-3: #2A2A2A;
+  --card: #1A1A1A;
+  --card-elevated: #222222;
 
-  /* Borders — very subtle, used sparingly */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-subtle: rgba(255, 255, 255, 0.03);
+  /* Highlight — warm beige for active/selected states */
+  --highlight: #EDEBE8;
+  --highlight-text: #1A1A1A;
 
-  --muted: #8A8A8A;
+  /* Ticket card */
+  --ticket-card: #EDEBE8;
+  --ticket-text: #4A4A4A;
+  --ticket-muted: #9A9A96;
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+
+  --muted: #888888;
   --muted-light: rgba(255, 255, 255, 0.05);
-  --input-bg: rgba(255, 255, 255, 0.04);
-  --input-border: rgba(255, 255, 255, 0.08);
-  --overlay: rgba(10, 10, 10, 0.75);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.09);
+  --overlay: rgba(0, 0, 0, 0.6);
   --toggle-off: rgba(255, 255, 255, 0.1);
   --qr-bg: #FFFFFF;
-  --navbar-bg: rgba(22, 22, 22, 0.85);
+  --navbar-bg: rgba(18, 18, 18, 0.85);
 
-  /* Elevation shadows */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.35);
+  /* Semantic status colors */
+  --status-success: #4ade80;
+  --status-success-bg: rgba(74, 222, 128, 0.15);
+  --status-error: #f87171;
+  --status-error-bg: rgba(248, 113, 113, 0.1);
+  --status-warning: #fbbf24;
+  --status-warning-bg: rgba(251, 191, 36, 0.15);
+  --status-info: #60a5fa;
+  --status-info-bg: rgba(96, 165, 250, 0.15);
+
+  /* Role selection */
+  --selected-bg: #EDEBE8;
+  --selected-text: #1A1A1A;
+
+  /* Softer elevation shadows */
+  --shadow-xs: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.18);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.22);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.28);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.35);
 
   /* Design tokens */
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
-  --radius-outer: 28px;
-  --radius-inner: 18px;
+  --radius-card: 24px;
+  --radius-inner: 16px;
+  --radius-pill: 20px;
   color-scheme: dark;
 }
 
 /* -------------------------------------------------- */
-/*  Light mode — Soft warm surfaces                    */
+/*  Light mode                                         */
 /* -------------------------------------------------- */
 .light {
-  --background: #F1F4F4;
+  --background: #F4F4F5;
   --background-raised: #FFFFFF;
-  --foreground: #161616;
+  --foreground: #1A1A1A;
+  --foreground-pure: #111111;
   --accent: #FF5E00;
   --accent-mid: #FF7A1A;
   --accent-end: #FF9233;
   --accent-hover: #E55500;
   --glow: #FF6A10;
 
+  /* CI brand colors */
+  --ci-orange: #f76c07;
+  --ci-red: #fe281f;
+
+  /* Muted background variants */
+  --bg-orange: #B5441A;
+  --bg-red: #8A3018;
+
   --surface-1: #FFFFFF;
-  --surface-2: #F0E5D8;
-  --surface-3: #F1F4F4;
+  --surface-2: #F0F0F0;
+  --surface-3: #E8E8E8;
   --card: #FFFFFF;
   --card-elevated: #FFFFFF;
-  --card-solid: #FFFFFF;
 
-  --border: rgba(0, 0, 0, 0.05);
-  --border-subtle: rgba(0, 0, 0, 0.025);
+  /* Highlight — soft dark for active states in light mode */
+  --highlight: #3A3A3A;
+  --highlight-text: #EDEBE8;
 
-  --muted: #6B6B6B;
+  /* Ticket card */
+  --ticket-card: #FFFFFF;
+  --ticket-text: #3A3A3A;
+  --ticket-muted: #9A9A96;
+
+  --border: rgba(0, 0, 0, 0.06);
+  --border-subtle: rgba(0, 0, 0, 0.03);
+
+  --muted: #71717A;
   --muted-light: #F0E5D8;
-  --input-bg: rgba(0, 0, 0, 0.025);
-  --input-border: rgba(0, 0, 0, 0.06);
-  --overlay: rgba(0, 0, 0, 0.25);
-  --toggle-off: rgba(0, 0, 0, 0.07);
+  --input-bg: rgba(0, 0, 0, 0.03);
+  --input-border: rgba(0, 0, 0, 0.08);
+  --overlay: rgba(0, 0, 0, 0.3);
+  --toggle-off: rgba(0, 0, 0, 0.08);
   --qr-bg: #FFFFFF;
-  --navbar-bg: rgba(241, 244, 244, 0.85);
+  --navbar-bg: rgba(244, 244, 245, 0.85);
+
+  /* Semantic status colors */
+  --status-success: #16a34a;
+  --status-success-bg: rgba(22, 163, 74, 0.12);
+  --status-error: #dc2626;
+  --status-error-bg: rgba(220, 38, 38, 0.1);
+  --status-warning: #d97706;
+  --status-warning-bg: rgba(217, 119, 6, 0.12);
+  --status-info: #2563eb;
+  --status-info-bg: rgba(37, 99, 235, 0.12);
+
+  /* Role selection */
+  --selected-bg: #3A3A3A;
+  --selected-text: #EDEBE8;
 
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.09);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.12);
 
   color-scheme: light;
 }
@@ -99,11 +161,13 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
+  --color-highlight-text: var(--highlight-text);
   --font-sans: var(--font-montserrat);
 }
 
 body {
-  background: var(--background);
+  background: var(--bg-orange);
   color: var(--foreground);
   font-family: var(--font-montserrat), 'Montserrat', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -123,30 +187,27 @@ body {
   z-index: 0;
   border-radius: 50%;
 }
-/* Top-left warm orb */
 .bg-mesh::before {
   top: -15%;
   left: -10%;
   width: 55%;
   height: 55%;
-  background: radial-gradient(circle, rgba(255,94,0,0.08) 0%, rgba(255,122,26,0.05) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,94,0,0.06) 0%, rgba(255,122,26,0.03) 40%, transparent 70%);
 }
-/* Bottom-right warm orb */
 .bg-mesh::after {
   bottom: -10%;
   right: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(255,146,51,0.07) 0%, rgba(255,122,26,0.04) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,146,51,0.05) 0%, rgba(255,122,26,0.03) 40%, transparent 70%);
 }
 .light .bg-mesh::before {
-  background: radial-gradient(circle, rgba(255,94,0,0.05) 0%, rgba(255,122,26,0.03) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,94,0,0.04) 0%, rgba(255,122,26,0.02) 40%, transparent 70%);
 }
 .light .bg-mesh::after {
-  background: radial-gradient(circle, rgba(255,146,51,0.04) 0%, rgba(255,122,26,0.02) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,146,51,0.03) 0%, rgba(255,122,26,0.015) 40%, transparent 70%);
 }
 
-/* Legacy alias */
 .bg-bloom { position: relative; }
 .bg-bloom::before {
   content: '';
@@ -155,18 +216,18 @@ body {
   left: -10%;
   width: 55%;
   height: 55%;
-  background: radial-gradient(circle, rgba(255,94,0,0.08) 0%, rgba(255,146,51,0.05) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,94,0,0.06) 0%, rgba(255,146,51,0.03) 40%, transparent 70%);
   pointer-events: none;
   z-index: 0;
   border-radius: 50%;
 }
 
 /* -------------------------------------------------- */
-/*  Compositor-thread animations (60fps guaranteed)   */
+/*  Animations                                         */
 /* -------------------------------------------------- */
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -176,7 +237,7 @@ body {
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
+  from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
 
@@ -187,36 +248,36 @@ body {
 
 .anim-stagger-item {
   opacity: 0;
-  animation: fade-in-up 0.35s var(--ease-out-expo) forwards;
+  animation: fade-in-up 0.4s var(--ease-out-expo) forwards;
   animation-delay: var(--stagger-delay, 0ms);
   will-change: transform, opacity;
 }
 
 .anim-fade-in {
-  animation: fade-in-up 0.3s var(--ease-out-expo) both;
+  animation: fade-in-up 0.35s var(--ease-out-expo) both;
   animation-delay: var(--fade-delay, 0ms);
   will-change: transform, opacity;
 }
 
 .anim-scale-in {
-  animation: scale-in 0.24s var(--ease-out-expo) both;
+  animation: scale-in 0.28s var(--ease-out-expo) both;
   animation-delay: 100ms;
 }
 
 .tap-card {
   will-change: transform;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.15s ease;
 }
 .tap-card:active {
-  transform: scale(0.975);
+  transform: scale(0.98);
 }
 
 .tap-btn {
   will-change: transform;
-  transition: transform 0.12s ease;
+  transition: transform 0.15s ease;
 }
 .tap-btn:active:not(:disabled) {
-  transform: scale(0.975);
+  transform: scale(0.98);
 }
 
 .gpu-layer {
@@ -226,44 +287,39 @@ body {
 }
 
 /* -------------------------------------------------- */
-/*  Layered card system — depth via shadow             */
+/*  Card system                                        */
 /* -------------------------------------------------- */
 
 .glass-card {
   background: var(--surface-1);
-  border-radius: var(--radius-outer);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 
 .glass-card-inner {
   background: var(--surface-2);
   border-radius: var(--radius-inner);
-  box-shadow: var(--shadow-xs);
 }
 
 .card-clean {
   background: var(--surface-1);
-  border-radius: var(--radius-outer);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 
 .card-accent {
   background: var(--surface-1);
-  border-radius: var(--radius-outer);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 
-/* -------------------------------------------------- */
-/*  Card with bottom accent glow                       */
-/* -------------------------------------------------- */
-
 .card-glow {
   background: var(--surface-1);
-  border-radius: var(--radius-outer);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
 }
@@ -271,31 +327,51 @@ body {
   content: '';
   position: absolute;
   bottom: -30px;
-  left: 5%;
-  right: 5%;
-  height: 80px;
-  background: radial-gradient(ellipse at center bottom, rgba(255,94,0,0.10), transparent 70%);
+  left: 10%;
+  right: 10%;
+  height: 60px;
+  background: radial-gradient(ellipse at center bottom, rgba(255,94,0,0.08), transparent 70%);
   pointer-events: none;
   z-index: 1;
 }
 .light .card-glow::after {
-  background: radial-gradient(ellipse at center bottom, rgba(255,94,0,0.08), transparent 70%);
+  background: radial-gradient(ellipse at center bottom, rgba(255,94,0,0.06), transparent 70%);
 }
 
 /* -------------------------------------------------- */
-/*  Section label — small uppercase tracked            */
+/*  Typography                                         */
 /* -------------------------------------------------- */
 
 .section-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
+.text-primary { color: var(--foreground); }
+.text-muted { color: var(--muted); }
+.bg-surface { background: var(--background); }
+.bg-card { background: var(--card); }
+.border-theme { border-color: var(--border); }
+
+.text-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.text-subtitle {
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
 /* -------------------------------------------------- */
-/*  Gradient accents — richer 3-stop gradients         */
+/*  Gradient accents                                   */
 /* -------------------------------------------------- */
 
 .gradient-accent {
@@ -310,7 +386,7 @@ body {
 }
 
 .gradient-glow {
-  box-shadow: 0 8px 32px rgba(255,94,0,0.25), 0 4px 16px rgba(255,146,51,0.15), 0 2px 8px rgba(255,122,26,0.1);
+  box-shadow: 0 8px 32px rgba(255,94,0,0.2), 0 4px 16px rgba(255,146,51,0.12);
 }
 
 /* -------------------------------------------------- */
@@ -319,16 +395,14 @@ body {
 
 .btn-primary {
   background: linear-gradient(135deg, #FF3D00, #FF8C00);
-  color: #FFFFFF;
+  color: var(--highlight);
   border-radius: var(--radius-inner);
-  box-shadow: var(--shadow-sm);
 }
 
 .btn-dark {
-  background: var(--foreground);
-  color: var(--background);
+  background: var(--highlight);
+  color: var(--highlight-text);
   border-radius: var(--radius-inner);
-  box-shadow: var(--shadow-sm);
 }
 
 .btn-glass {
@@ -336,31 +410,6 @@ body {
   border: 1px solid var(--border);
   color: var(--foreground);
   border-radius: var(--radius-inner);
-  box-shadow: var(--shadow-xs);
-}
-
-/* -------------------------------------------------- */
-/*  Typography & utility classes                       */
-/* -------------------------------------------------- */
-
-.text-primary { color: var(--foreground); }
-.text-muted { color: var(--muted); }
-.bg-surface { background: var(--background); }
-.bg-card { background: var(--card); }
-.border-theme { border-color: var(--border); }
-
-.text-title {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--foreground);
-}
-
-.text-subtitle {
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  text-transform: uppercase;
-  font-size: 11px;
 }
 
 /* -------------------------------------------------- */
@@ -373,12 +422,11 @@ body {
   border-radius: var(--radius-inner);
   color: var(--foreground);
   outline: none;
-  box-shadow: var(--shadow-xs);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .input-field:focus {
   border-color: var(--accent);
-  box-shadow: var(--shadow-xs), 0 0 0 3px rgba(255,94,0,0.15);
+  box-shadow: 0 0 0 3px rgba(255,94,0,0.12);
 }
 .input-field::placeholder {
   color: var(--muted);
@@ -396,28 +444,33 @@ body {
   background: linear-gradient(90deg, var(--surface-1) 25%, var(--surface-2) 50%, var(--surface-1) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 10px;
+  border-radius: 12px;
   will-change: background-position;
 }
-
-/* -------------------------------------------------- */
-/*  Scrollbar, safe areas, PWA                         */
-/* -------------------------------------------------- */
 
 /* -------------------------------------------------- */
 /*  Bottom navigation bar                              */
 /* -------------------------------------------------- */
 
-.bottom-nav {
-  background: var(--navbar-bg);
-  border-top: 1px solid var(--border);
+.bottom-nav-floating {
+  background: var(--surface-1);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-.tab-active { color: var(--accent); }
+.tab-active { color: var(--highlight-text); }
 .tab-inactive { color: var(--muted); }
 
+/* Selected state (role buttons, toggles, etc.) */
+.selected-state {
+  background: var(--selected-bg);
+  color: var(--selected-text);
+}
+
 /* -------------------------------------------------- */
-/*  Scrollbar                                          */
+/*  Scrollbar & safe areas                             */
 /* -------------------------------------------------- */
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -427,6 +480,7 @@ body {
 
 @media (display-mode: standalone) {
   .pwa-bottom-space { padding-bottom: 25px; }
+  .pwa-bottom-offset { bottom: 10px; }
 }
 
 /* -------------------------------------------------- */
@@ -434,15 +488,15 @@ body {
 /* -------------------------------------------------- */
 
 .modal-backdrop {
-  transition: opacity 0.2s var(--ease-out-expo);
+  transition: opacity 0.25s var(--ease-out-expo);
 }
 .modal-panel {
-  transition: transform 0.32s var(--ease-out-expo);
+  transition: transform 0.35s var(--ease-out-expo);
   will-change: transform;
 }
 
 /* -------------------------------------------------- */
-/*  Watermark background text                          */
+/*  Watermark                                          */
 /* -------------------------------------------------- */
 
 .watermark-layer {
@@ -450,4 +504,20 @@ body {
 }
 .light .watermark-layer {
   opacity: 0.025;
+}
+
+/* -------------------------------------------------- */
+/*  Pill shape — uses --radius-pill variable           */
+/* -------------------------------------------------- */
+
+.pill {
+  border-radius: var(--radius-pill);
+}
+
+/* -------------------------------------------------- */
+/*  Top bar gradient                                   */
+/* -------------------------------------------------- */
+
+.top-bar-gradient {
+  background: linear-gradient(135deg, var(--ci-orange) 0%, var(--ci-red) 100%);
 }
