@@ -40,7 +40,7 @@ export default function BottomBar() {
               {isActive && (
                 <motion.div
                   layoutId="bottombar-active"
-                  className="absolute inset-0 rounded-xl bg-[#ff4d42]/8"
+                  className="absolute inset-0 rounded-xl bg-[#FF5E00]/8"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}

@@ -77,7 +77,7 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Schedule" subtitle="Today's event programme" />
+      <PageHeader title="Schedule" accent="Schedule" subtitle="Today's event programme" />
 
       <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
       {locations.length > 1 && (
@@ -155,7 +155,7 @@ export default function SchedulePage() {
               {selected.category.charAt(0).toUpperCase() + selected.category.slice(1)}
             </span>
 
-            <h2 className="text-2xl font-bold tracking-tight leading-tight">{selected.title}</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight leading-tight uppercase">{selected.title}</h2>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="card-clean rounded-xl p-3">
@@ -205,7 +205,7 @@ export default function SchedulePage() {
 
             {selected.description && (
               <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">About</h3>
+                <p className="section-label mb-2">About</p>
                 <p className="text-sm leading-relaxed">{selected.description}</p>
               </div>
             )}
@@ -225,7 +225,8 @@ export default function SchedulePage() {
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-4 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
+              <p className="section-label mt-4">Speaker</p>
+              <h2 className="mt-1 text-xl font-extrabold tracking-tight uppercase">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
@@ -269,7 +270,7 @@ function EventCard({
         </p>
       )}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-sm">{item.title}</h3>
+        <h3 className="font-bold text-sm uppercase tracking-wide">{item.title}</h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
             categoryColors[item.category] || 'bg-surface-2 text-muted'
@@ -287,7 +288,7 @@ function EventCard({
         {item.speaker && (
           <span className="flex items-center gap-1">
             <Mic2 className="h-3 w-3" />
-            <span className="font-medium text-primary">{item.speaker.name}</span>
+            <span className="font-semibold" style={{ color: 'var(--accent)' }}>{item.speaker.name}</span>
           </span>
         )}
       </div>

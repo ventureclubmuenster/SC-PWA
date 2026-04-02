@@ -68,6 +68,12 @@ export default function DetailModal({ open, onClose, children, tall }: DetailMod
             >
               {children}
             </motion.div>
+
+            {/* Bottom accent glow */}
+            <div
+              className="absolute bottom-0 left-[5%] right-[5%] h-[80px] pointer-events-none z-0"
+              style={{ background: 'radial-gradient(ellipse at center bottom, rgba(255,94,0,0.08), transparent 70%)' }}
+            />
           </motion.div>
         </div>
       )}

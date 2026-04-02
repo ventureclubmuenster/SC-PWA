@@ -208,13 +208,13 @@ function BouncingArrow({ platform }: { platform: Platform }) {
       <svg width="48" height="68" viewBox="0 0 48 68" fill="none" style={{ opacity: 0.92 }}>
         <line
           x1="24" y1="3" x2="24" y2="38"
-          stroke="#ff8a2a"
+          stroke="#FF9233"
           strokeWidth="6"
           strokeLinecap="round"
         />
         <path
           d="M5 32 L24 62 L43 32 Z"
-          fill="#ff8a2a"
+          fill="#FF9233"
         />
       </svg>
       <style>{`
@@ -234,7 +234,7 @@ function Step({ num, children }: { num: number; children: React.ReactNode }) {
     <div className="flex items-start gap-3">
       <div
         className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5"
-        style={{ background: "linear-gradient(135deg, #ff4d42, #ff8a2a)" }}
+        style={{ background: "linear-gradient(135deg, #FF3D00, #FF8C00)" }}
       >
         {num}
       </div>
@@ -381,7 +381,7 @@ function PlatformContent({
             <button
               onClick={triggerInstall}
               className="w-full py-3 rounded-2xl text-white font-semibold text-sm tap-btn gradient-glow"
-              style={{ background: "linear-gradient(135deg, #ff4d42, #ff8a2a)" }}
+              style={{ background: "linear-gradient(135deg, #FF3D00, #FF8C00)" }}
             >
               Jetzt installieren
             </button>
@@ -436,7 +436,7 @@ function PlatformContent({
             <button
               onClick={triggerInstall}
               className="w-full py-3 rounded-2xl text-white font-semibold text-sm tap-btn gradient-glow"
-              style={{ background: "linear-gradient(135deg, #ff4d42, #ff8a2a)" }}
+              style={{ background: "linear-gradient(135deg, #FF3D00, #FF8C00)" }}
             >
               Jetzt installieren
             </button>

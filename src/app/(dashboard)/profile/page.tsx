@@ -133,7 +133,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Profile" subtitle="Manage your account" />
+      <PageHeader title="Profile" accent="Profile" subtitle="Manage your account" />
 
       {/* Avatar & Email */}
       <FadeIn delay={0}>

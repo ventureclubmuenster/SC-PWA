@@ -33,7 +33,7 @@ export default function TicketPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My Tickets" subtitle="Your event entry pass" />
+      <PageHeader title="My Tickets" accent="Tickets" subtitle="Your event entry pass" />
 
       {/* Ticket Card */}
       <FadeIn delay={0.1}>

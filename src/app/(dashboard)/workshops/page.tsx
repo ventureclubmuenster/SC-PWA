@@ -81,7 +81,7 @@ export default function WorkshopsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Workshops" subtitle="Book your hands-on sessions" />
+      <PageHeader title="Workshops" accent="Workshops" subtitle="Book your hands-on sessions" />
 
       {cvError && (
         <div className="flex items-center gap-2 rounded-xl bg-red-500/10 p-3 text-xs text-red-400">
@@ -110,7 +110,7 @@ export default function WorkshopsPage() {
                 >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-sm">{ws.title}</h3>
+                    <h3 className="font-bold text-sm uppercase tracking-wide">{ws.title}</h3>
                     {ws.has_waiting_list && <span className="shrink-0 rounded-full bg-amber-500/15 text-amber-400 px-2 py-0.5 text-[10px] font-medium">Waiting List</span>}
                     {ws.cv_required && <span className="shrink-0 rounded-full bg-blue-500/15 text-blue-400 px-2 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV</span>}
                   </div>
@@ -173,7 +173,7 @@ export default function WorkshopsPage() {
           <div className="space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-xl font-bold tracking-tight">{selected.title}</h2>
+                <h2 className="text-xl font-extrabold tracking-tight uppercase">{selected.title}</h2>
               </div>
               <p className="text-sm font-medium mt-1" style={{ color: 'var(--accent)' }}>{selected.host}</p>
               <div className="flex gap-2 mt-2">

@@ -157,7 +157,7 @@ function LoginFlow() {
                   type="submit"
                   disabled={loading}
                   className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity duration-150 disabled:opacity-50 gradient-glow"
-                  style={{ background: 'linear-gradient(135deg, #ff4d42, #ff8a2a)' }}
+                  style={{ background: 'linear-gradient(135deg, #FF3D00, #FF8C00)' }}
                 >
                   {loading ? 'Wird gesendet...' : 'Anmelden'}
                 </motion.button>

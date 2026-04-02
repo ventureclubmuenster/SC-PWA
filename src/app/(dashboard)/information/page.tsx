@@ -44,7 +44,7 @@ export default function InformationPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Information" subtitle="Partners, speakers & Lageplan" />
+      <PageHeader title="Information" accent="Information" subtitle="Partners, Speakers & Lageplan" />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
 
@@ -84,7 +84,7 @@ export default function InformationPage() {
                 </div>
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold">{partner.name}</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-wide">{partner.name}</h3>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                         categoryBadge[partner.category]
@@ -107,11 +107,11 @@ export default function InformationPage() {
         )}
         </>
       ) : view === 'lageplan' ? (
-        <div className="card-clean rounded-2xl overflow-hidden">
+        <div className="card-glow rounded-2xl overflow-hidden">
           <div className="flex flex-col items-center justify-center gap-5 py-20 text-muted">
             <Map className="h-14 w-14 opacity-30" strokeWidth={1} />
             <div className="text-center space-y-1.5">
-              <p className="text-sm font-semibold text-primary">Lageplan</p>
+              <p className="text-sm font-bold text-primary uppercase tracking-wide">Lageplan</p>
               <p className="text-xs text-muted">Der Lageplan wird bald hinzugefügt.</p>
             </div>
           </div>
@@ -127,9 +127,9 @@ export default function InformationPage() {
             <StaggerItem key={speaker.id}>
               <TapCard
                 onClick={() => setSelectedSpeaker(speaker)}
-                className="card-clean flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
+                className="card-glow flex items-start gap-4 rounded-2xl p-5 cursor-pointer"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-xs)' }}>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full overflow-hidden" style={{ background: 'var(--surface-2)', boxShadow: 'var(--shadow-sm)' }}>
                   {speaker.photo_url ? (
                     <img
                       src={speaker.photo_url}
@@ -142,7 +142,7 @@ export default function InformationPage() {
                   )}
                 </div>
                 <div className="flex-1 space-y-1.5">
-                  <h3 className="text-sm font-semibold">{speaker.name}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wide">{speaker.name}</h3>
                   {speaker.bio && (
                     <p className="text-xs text-muted line-clamp-3">{speaker.bio}</p>
                   )}
@@ -167,7 +167,7 @@ export default function InformationPage() {
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-tight">{selectedPartner.name}</h2>
+                <h2 className="text-xl font-extrabold tracking-tight uppercase">{selectedPartner.name}</h2>
                 <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${categoryBadge[selectedPartner.category]}`}>
                   {selectedPartner.category}
                 </span>
@@ -183,7 +183,10 @@ export default function InformationPage() {
             )}
 
             {selectedPartner.description && (
-              <p className="text-sm text-muted leading-relaxed">{selectedPartner.description}</p>
+              <div>
+                <p className="section-label mb-2">About</p>
+                <p className="text-sm text-muted leading-relaxed">{selectedPartner.description}</p>
+              </div>
             )}
 
             {selectedPartner.website && (
@@ -191,10 +194,10 @@ export default function InformationPage() {
                 href={selectedPartner.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
-                Visit Website
+                Website besuchen
               </a>
             )}
           </div>
@@ -213,11 +216,15 @@ export default function InformationPage() {
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <h2 className="mt-5 text-xl font-bold tracking-tight">{selectedSpeaker.name}</h2>
+              <p className="section-label mt-5">Speaker</p>
+              <h2 className="mt-1 text-xl font-extrabold tracking-tight uppercase">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
-              <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
+              <div>
+                <p className="section-label mb-2">About the Speaker</p>
+                <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
+              </div>
             )}
 
             {selectedSpeaker.linkedin && (
@@ -225,10 +232,10 @@ export default function InformationPage() {
                 href={selectedSpeaker.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
+                className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
-                LinkedIn Profile
+                LinkedIn Profil
               </a>
             )}
           </div>
