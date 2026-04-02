@@ -1,0 +1,5 @@
+<h2>Startup Contacts</h2>
+
+<p>Clicke auf diesen Link, um dich bei der Startup Contacts 2026 App anzumelden.</p>
+
+<p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink">Anmelden</a></p>

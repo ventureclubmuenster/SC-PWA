@@ -11,7 +11,6 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useDemoUser, isDemoMode } from '@/lib/demo';
 import type {
   Profile,
   ScheduleItem,
@@ -60,21 +59,7 @@ const STALE_MS = 5 * 60 * 1000;
 /*  Prefetch helper                                                    */
 /* ------------------------------------------------------------------ */
 
-async function prefetchAll(demoUser: Profile | null): Promise<CacheStore> {
-  if (demoUser) {
-    return {
-      profile: demoUser,
-      scheduleItems: [],
-      workshops: [],
-      bookings: [],
-      partners: [],
-      speakers: [],
-      role: demoUser.role,
-      ready: true,
-      ts: Date.now(),
-    };
-  }
-
+async function prefetchAll(): Promise<CacheStore> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -127,7 +112,6 @@ interface DataContextValue extends CacheStore {
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const demoUser = useDemoUser();
   const [store, setStore] = useState<CacheStore>(cache);
   const fetching = useRef(false);
 
@@ -144,26 +128,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (cache.ready && Date.now() - cache.ts < STALE_MS) {
       setStore(cache);
       // Background refresh (stale-while-revalidate)
-      prefetchAll(demoUser).then(applyCache).catch(() => {});
+      prefetchAll().then(applyCache).catch(() => {});
       return;
     }
 
     fetching.current = true;
-    prefetchAll(demoUser)
+    prefetchAll()
       .then(applyCache)
       .catch(() => {})
       .finally(() => {
         fetching.current = false;
       });
-  }, [demoUser, applyCache]);
+  }, [applyCache]);
 
   const refreshAll = useCallback(async () => {
-    const next = await prefetchAll(demoUser);
+    const next = await prefetchAll();
     applyCache(next);
-  }, [demoUser, applyCache]);
+  }, [applyCache]);
 
   const refreshBookings = useCallback(async () => {
-    if (isDemoMode()) return;
     const supabase = createClient();
     const { data } = await supabase.from('workshop_bookings').select('*');
     const next = { ...cache, bookings: (data as WorkshopBooking[]) || [], ts: Date.now() };
@@ -171,10 +154,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [applyCache]);
 
   const refreshProfile = useCallback(async () => {
-    if (isDemoMode()) {
-      // demo profile updates happen via cookie; re-read
-      return;
-    }
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;

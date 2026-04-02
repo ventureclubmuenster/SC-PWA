@@ -52,9 +52,8 @@ function LoginFlow() {
 
     const supabase = createClient();
 
-    const callbackUrl = next
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
-      : `${window.location.origin}/auth/callback`;
+    // Always include ?next= so the email template can append &token_hash=
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/schedule')}`;
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -163,14 +162,7 @@ function LoginFlow() {
                 </motion.button>
               </form>
 
-              <div className="text-center">
-                <a
-                  href={`/auth/demo?token=SC-DEMO-2024-VCM`}
-                  className="text-xs font-medium text-muted transition-colors duration-150"
-                >
-                  Demo-Account verwenden →
-                </a>
-              </div>
+
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,9 +1,15 @@
 export type UserRole = 'visitor' | 'exhibitor' | 'admin';
+export type AttendeeRole = 'student' | 'entrepreneur' | 'other';
 
 export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  age: number | null;
+  attendee_role: AttendeeRole | null;
+  ticket_id: string | null;
   role: UserRole;
   university: string | null;
   cv_url: string | null;

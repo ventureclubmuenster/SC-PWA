@@ -7,9 +7,38 @@ import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { Mail, CheckCircle, XCircle, Ticket, Loader2 } from 'lucide-react';
 
+type AttendeeRole = 'student' | 'entrepreneur' | 'other';
+
+interface ClaimFormData {
+  firstName: string;
+  lastName: string;
+  university: string;
+  afterpartyRsvp: boolean;
+  attendeeRole: AttendeeRole;
+}
+
+const STORAGE_KEY = 'claim_profile_data';
+
+function saveFormToStorage(data: ClaimFormData) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function loadFormFromStorage(): ClaimFormData | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function clearFormStorage() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
 type ClaimState =
   | { step: 'loading' }
-  | { step: 'login'; token: string }
+  | { step: 'already-claimed' }
+  | { step: 'form'; token: string; needsAuth: boolean }
   | { step: 'login-sent'; token: string; email: string }
   | { step: 'claiming'; token: string }
   | { step: 'success'; ticketId: string }
@@ -20,18 +49,23 @@ function ClaimFlow() {
   const token = searchParams.get('token') ?? '';
   const [state, setState] = useState<ClaimState>({ step: 'loading' });
   const [email, setEmail] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [university, setUniversity] = useState('');
+  const [afterpartyRsvp, setAfterpartyRsvp] = useState(false);
+  const [attendeeRole, setAttendeeRole] = useState<AttendeeRole | ''>('');
+  const [formError, setFormError] = useState('');
+  const [formLoading, setFormLoading] = useState(false);
 
   const claimTicket = useCallback(
-    async (claimToken: string) => {
+    async (claimToken: string, profile: ClaimFormData) => {
       setState({ step: 'claiming', token: claimToken });
 
       try {
         const res = await fetch('/api/tickets/claim', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: claimToken }),
+          body: JSON.stringify({ token: claimToken, profile }),
         });
 
         const data = await res.json();
@@ -41,6 +75,7 @@ function ClaimFlow() {
           return;
         }
 
+        clearFormStorage();
         setState({ step: 'success', ticketId: data.ticketId });
       } catch {
         setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
@@ -49,44 +84,125 @@ function ClaimFlow() {
     [],
   );
 
-  // On mount: validate token format, check auth state
+  // On mount: validate token, check status, check auth, auto-claim if returning from email confirmation
   useEffect(() => {
     if (!token || token.length !== 64) {
       setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
       return;
     }
 
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        // Already authenticated — claim directly
-        claimTicket(token);
-      } else {
-        // Need to log in first
-        setState({ step: 'login', token });
-      }
-    });
+    fetch(`/api/tickets/claim?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Status check failed');
+        return res.json();
+      })
+      .then((data: { status?: string }) => {
+        if (data.status === 'already-claimed') {
+          setState({ step: 'already-claimed' });
+          return;
+        }
+        if (data.status === 'expired') {
+          setState({ step: 'error', message: 'Dieser Link ist abgelaufen.' });
+          return;
+        }
+        if (data.status !== 'claimable') {
+          setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
+          return;
+        }
+
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (user) {
+            // Returning from email confirmation — auto-claim with stored data
+            const stored = loadFormFromStorage();
+            if (stored) {
+              claimTicket(token, stored);
+            } else {
+              // Authenticated but no stored data — show form
+              setState({ step: 'form', token, needsAuth: false });
+            }
+          } else {
+            setState({ step: 'form', token, needsAuth: true });
+          }
+        });
+      })
+      .catch(() => {
+        setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
+      });
   }, [token, claimTicket]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const getFormData = (): ClaimFormData | null => {
+    if (!firstName.trim() || !lastName.trim() || !attendeeRole) {
+      setFormError('Bitte fülle alle Pflichtfelder aus.');
+      return null;
+    }
+    return {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      university: university.trim(),
+      afterpartyRsvp,
+      attendeeRole,
+    };
+  };
+
+  // Submit for unauthenticated users: save data, trigger email auth
+  const handleSubmitWithAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
-    setLoginError('');
+    setFormError('');
+
+    if (!email.trim()) {
+      setFormError('Bitte gib deine E-Mail-Adresse ein.');
+      return;
+    }
+
+    const profile = getFormData();
+    if (!profile) return;
+
+    setFormLoading(true);
+    saveFormToStorage(profile);
 
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/claim?token=${token}`)}`;
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signUp({
       email,
+      password: crypto.randomUUID(),
       options: { emailRedirectTo: redirectTo },
     });
 
     if (error) {
-      setLoginError(error.message);
-    } else {
-      setState({ step: 'login-sent', token, email });
+      setFormError(error.message);
+      setFormLoading(false);
+      return;
     }
-    setLoginLoading(false);
+
+    if (data?.user?.identities?.length === 0) {
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: redirectTo },
+      });
+      if (otpError) {
+        setFormError(otpError.message);
+        setFormLoading(false);
+        return;
+      }
+    }
+
+    setState({ step: 'login-sent', token, email });
+    setFormLoading(false);
+  };
+
+  // Submit for authenticated users: claim directly
+  const handleSubmitDirect = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+
+    const profile = getFormData();
+    if (!profile) return;
+
+    setFormLoading(true);
+    await claimTicket(token, profile);
+    setFormLoading(false);
   };
 
   return (
@@ -128,10 +244,37 @@ function ClaimFlow() {
             </motion.div>
           )}
 
-          {/* Login form */}
-          {state.step === 'login' && (
+          {/* Already claimed */}
+          {state.step === 'already-claimed' && (
             <motion.div
-              key="login"
+              key="already-claimed"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="card-clean rounded-2xl p-6 space-y-4"
+            >
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <CheckCircle className="h-6 w-6 text-muted" />
+              </div>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Bereits eingelöst</h2>
+              <p className="text-sm text-muted">
+                Dieses Ticket wurde bereits aktiviert und kann nicht erneut eingelöst werden.
+              </p>
+              <motion.a
+                href="/"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+              >
+                Zur Startseite
+              </motion.a>
+            </motion.div>
+          )}
+
+          {/* Combined form: profile data + email (if not authenticated) */}
+          {state.step === 'form' && (
+            <motion.div
+              key="form"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
@@ -143,37 +286,114 @@ function ClaimFlow() {
                   <Ticket className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
-                  Bestätige deine E-Mail-Adresse, um dein Ticket zu aktivieren.
+                  Gib deine Daten ein, um dein Ticket zu aktivieren.
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form
+                onSubmit={state.needsAuth ? handleSubmitWithAuth : handleSubmitDirect}
+                className="space-y-4"
+              >
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Vorname *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Nachname *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                </div>
+
+                {state.needsAuth && (
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="E-Mail *"
+                    required
+                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  />
+                )}
+
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="deine@email.com"
-                  required
+                  type="text"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  placeholder="Universität / Hochschule"
                   className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                 />
-                {loginError && (
+
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>Rolle *</p>
+                  <div className="flex gap-2">
+                    {([
+                      { value: 'student' as const, label: 'Studierende/r' },
+                      { value: 'entrepreneur' as const, label: 'Unternehmer' },
+                      { value: 'other' as const, label: 'Sonstiges' },
+                    ]).map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setAttendeeRole(option.value)}
+                        className={`flex-1 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
+                          attendeeRole === option.value
+                            ? 'bg-[#1D1D1F] text-white'
+                            : 'input-field'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl px-4 py-3.5 input-field">
+                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>Afterparty RSVP</span>
+                  <button
+                    type="button"
+                    onClick={() => setAfterpartyRsvp(!afterpartyRsvp)}
+                    className="h-6 w-11 rounded-full transition-colors duration-150"
+                    style={{ background: afterpartyRsvp ? 'var(--accent, #1D1D1F)' : 'var(--toggle-off, #ccc)' }}
+                  >
+                    <div
+                      className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-150 ${
+                        afterpartyRsvp ? 'translate-x-5.5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {formError && (
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
                     className="text-sm text-red-500"
                   >
-                    {loginError}
+                    {formError}
                   </motion.p>
                 )}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   type="submit"
-                  disabled={loginLoading}
+                  disabled={formLoading}
                   className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
                 >
-                  {loginLoading ? 'Wird gesendet...' : 'E-Mail bestätigen'}
+                  {formLoading
+                    ? 'Wird verarbeitet...'
+                    : state.needsAuth
+                      ? 'E-Mail bestätigen & aktivieren'
+                      : 'Ticket aktivieren'}
                 </motion.button>
               </form>
             </motion.div>

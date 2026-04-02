@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useProfile } from '@/components/DataProvider';
-import { useDemoUser } from '@/lib/demo';
 import PageHeader from '@/components/PageHeader';
 import { FadeIn } from '@/components/motion';
 import { QRCodeSVG } from 'qrcode.react';
@@ -18,14 +17,12 @@ async function hashId(id: string): Promise<string> {
 export default function TicketPage() {
   const { profile, loading } = useProfile();
   const [qrValue, setQrValue] = useState<string | null>(null);
-  const demoUser = useDemoUser();
 
   useEffect(() => {
-    const p = demoUser || profile;
-    if (p) {
-      hashId(p.id).then(setQrValue);
+    if (profile) {
+      hashId(profile.id).then(setQrValue);
     }
-  }, [demoUser, profile]);
+  }, [profile]);
 
   if (loading) {
     return null;

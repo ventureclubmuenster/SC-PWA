@@ -72,9 +72,18 @@ export async function createClaimTokensForOrder(
  * Validate and redeem a claim token. Returns the ticket_id on success.
  * Looks up the ticket by its hashed token, then atomically claims it.
  */
+export interface ClaimProfileData {
+  firstName: string;
+  lastName: string;
+  university: string;
+  afterpartyRsvp: boolean;
+  attendeeRole: 'student' | 'entrepreneur' | 'other';
+}
+
 export async function redeemClaimToken(
   rawToken: string,
   userId: string,
+  profileData: ClaimProfileData,
 ): Promise<
   | { ok: true; ticketId: string }
   | { ok: false; error: string }
@@ -107,6 +116,22 @@ export async function redeemClaimToken(
   const { data: { user } } = await supabase.auth.admin.getUserById(userId);
   const userEmail = user?.email ?? '';
 
+  // Save profile data including ticket_id
+  const fullName = `${profileData.firstName} ${profileData.lastName}`.trim();
+  await supabase
+    .from('profiles')
+    .update({
+      first_name: profileData.firstName,
+      last_name: profileData.lastName,
+      full_name: fullName,
+      university: profileData.university || null,
+      afterparty_rsvp: profileData.afterpartyRsvp,
+      attendee_role: profileData.attendeeRole,
+      ticket_id: ticket.ticket_id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+
   // Atomically claim: conditional update prevents race conditions
   const { data: updated, error: claimError } = await supabase
     .from('tickets')
@@ -114,7 +139,6 @@ export async function redeemClaimToken(
       claimed_by: userId,
       email: userEmail,
       status: 'assigned',
-      token_hash: null,        // Invalidate token after use
       token_expires_at: null,
     })
     .eq('id', ticket.id)
@@ -127,4 +151,40 @@ export async function redeemClaimToken(
   }
 
   return { ok: true, ticketId: ticket.ticket_id };
+}
+
+/**
+ * Check the status of a claim token without redeeming it.
+ * Does not require authentication — used to show immediate feedback on the claim page.
+ */
+export async function checkClaimTokenStatus(
+  rawToken: string,
+): Promise<
+  | { status: 'claimable' }
+  | { status: 'already-claimed' }
+  | { status: 'expired' }
+  | { status: 'invalid' }
+> {
+  const tokenHash = await hashToken(rawToken);
+  const supabase = createAdminClient();
+
+  const { data: ticket, error } = await supabase
+    .from('tickets')
+    .select('claimed_by, token_expires_at')
+    .eq('token_hash', tokenHash)
+    .single();
+
+  if (error || !ticket) {
+    return { status: 'invalid' };
+  }
+
+  if (ticket.claimed_by) {
+    return { status: 'already-claimed' };
+  }
+
+  if (!ticket.token_expires_at || new Date(ticket.token_expires_at) < new Date()) {
+    return { status: 'expired' };
+  }
+
+  return { status: 'claimable' };
 }
