@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
-import { Mail, Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, KeyRound } from 'lucide-react';
 
 const OFFSETS = ['0%', '-33%', '-66%', '-22%', '-55%', '-11%', '-44%', '-77%', '-30%', '-60%', '-15%', '-50%', '-5%', '-40%', '-70%'];
 
@@ -37,35 +36,102 @@ function WatermarkBackground() {
   );
 }
 
+type LoginState =
+  | { step: 'email' }
+  | { step: 'code-sent'; email: string }
+  | { step: 'verifying' };
+
 function LoginFlow() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const next = searchParams.get('next');
+  const [state, setState] = useState<LoginState>({ step: 'email' });
   const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const currentEmail = state.step === 'code-sent' ? state.email : email.trim();
+
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const supabase = createClient();
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-    // Always include ?next= so the email template can append &token_hash=
-    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || '/schedule')}`;
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Anmeldung fehlgeschlagen.');
+        setLoading(false);
+        return;
+      }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: callbackUrl,
-      },
-    });
+      setState({ step: 'code-sent', email: email.trim() });
+    } catch {
+      setError('Netzwerkfehler. Bitte versuche es erneut.');
+    }
+    setLoading(false);
+  };
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setSent(true);
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (code.length !== 4) {
+      setError('Bitte gib den vierstelligen Code ein.');
+      return;
+    }
+
+    setLoading(true);
+    setState({ step: 'verifying' });
+
+    try {
+      const res = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: currentEmail, code }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Ungültiger Code.');
+        setState({ step: 'code-sent', email: currentEmail });
+        setLoading(false);
+        return;
+      }
+
+      router.push(next || '/home');
+    } catch {
+      setError('Netzwerkfehler. Bitte versuche es erneut.');
+      setState({ step: 'code-sent', email: currentEmail });
+    }
+    setLoading(false);
+  };
+
+  const handleResendCode = async () => {
+    setError('');
+    setLoading(true);
+    setCode('');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: currentEmail }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Code konnte nicht erneut gesendet werden.');
+      }
+    } catch {
+      setError('Netzwerkfehler.');
     }
     setLoading(false);
   };
@@ -73,7 +139,6 @@ function LoginFlow() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-6" style={{ zIndex: 1 }}>
       <div className="w-full max-w-sm space-y-8 text-center">
-        {/* Logo / Branding */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,49 +154,20 @@ function LoginFlow() {
             <Image src="/icons/icon-192x192.png" alt="Startup Contacts" width={80} height={80} priority />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>Startup Contacts</h1>
-          <p className="text-sm font-medium text-muted">
-            Venture Club Münster
-          </p>
+          <p className="text-sm font-medium text-muted">Venture Club Münster</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {sent ? (
-            /* Success — check email */
+          {state.step === 'email' && (
             <motion.div
-              key="sent"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="card-clean space-y-4 rounded-2xl p-6"
-            >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
-                <Mail className="h-6 w-6" style={{ color: 'var(--accent)' }} />
-              </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>E-Mail gesendet</h2>
-              <p className="text-sm text-muted">
-                Schaue in dein E-Mail-Postfach und bestätige deinen Login.
-                <br />
-                <span className="font-medium" style={{ color: 'var(--foreground)' }}>{email}</span>
-              </p>
-              <button
-                onClick={() => { setSent(false); setError(''); }}
-                className="text-xs font-medium text-muted transition-colors duration-150"
-              >
-                Andere E-Mail verwenden
-              </button>
-            </motion.div>
-          ) : (
-            /* Email Form */
-            <motion.div
-              key="form"
+              key="email"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="space-y-4"
             >
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleSendCode} className="space-y-4">
                 <input
                   type="email"
                   value={email}
@@ -161,8 +197,101 @@ function LoginFlow() {
                   {loading ? 'Wird gesendet...' : 'Anmelden'}
                 </motion.button>
               </form>
+            </motion.div>
+          )}
 
+          {state.step === 'code-sent' && (
+            <motion.div
+              key="code-sent"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-4"
+            >
+              <div className="card-clean rounded-2xl p-6 space-y-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                  <KeyRound className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+                </div>
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
+                  Code eingeben
+                </h2>
+                <p className="text-sm text-muted">
+                  Wir haben einen vierstelligen Code an{' '}
+                  <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>{' '}
+                  gesendet.
+                </p>
 
+                <form onSubmit={handleVerifyCode} className="space-y-4">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={4}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="0000"
+                    className="w-full rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] input-field"
+                    autoFocus
+                  />
+
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="text-sm text-red-500"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    type="submit"
+                    disabled={loading || code.length !== 4}
+                    className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity duration-150 disabled:opacity-50 gradient-glow"
+                    style={{ background: 'linear-gradient(135deg, #FF3D00, #FF8C00)' }}
+                  >
+                    {loading ? 'Wird überprüft...' : 'Code bestätigen'}
+                  </motion.button>
+                </form>
+
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => {
+                      setError('');
+                      setCode('');
+                      setState({ step: 'email' });
+                    }}
+                    className="flex items-center gap-1 text-xs font-medium text-muted transition-colors duration-150"
+                  >
+                    <ArrowLeft className="h-3 w-3" />
+                    Andere E-Mail
+                  </button>
+                  <button
+                    onClick={handleResendCode}
+                    disabled={loading}
+                    className="text-xs font-medium text-muted transition-colors duration-150 disabled:opacity-50"
+                  >
+                    Code erneut senden
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {state.step === 'verifying' && (
+            <motion.div
+              key="verifying"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="card-clean rounded-2xl p-6 space-y-4"
+            >
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
+              <p className="text-sm text-muted">Wird angemeldet...</p>
             </motion.div>
           )}
         </AnimatePresence>

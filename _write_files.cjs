@@ -1,10 +1,13 @@
-import { Resend } from 'resend';
+// Temporary script to write email.ts and page.tsx with proper template literals
+const fs = require('fs');
+const path = require('path');
 
-let _resend: Resend | null = null;
-function getResend(): Resend {
-  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
-  return _resend;
-}
+const base = '/Users/yannickbrusa/Documents/SC-PWA';
+
+// ─── email.ts ────────────────────────────────────────────────────────
+const emailTs = `import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = 'Startup Contacts <noreply@startup-contacts.de>';
 
@@ -13,7 +16,7 @@ export async function sendEmail(options: {
   subject: string;
   html: string;
 }) {
-  return getResend().emails.send({
+  return resend.emails.send({
     from: FROM,
     to: [options.to],
     subject: options.subject,
@@ -22,7 +25,7 @@ export async function sendEmail(options: {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Order Confirmation Email (V2 — two buttons per ticket)             */
+/*  Order Confirmation Email (V2 \u2014 two buttons per ticket)             */
 /* ------------------------------------------------------------------ */
 
 interface TicketEmailLink {
@@ -39,28 +42,27 @@ export function buildOrderConfirmationHtml(
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.startup-contacts.de';
 
   const ticketButtons = ticketLinks
-    .map((link, i) => {
-      const labelPart = link.label ? ` — ${link.label}` : '';
-      return `
+    .map(
+      (link, i) => \`
     <tr>
       <td style="padding: 8px 0;">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
           <tr>
             <td style="background: #f8f8f8; border-radius: 12px; padding: 16px;">
               <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">
-                <strong>Ticket ${i + 1}</strong>${labelPart}
+                <strong>Ticket \\\${i + 1}</strong>\\\${link.label ? \\\` \u2014 \\\${link.label}\\\` : ''}
               </p>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background: #1D1D1F; border-radius: 8px;">
-                    <a href="${appUrl}/personalize?t=${link.encryptedToken}"
+                    <a href="\\\${appUrl}/personalize?t=\\\${link.encryptedToken}"
                        style="display: inline-block; padding: 12px 24px; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
-                      Ticket personalisieren →
+                      Ticket personalisieren \u2192
                     </a>
                   </td>
                   <td style="width: 12px;"></td>
                   <td style="background: #ffffff; border: 2px solid #1D1D1F; border-radius: 8px;">
-                    <a href="${appUrl}/transfer?t=${link.encryptedToken}"
+                    <a href="\\\${appUrl}/transfer?t=\\\${link.encryptedToken}"
                        style="display: inline-block; padding: 10px 24px; color: #1D1D1F; font-size: 14px; font-weight: 600; text-decoration: none;">
                       Ticket weiterleiten
                     </a>
@@ -71,50 +73,48 @@ export function buildOrderConfirmationHtml(
           </tr>
         </table>
       </td>
-    </tr>`;
-    })
-    .join('\n');
+    </tr>\`,
+    )
+    .join('\\n');
 
   const ticketSection =
     ticketLinks.length > 0
-      ? `
+      ? \`
   <p style="margin-top: 24px; font-weight: 600; font-size: 16px;">Deine Tickets:</p>
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-    ${ticketButtons}
+    \\\${ticketButtons}
   </table>
   <p style="font-size: 13px; color: #888; margin-top: 16px;">
     Jeder Link kann nur einmal verwendet werden. Du wirst gebeten, deine Daten einzugeben
-    und einen Bestätigungscode per E-Mail zu verifizieren.
-  </p>`
-      : `
+    und einen Best\u00e4tigungscode per E-Mail zu verifizieren.
+  </p>\`
+      : \`
   <p>
-    Du erhältst in Kürze eine separate E-Mail mit weiteren Informationen
+    Du erh\u00e4ltst in K\u00fcrze eine separate E-Mail mit weiteren Informationen
     zu deinen Tickets.
-  </p>`;
+  </p>\`;
 
-  const ticketWord = ticketCount !== 1 ? 'Tickets' : 'Ticket';
-
-  return `
+  return \`
 <!DOCTYPE html>
 <html lang="de">
 <head><meta charset="UTF-8" /></head>
 <body style="font-family: Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h1 style="font-size: 24px; margin-bottom: 16px;">Vielen Dank für deine Bestellung! 🎉</h1>
+  <h1 style="font-size: 24px; margin-bottom: 16px;">Vielen Dank f\u00fcr deine Bestellung! \ud83c\udf89</h1>
   <p>Hallo,</p>
   <p>
-    wir haben deine Bestellung über
-    <strong>${ticketCount} ${ticketWord}</strong>
+    wir haben deine Bestellung \u00fcber
+    <strong>\\\${ticketCount} Ticket\\\${ticketCount !== 1 ? 's' : ''}</strong>
     erfolgreich erhalten.
   </p>
-  ${ticketSection}
+  \\\${ticketSection}
   <p>Wir freuen uns auf dich!</p>
   <br />
   <p style="color: #666; font-size: 14px;">
     Dein Startup Contacts Team<br />
-    Venture Club Münster
+    Venture Club M\u00fcnster
   </p>
 </body>
-</html>`.trim();
+</html>\`.trim();
 }
 
 /* ------------------------------------------------------------------ */
@@ -128,15 +128,15 @@ export function buildTransferReceiptHtml(
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.startup-contacts.de';
 
-  return `
+  return \`
 <!DOCTYPE html>
 <html lang="de">
 <head><meta charset="UTF-8" /></head>
 <body style="font-family: Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h1 style="font-size: 24px; margin-bottom: 16px;">Du hast ein Ticket erhalten! 🎫</h1>
+  <h1 style="font-size: 24px; margin-bottom: 16px;">Du hast ein Ticket erhalten! \ud83c\udfab</h1>
   <p>Hallo,</p>
   <p>
-    Jemand hat dir ein Ticket für die <strong>Startup Contacts 2026</strong> weitergeleitet.
+    Jemand hat dir ein Ticket f\u00fcr die <strong>Startup Contacts 2026</strong> weitergeleitet.
   </p>
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
@@ -145,14 +145,14 @@ export function buildTransferReceiptHtml(
           <tr>
             <td style="background: #f8f8f8; border-radius: 12px; padding: 16px;">
               <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">
-                <strong>${ticketLabel}</strong>
+                <strong>\\\${ticketLabel}</strong>
               </p>
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background: #1D1D1F; border-radius: 8px;">
-                    <a href="${appUrl}/personalize?t=${encryptedToken}"
+                    <a href="\\\${appUrl}/personalize?t=\\\${encryptedToken}"
                        style="display: inline-block; padding: 12px 24px; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
-                      Ticket personalisieren →
+                      Ticket personalisieren \u2192
                     </a>
                   </td>
                 </tr>
@@ -165,14 +165,18 @@ export function buildTransferReceiptHtml(
   </table>
   <p style="font-size: 13px; color: #888; margin-top: 16px;">
     Klicke auf den Button, um dein Ticket zu personalisieren und zu aktivieren.
-    Du wirst gebeten, deine Daten einzugeben und einen Bestätigungscode zu verifizieren.
+    Du wirst gebeten, deine Daten einzugeben und einen Best\u00e4tigungscode zu verifizieren.
   </p>
   <p>Wir freuen uns auf dich!</p>
   <br />
   <p style="color: #666; font-size: 14px;">
     Dein Startup Contacts Team<br />
-    Venture Club Münster
+    Venture Club M\u00fcnster
   </p>
 </body>
-</html>`.trim();
+</html>\`.trim();
 }
+`;
+
+fs.writeFileSync(path.join(base, 'src/lib/email.ts'), emailTs);
+console.log('Written email.ts:', emailTs.length, 'chars');

@@ -31,7 +31,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       channelRef.current = channel;
       channel.onmessage = (event) => {
         if (event.data === 'SIGNED_OUT') {
-          // Another tab signed out — redirect to login
+          // Another tab signed out — clear data and redirect to login
+          try {
+            localStorage.clear();
+            document.cookie.split(';').forEach((c) => {
+              const name = c.trim().split('=')[0];
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+            });
+          } catch { /* ignore */ }
           window.location.href = '/';
         }
       };
@@ -59,6 +66,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           // Broadcast sign-out to other tabs
           channelRef.current?.postMessage('SIGNED_OUT');
           if (refreshTimer.current) clearTimeout(refreshTimer.current);
+          // Clear all cookies and localStorage
+          try {
+            localStorage.clear();
+            document.cookie.split(';').forEach((c) => {
+              const name = c.trim().split('=')[0];
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+            });
+          } catch { /* ignore */ }
           // Clear SW caches on sign-out
           if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'SIGN_OUT' });
@@ -85,8 +100,16 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           supabase.auth.refreshSession().then(({ error: refreshError }) => {
             if (refreshError) {
               // Refresh token also expired — redirect to login
-              const isProtectedRoute = pathname !== '/' && !pathname.startsWith('/auth') && !pathname.startsWith('/claim');
+              const isProtectedRoute = pathname !== '/' && !pathname.startsWith('/auth') && !pathname.startsWith('/claim') && !pathname.startsWith('/personalize') && !pathname.startsWith('/transfer');
               if (isProtectedRoute) {
+                // Clear all stored data on session expiry
+                try {
+                  localStorage.clear();
+                  document.cookie.split(';').forEach((c) => {
+                    const name = c.trim().split('=')[0];
+                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                  });
+                } catch { /* ignore */ }
                 window.location.href = '/';
               }
             }

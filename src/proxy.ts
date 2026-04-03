@@ -43,6 +43,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Personalize and transfer pages bypass auth (they handle their own verification)
+  if (pathname.startsWith('/personalize') || pathname.startsWith('/transfer')) {
+    return NextResponse.next({ request });
+  }
+
+  // Auth API endpoints bypass session check (they create sessions)
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next({ request });
+  }
+
   return await updateSession(request);
 }
 

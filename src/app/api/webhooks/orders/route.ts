@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail, buildOrderConfirmationHtml } from '@/lib/email';
 import { createClaimTokensForOrder } from '@/lib/ticket-claims';
+import { encryptToken } from '@/lib/ticket-encryption';
 
 /* ------------------------------------------------------------------ */
 /*  HMAC verification                                                  */
@@ -96,17 +97,20 @@ export async function POST(request: NextRequest) {
     // Generate claim tokens for each ticket
     const claimTokens = await createClaimTokensForOrder(ticketIds);
 
-    // Build claim links with ticket labels
-    const claimLinks = claimTokens.map((ct) => {
-      const ticket = tickets.find((t) => t._id === ct.ticketId);
-      return {
-        ticketId: ct.ticketId,
-        token: ct.rawToken,
-        label: ticket?.ticketName ?? '',
-      };
-    });
+    // Build claim links with encrypted tokens and ticket labels
+    const claimLinks = await Promise.all(
+      claimTokens.map(async (ct) => {
+        const ticket = tickets.find((t) => t._id === ct.ticketId);
+        const encrypted = await encryptToken(ct.rawToken);
+        return {
+          ticketId: ct.ticketId,
+          encryptedToken: encrypted,
+          label: ticket?.ticketName ?? '',
+        };
+      }),
+    );
 
-    // Send order confirmation email with claim links
+    // Send order confirmation email with personalize + transfer buttons
     if (email) {
       try {
         const html = buildOrderConfirmationHtml(email, ticketIds.length, claimLinks);

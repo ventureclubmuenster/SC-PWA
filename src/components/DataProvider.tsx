@@ -40,6 +40,10 @@ const DEMO_PROFILE: Profile = {
   afterparty_rsvp: false,
   company: null,
   booth_number: null,
+  privacy_consent: false,
+  terms_consent: false,
+  privacy_consent_at: null,
+  terms_consent_at: null,
   created_at: '2025-01-01T00:00:00.000Z',
   updated_at: '2025-01-01T00:00:00.000Z',
 };

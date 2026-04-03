@@ -16,6 +16,10 @@ export interface Profile {
   afterparty_rsvp: boolean;
   company: string | null;
   booth_number: string | null;
+  privacy_consent: boolean;
+  terms_consent: boolean;
+  privacy_consent_at: string | null;
+  terms_consent_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -104,5 +108,26 @@ export interface Ticket {
   token_expires_at: string | null;
   claimed_by: string | null;
   all_data: Record<string, unknown>;
+  created_at: string;
+  // Transfer fields
+  transfer_status: 'pending' | 'completed' | 'revoked' | null;
+  transfer_to_email: string | null;
+  transfer_token_hash: string | null;
+  transfer_token_expires_at: string | null;
+  transferred_from_ticket_id: string | null;
+  // Activation fields
+  activated: boolean;
+  activated_at: string | null;
+  activated_by_email: string | null;
+}
+
+export interface VerificationCode {
+  id: string;
+  email: string;
+  code_hash: string;
+  expires_at: string;
+  used: boolean;
+  type: 'personalize' | 'login' | 'transfer';
+  ticket_token_hash: string | null;
   created_at: string;
 }
