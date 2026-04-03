@@ -73,6 +73,44 @@ For cases where the user has logged out, switched devices, or the session expire
 
 ---
 
+## Proxy Architecture
+
+All incoming requests pass through the **proxy** (`src/proxy.ts`), which acts as the central auth and routing gate. The Next.js middleware entry point (`src/middleware.ts`) delegates directly to the proxy.
+
+### Request Flow
+1. Request enters Next.js middleware → calls `proxy(request)` from `src/proxy.ts`
+2. Proxy inspects the pathname and decides how to handle the request:
+
+| Route Pattern | Behavior |
+|---|---|
+| `/admin/dashboard/*` | Verify `cms_session` cookie (SHA-256 hash of `CMS_PASSWORD`). Redirect to `/admin` if invalid. |
+| `/admin/*`, `/api/admin/*` | Bypass main app auth entirely (admin panel has its own password auth). |
+| `/api/webhooks/*` | Bypass auth (verified via HMAC in the route handlers). |
+| `/claim/*`, `/api/tickets/*` | Bypass auth (ticket claim flow handles auth internally). |
+| Everything else | Delegate to `updateSession(request)` from `src/lib/supabase/middleware.ts`. |
+
+### Session Management (`updateSession`)
+The `updateSession()` function in `src/lib/supabase/middleware.ts`:
+- Creates a Supabase server client to validate/refresh the session cookie
+- If **no user** and route is a protected page → redirect to `/?next=<return_url>`
+- If **user exists** and route is `/` (login page) → redirect to `/home` (or `?next` param)
+- In **development mode** (`NODE_ENV === 'development'`): skips auth and redirects `/` to `/home`
+
+### Matcher Config
+The proxy only runs on relevant routes. Static assets are excluded:
+```typescript
+matcher: [
+  '/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+]
+```
+
+### Admin Authentication (separate from Supabase)
+- Password-based login via `POST /api/admin/auth`
+- Session stored as `cms_session` cookie (SHA-256 hash of password, max-age: 7 days)
+- Managed by `src/lib/admin/auth.ts`
+
+---
+
 ## Data Sources
 
 ### Supabase (PostgreSQL)
@@ -98,52 +136,62 @@ SC-PWA/
 │   ├── icons/                 # App icons (192x192, 512x512)
 │   └── sw.js                  # Service worker (generated)
 ├── src/
+│   ├── middleware.ts           # Next.js middleware entry (delegates to proxy)
+│   ├── proxy.ts               # Auth/routing proxy — central request gate
 │   ├── app/
-│   │   ├── layout.tsx         # Root layout
+│   │   ├── layout.tsx         # Root layout (AuthProvider + ThemeProvider)
 │   │   ├── page.tsx           # Login / landing page
+│   │   ├── globals.css        # Theme & CSS variables
 │   │   ├── auth/
 │   │   │   └── callback/
-│   │   │       └── route.ts   # Magic link callback
-│   │   └── (dashboard)/
-│   │       ├── layout.tsx     # Dashboard layout with bottom bar
-│   │       ├── schedule/
-│   │       │   └── page.tsx   # Schedule page (Visitor)
-│   │       ├── information/
-│   │       │   └── page.tsx   # Partners/Speakers (Visitor)
-│   │       ├── workshops/
-│   │       │   └── page.tsx   # Workshops list (Visitor)
-│   │       ├── profile/
-│   │       │   └── page.tsx   # Profile page (shared)
-│   │       └── applicants/
-│   │           └── page.tsx   # Bewerber page (Exhibitor)
+│   │   │       └── route.ts   # Magic link callback (PKCE)
+│   │   ├── claim/
+│   │   │   └── page.tsx       # Ticket claim flow (token-based)
+│   │   ├── transfer/          # Ticket transfer flow
+│   │   ├── (dashboard)/
+│   │   │   ├── layout.tsx     # Dashboard layout (TopBar + BottomBar)
+│   │   │   ├── home/page.tsx  # Home / intro page
+│   │   │   ├── schedule/page.tsx   # Schedule (Visitor)
+│   │   │   ├── information/page.tsx # Partners/Speakers (Visitor)
+│   │   │   ├── workshops/page.tsx   # Workshops list (Visitor)
+│   │   │   ├── ticket/page.tsx      # QR ticket page
+│   │   │   ├── lageplan/page.tsx    # Floor plan / venue map
+│   │   │   ├── profile/page.tsx     # Profile page (shared)
+│   │   │   └── applicants/page.tsx  # Bewerber page (Exhibitor)
+│   │   ├── (events)/          # Event discovery route group
+│   │   ├── admin/             # CMS admin panel (password-protected)
+│   │   ├── cms/               # CMS content management
+│   │   └── api/
+│   │       ├── admin/         # Admin API (auth, analytics, CRUD)
+│   │       ├── auth/          # Auth API (login, verify-code)
+│   │       ├── tickets/       # Ticket API (claim, personalize, transfer, verify)
+│   │       ├── webhooks/      # Webhook endpoints (orders, tickets — HMAC verified)
+│   │       ├── push-subscription/ # Push notification subscription
+│   │       └── send-email/    # Resend email API
 │   ├── components/
+│   │   ├── AuthProvider.tsx   # Token lifecycle + cross-tab sync
+│   │   ├── DataProvider.tsx   # User context + demo profile (dev mode)
+│   │   ├── TopBar.tsx         # Top bar with logo and profile button
 │   │   ├── BottomBar.tsx      # Role-based bottom navigation
-│   │   ├── ScheduleCard.tsx   # Schedule event card
-│   │   ├── WorkshopCard.tsx   # Workshop card with booking
-│   │   ├── PartnerCard.tsx    # Partner/exhibitor card
-│   │   ├── SpeakerCard.tsx    # Speaker card
-│   │   ├── ApplicantCard.tsx  # Applicant card for exhibitors
-│   │   └── FilterBar.tsx      # Reusable filter bar
+│   │   ├── FilterBar.tsx      # Reusable filter bar
+│   │   ├── PageHeader.tsx     # Page header component
+│   │   └── ...                # Additional UI components
 │   ├── lib/
 │   │   ├── supabase/
-│   │   │   ├── client.ts      # Browser Supabase client
+│   │   │   ├── client.ts      # Browser Supabase client (singleton)
 │   │   │   ├── server.ts      # Server Supabase client
-│   │   │   └── middleware.ts  # Auth middleware helper
-│   │   └── sanity/
-│   │       ├── client.ts      # Sanity client
-│   │       └── queries.ts     # GROQ queries
+│   │   │   ├── admin.ts       # Admin client (service role, bypasses RLS)
+│   │   │   └── middleware.ts  # updateSession() — Supabase session refresh helper
+│   │   ├── admin/
+│   │   │   └── auth.ts        # CMS admin auth (password-based, SHA-256)
+│   │   ├── email.ts           # Email helpers
+│   │   └── ticket-claims.ts   # Ticket claim token logic
 │   └── types/
 │       └── index.ts           # TypeScript interfaces
-├── sanity/
-│   ├── schemas/
-│   │   ├── schedule.ts
-│   │   ├── speaker.ts
-│   │   ├── partner.ts
-│   │   ├── workshop.ts
-│   │   └── globalContent.ts
-│   └── sanity.config.ts
-├── middleware.ts               # Next.js middleware (auth guard)
-├── next.config.js
+├── supabase/
+│   ├── migration.sql          # Base schema migration
+│   └── ...                    # Additional migrations & seed data
+├── next.config.ts
 ├── .env.local.example
 ├── package.json
 └── tsconfig.json
@@ -156,6 +204,7 @@ SC-PWA/
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Sanity
 NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
@@ -164,6 +213,15 @@ NEXT_PUBLIC_SANITY_API_VERSION=2024-01-01
 
 # App
 NEXT_PUBLIC_APP_URL=https://app.startupcontacts.de
+
+# Email (Resend)
+RESEND_API_KEY=your-resend-api-key
+
+# Admin CMS
+CMS_PASSWORD=your-cms-password
+
+# Webhooks
+ORDER_WEBHOOK_HMAC_SECRET=your-hmac-secret
 ```
 
 ---
@@ -276,7 +334,7 @@ CREATE TRIGGER on_auth_user_created
 
 ## Development Mode — Demo Data
 
-When running locally with `npm run dev`, the app operates without Supabase authentication. The middleware in `src/lib/supabase/middleware.ts` skips auth checks in development and redirects unauthenticated users directly to `/schedule`.
+When running locally with `npm run dev`, the app operates without Supabase authentication. The proxy (`src/proxy.ts`) delegates to `updateSession()` in `src/lib/supabase/middleware.ts`, which skips auth checks in development and redirects unauthenticated users directly to `/home`.
 
 Since there is no authenticated user, the `DataProvider` (`src/components/DataProvider.tsx`) injects a **demo profile** automatically so that all features — including the QR code on the ticket page — work without needing to log in.
 
