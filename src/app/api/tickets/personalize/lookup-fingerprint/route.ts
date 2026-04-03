@@ -6,41 +6,56 @@ import { createAdminClient } from '@/lib/supabase/admin';
  * Looks up a pending personalization by browser fingerprint.
  * Called by the PWA on launch (standalone mode) to find the ticket
  * the user wanted to personalize before installing the app.
- * 
- * Uses POST (not GET) because the fingerprint is sent in the body.
+ *
+ * Strategy: try exact fingerprint match first. If none found, fall back
+ * to the most recent pending personalization (covers cases where the
+ * fingerprint differs slightly between browser and PWA contexts).
  */
 export async function POST(request: NextRequest) {
   try {
     const { fingerprint } = await request.json();
+    const supabase = createAdminClient();
+    const now = new Date().toISOString();
 
-    if (!fingerprint || typeof fingerprint !== 'string') {
-      return NextResponse.json({ found: false });
+    // 1. Try exact fingerprint match
+    if (fingerprint && typeof fingerprint === 'string') {
+      const { data, error } = await supabase
+        .from('pending_personalizations')
+        .select('encrypted_token')
+        .eq('fingerprint', fingerprint)
+        .gt('expires_at', now)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data) {
+        console.log('[lookup-fingerprint] exact match found for fp:', fingerprint);
+        return NextResponse.json({
+          found: true,
+          encryptedToken: data.encrypted_token,
+        });
+      }
     }
 
-    const supabase = createAdminClient();
-
-    const { data, error } = await supabase
+    // 2. Fallback: return the most recently stored pending personalization
+    const { data: fallback, error: fbError } = await supabase
       .from('pending_personalizations')
-      .select('encrypted_token')
-      .eq('fingerprint', fingerprint)
-      .gt('expires_at', new Date().toISOString())
+      .select('encrypted_token, fingerprint')
+      .gt('expires_at', now)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (error) {
-      console.error('lookup-fingerprint error:', error);
-      return NextResponse.json({ found: false });
+    if (!fbError && fallback) {
+      console.log('[lookup-fingerprint] fallback: returning latest entry (stored fp:', fallback.fingerprint, ', request fp:', fingerprint, ')');
+      return NextResponse.json({
+        found: true,
+        encryptedToken: fallback.encrypted_token,
+      });
     }
 
-    if (!data) {
-      return NextResponse.json({ found: false });
-    }
-
-    return NextResponse.json({
-      found: true,
-      encryptedToken: data.encrypted_token,
-    });
+    console.log('[lookup-fingerprint] no pending personalization found');
+    return NextResponse.json({ found: false });
   } catch (err) {
     console.error('lookup-fingerprint error:', err);
     return NextResponse.json({ found: false });

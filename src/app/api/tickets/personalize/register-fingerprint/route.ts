@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Speichern fehlgeschlagen.' }, { status: 500 });
     }
 
+    console.log('[register-fingerprint] stored fp:', fingerprint, 'for token:', encryptedToken.slice(0, 20) + '...');
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('register-fingerprint error:', err);
