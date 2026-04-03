@@ -13,6 +13,7 @@ import {
   Upload,
   Download,
 } from 'lucide-react';
+import { getFingerprint } from '@/lib/fingerprint';
 
 type AttendeeRole = 'student' | 'entrepreneur' | 'other';
 
@@ -26,7 +27,6 @@ type PageState =
   | { step: 'activated' }
   | { step: 'error'; message: string };
 
-const STORAGE_KEY = 'personalize_ticket_token';
 const FORM_STORAGE_KEY = 'personalize_form_data';
 
 function PersonalizeFlow() {
@@ -34,9 +34,8 @@ function PersonalizeFlow() {
   const paramToken = searchParams.get('t') ?? '';
   const initialized = useRef(false);
 
-  const initialToken = paramToken || (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null) || '';
   const [state, setState] = useState<PageState>(
-    initialToken ? { step: 'loading' } : { step: 'error', message: 'Ungültiger oder fehlender Link.' }
+    paramToken ? { step: 'loading' } : { step: 'error', message: 'Ungültiger oder fehlender Link.' }
   );
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -51,21 +50,27 @@ function PersonalizeFlow() {
   const [formLoading, setFormLoading] = useState(false);
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // Get the encrypted token (from URL or localStorage)
-  const encryptedToken = paramToken || (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : '') || '';
+  const encryptedToken = paramToken;
 
-  // On mount: save token to localStorage and check status
+  // On mount: register fingerprint for PWA handoff and check ticket status
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
 
-    const token = paramToken || (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null) || '';
-    if (!token) return; // already showing error state from init
+    if (!paramToken) return; // already showing error state from init
 
-    // Save token for PWA access
-    localStorage.setItem(STORAGE_KEY, token);
+    // Register fingerprint → token mapping for PWA handoff (fire-and-forget)
+    getFingerprint()
+      .then((fp) =>
+        fetch('/api/tickets/personalize/register-fingerprint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fingerprint: fp, encryptedToken: paramToken }),
+        }),
+      )
+      .catch(() => { /* best effort */ });
 
-    fetch(`/api/tickets/personalize?t=${encodeURIComponent(token)}`, { cache: 'no-store' })
+    fetch(`/api/tickets/personalize?t=${encodeURIComponent(paramToken)}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'activated') {
@@ -88,11 +93,11 @@ function PersonalizeFlow() {
 
         if (isStandalone) {
           // Already installed as PWA — go directly to form
-          setState({ step: 'form', encryptedToken: token });
+          setState({ step: 'form', encryptedToken: paramToken });
         } else {
           setState({
             step: 'install-pwa',
-            encryptedToken: token,
+            encryptedToken: paramToken,
             ticketLabel: data.ticketLabel,
           });
         }
@@ -209,9 +214,8 @@ function PersonalizeFlow() {
         return;
       }
 
-      // Clear stored data
+      // Clear stored form data
       localStorage.removeItem(FORM_STORAGE_KEY);
-      localStorage.removeItem(STORAGE_KEY);
 
       setState({
         step: 'success',

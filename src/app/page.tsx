@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Loader2, ArrowLeft, KeyRound } from 'lucide-react';
+import { getFingerprint } from '@/lib/fingerprint';
 
 const OFFSETS = ['0%', '-33%', '-66%', '-22%', '-55%', '-11%', '-44%', '-77%', '-30%', '-60%', '-15%', '-50%', '-5%', '-40%', '-70%'];
 
@@ -37,6 +38,7 @@ function WatermarkBackground() {
 }
 
 type LoginState =
+  | { step: 'checking-fingerprint' }
   | { step: 'email' }
   | { step: 'code-sent'; email: string }
   | { step: 'verifying' };
@@ -45,11 +47,49 @@ function LoginFlow() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const next = searchParams.get('next');
-  const [state, setState] = useState<LoginState>({ step: 'email' });
+  const initialized = useRef(false);
+
+  // Detect standalone PWA mode
+  const isStandalone = typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+
+  const [state, setState] = useState<LoginState>(
+    isStandalone ? { step: 'checking-fingerprint' } : { step: 'email' }
+  );
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // On mount in PWA mode: check for pending personalization by fingerprint
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
+    if (!isStandalone) return;
+
+    getFingerprint()
+      .then((fp) =>
+        fetch('/api/tickets/personalize/lookup-fingerprint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fingerprint: fp }),
+        }),
+      )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.found && data.encryptedToken) {
+          router.replace(`/personalize?t=${encodeURIComponent(data.encryptedToken)}`);
+        } else {
+          setState({ step: 'email' });
+        }
+      })
+      .catch(() => {
+        setState({ step: 'email' });
+      });
+  }, [isStandalone, router]);
 
   const currentEmail = state.step === 'code-sent' ? state.email : email.trim();
 
@@ -158,6 +198,19 @@ function LoginFlow() {
         </motion.div>
 
         <AnimatePresence mode="wait">
+          {state.step === 'checking-fingerprint' && (
+            <motion.div
+              key="checking-fingerprint"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-4"
+            >
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
+              <p className="text-sm text-muted">Wird geladen...</p>
+            </motion.div>
+          )}
+
           {state.step === 'email' && (
             <motion.div
               key="email"

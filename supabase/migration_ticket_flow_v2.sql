@@ -39,3 +39,21 @@ ALTER TABLE verification_codes ENABLE ROW LEVEL SECURITY;
 
 -- Only service role can access verification codes (no public access)
 -- The API routes use the admin client (service role) to manage codes
+
+-- ─── Pending Personalizations (fingerprint-based PWA handoff) ───────
+-- When a user clicks "Ticket personalisieren" in the browser, we store
+-- their browser fingerprint + encrypted token. When the PWA launches
+-- (standalone mode) from the same device/browser, the fingerprint matches
+-- and we can continue the personalization flow.
+CREATE TABLE IF NOT EXISTS pending_personalizations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fingerprint TEXT NOT NULL,
+  encrypted_token TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '24 hours')
+);
+
+CREATE INDEX IF NOT EXISTS idx_pending_personalizations_fp
+  ON pending_personalizations (fingerprint, expires_at);
+
+ALTER TABLE pending_personalizations ENABLE ROW LEVEL SECURITY;
