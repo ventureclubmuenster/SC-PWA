@@ -82,6 +82,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 409 });
     }
 
+    // Clean up pending personalization entry for this token
+    await adminSupabase
+      .from('pending_personalizations')
+      .delete()
+      .eq('encrypted_token', encryptedToken)
+      .then(({ error: delErr }) => {
+        if (delErr) console.error('Failed to clean pending_personalizations:', delErr);
+      });
+
     // Generate a magic link token for session establishment
     const { data: linkData, error: linkError } = await adminSupabase.auth.admin.generateLink({
       type: 'magiclink',

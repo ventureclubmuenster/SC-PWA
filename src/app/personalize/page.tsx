@@ -49,30 +49,31 @@ function PersonalizeFlow() {
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+
+  const addLog = (msg: string) => {
+    setDebugLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  };
 
   const encryptedToken = paramToken;
 
-  // On mount: register fingerprint for PWA handoff and check ticket status
+  // On mount: check ticket status, then register fingerprint only if claimable
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
 
     if (!paramToken) return; // already showing error state from init
 
-    // Register fingerprint → token mapping for PWA handoff (fire-and-forget)
-    getFingerprint()
-      .then((fp) =>
-        fetch('/api/tickets/personalize/register-fingerprint', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fingerprint: fp, encryptedToken: paramToken }),
-        }),
-      )
-      .catch(() => { /* best effort */ });
+    addLog(`Token: ${paramToken.slice(0, 20)}...`);
 
     fetch(`/api/tickets/personalize?t=${encodeURIComponent(paramToken)}`, { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((data) => {
+      .then((res) => {
+        addLog(`Status check response: ${res.status}`);
+        return res.json();
+      })
+      .then(async (data) => {
+        addLog(`Ticket status: ${data.status || data.error || JSON.stringify(data)}`);
+
         if (data.status === 'activated') {
           setState({ step: 'activated' });
           return;
@@ -86,13 +87,31 @@ function PersonalizeFlow() {
           return;
         }
 
+        // Ticket is claimable — register fingerprint for PWA handoff
+        try {
+          const fp = await getFingerprint();
+          addLog(`Fingerprint: ${fp}`);
+          const fpRes = await fetch('/api/tickets/personalize/register-fingerprint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fingerprint: fp, encryptedToken: paramToken }),
+          });
+          const fpData = await fpRes.json();
+          if (!fpRes.ok) {
+            addLog(`FP registration failed: ${fpData.error || fpData.detail || JSON.stringify(fpData)}`);
+          } else {
+            addLog('FP registered ✓');
+          }
+        } catch (err) {
+          addLog(`FP error: ${err instanceof Error ? err.message : String(err)}`);
+        }
+
         // Check if running as installed PWA
         const isStandalone =
           window.matchMedia('(display-mode: standalone)').matches ||
           (window.navigator as unknown as { standalone?: boolean }).standalone === true;
 
         if (isStandalone) {
-          // Already installed as PWA — go directly to form
           setState({ step: 'form', encryptedToken: paramToken });
         } else {
           setState({
@@ -115,7 +134,8 @@ function PersonalizeFlow() {
           }
         } catch { /* ignore */ }
       })
-      .catch(() => {
+      .catch((err) => {
+        addLog(`Network error: ${err instanceof Error ? err.message : String(err)}`);
         setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
       });
   }, [paramToken]);
@@ -702,6 +722,15 @@ function PersonalizeFlow() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Debug Logs */}
+        {debugLogs.length > 0 && (
+          <div className="mt-6 w-full rounded-xl p-4 text-left text-[10px] font-mono leading-relaxed space-y-0.5 overflow-auto max-h-48" style={{ background: 'var(--surface-2)', color: 'var(--muted)' }}>
+            {debugLogs.map((log, i) => (
+              <div key={i} className={log.includes('error') || log.includes('failed') || log.includes('Failed') ? 'text-red-400' : ''}>{log}</div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

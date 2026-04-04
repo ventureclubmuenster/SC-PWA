@@ -5,11 +5,10 @@ import { createClient } from '@/lib/supabase/client';
 import { useProfile as useCachedProfile } from '@/components/DataProvider';
 import { useTheme } from '@/components/ThemeProvider';
 import Link from 'next/link';
-import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon, Mail, Wrench, ChevronRight, Fingerprint } from 'lucide-react';
+import { User, LogOut, Save, Bell, BellOff, Upload, FileText, Trash2, Sun, Moon, Mail, Wrench, ChevronRight } from 'lucide-react';
 import { FadeIn, TapButton } from '@/components/motion';
 import type { Profile } from '@/types';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
-import { getFingerprint } from '@/lib/fingerprint';
 
 export default function ProfileContent() {
   const { profile: cachedProfile, loading: cacheLoading, refreshProfile } = useCachedProfile();
@@ -19,7 +18,6 @@ export default function ProfileContent() {
   const [saving, setSaving] = useState(false);
   const [uploadingCv, setUploadingCv] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [fingerprint, setFingerprint] = useState<string>('');
   const [form, setForm] = useState({
     full_name: '',
     first_name: '',
@@ -48,10 +46,6 @@ export default function ProfileContent() {
       setLoading(false);
     }
   }, [cachedProfile, cacheLoading]);
-
-  useEffect(() => {
-    getFingerprint().then(setFingerprint).catch(() => setFingerprint('N/A'));
-  }, []);
 
   const handleSave = async () => {
     if (!profile) return;
@@ -146,23 +140,6 @@ export default function ProfileContent() {
             <p className="font-semibold text-sm">{[form.first_name, form.last_name].filter(Boolean).join(' ') || form.full_name || 'No name set'}</p>
             <p className="text-xs text-muted mt-0.5">{profile?.email}</p>
             <p className="text-[10px] text-muted mt-1 capitalize font-medium">{profile?.role}</p>
-          </div>
-        </div>
-      </FadeIn>
-
-      {/* Device Fingerprint */}
-      <FadeIn delay={0.02}>
-        <div className="card-clean rounded-2xl p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'var(--surface-2)' }}>
-              <Fingerprint className="h-5 w-5 text-muted" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-muted">Device Fingerprint</p>
-              <p className="text-sm font-mono font-semibold mt-0.5 truncate" style={{ color: 'var(--foreground)' }}>
-                {fingerprint || '...'}
-              </p>
-            </div>
           </div>
         </div>
       </FadeIn>
