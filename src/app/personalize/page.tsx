@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import {
@@ -28,6 +28,52 @@ type PageState =
   | { step: 'error'; message: string };
 
 const FORM_STORAGE_KEY = 'personalize_form_data';
+
+function SuccessRedirect({ sessionError }: { sessionError?: string }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!sessionError) {
+      const timer = setTimeout(() => router.replace('/home'), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionError, router]);
+
+  return (
+    <motion.div
+      key="success"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      className="card-clean rounded-2xl p-6 space-y-4"
+    >
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
+        <CheckCircle className="h-6 w-6 text-green-500" />
+      </div>
+      <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
+        Ticket aktiviert! 🎉
+      </h2>
+      <p className="text-sm text-muted">
+        Dein Ticket wurde erfolgreich personalisiert und aktiviert.
+      </p>
+      {sessionError ? (
+        <>
+          <p className="text-xs text-amber-500">{sessionError}</p>
+          <motion.a
+            href="/"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+          >
+            Zur Anmeldung
+          </motion.a>
+        </>
+      ) : (
+        <p className="text-xs text-muted">Du wirst weitergeleitet...</p>
+      )}
+    </motion.div>
+  );
+}
 
 function PersonalizeFlow() {
   const searchParams = useSearchParams();
@@ -638,34 +684,7 @@ function PersonalizeFlow() {
 
           {/* Success */}
           {state.step === 'success' && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="card-clean rounded-2xl p-6 space-y-4"
-            >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-                <CheckCircle className="h-6 w-6 text-green-500" />
-              </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                Ticket aktiviert! 🎉
-              </h2>
-              <p className="text-sm text-muted">
-                Dein Ticket wurde erfolgreich personalisiert und aktiviert.
-              </p>
-              {state.sessionError && (
-                <p className="text-xs text-amber-500">{state.sessionError}</p>
-              )}
-              <motion.a
-                href="/home"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
-              >
-                {state.sessionError ? 'Zur Anmeldung' : 'Zum Dashboard →'}
-              </motion.a>
-            </motion.div>
+            <SuccessRedirect sessionError={state.sessionError} />
           )}
 
           {/* Already activated */}

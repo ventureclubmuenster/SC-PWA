@@ -220,6 +220,17 @@ function LoginFlow() {
               transition={{ duration: 0.22, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="space-y-4"
             >
+              <div className="card-clean rounded-2xl p-5 space-y-2 text-left">
+                <p className="text-sm text-muted">
+                  <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Ticket erhalten?</span>{' '}
+                  Personalisiere es über den Link in deiner Bestellungsmail.
+                </p>
+                <p className="text-sm text-muted">
+                  <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Bereits eingelöst?</span>{' '}
+                  Melde dich mit deiner E-Mail an.
+                </p>
+              </div>
+
               <form onSubmit={handleSendCode} className="space-y-4">
                 <input
                   type="email"
