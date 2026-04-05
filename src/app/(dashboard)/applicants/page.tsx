@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader';
 import { StaggerList, StaggerItem, TapButton } from '@/components/motion';
 import { CheckCircle, XCircle, Clock, User, FileText, Wrench } from 'lucide-react';
 import type { Applicant } from '@/types';
+import { useLanguage } from '@/lib/i18n';
 
 interface WorkshopApplicant {
   id: string;
@@ -27,26 +28,27 @@ interface WorkshopApplicant {
   };
 }
 
-const statusFilters = [
-  { label: 'All', value: 'all' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Accepted', value: 'accepted' },
-  { label: 'Rejected', value: 'rejected' },
-];
-
-const viewFilters = [
-  { label: 'All', value: 'all' },
-  { label: 'Direct', value: 'direct' },
-  { label: 'Workshops', value: 'workshops' },
-];
-
 export default function ApplicantsPage() {
+  const { t } = useLanguage();
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [workshopApplicants, setWorkshopApplicants] = useState<WorkshopApplicant[]>([]);
   const [filter, setFilter] = useState('all');
   const [viewFilter, setViewFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+
+  const statusFilters = [
+    { label: t.applicants.all, value: 'all' },
+    { label: t.applicants.pending, value: 'pending' },
+    { label: t.applicants.accepted, value: 'accepted' },
+    { label: t.applicants.rejected, value: 'rejected' },
+  ];
+
+  const viewFilters = [
+    { label: t.applicants.allApplicants, value: 'all' },
+    { label: t.applicants.direct, value: 'direct' },
+    { label: t.applicants.workshopsTab, value: 'workshops' },
+  ];
 
   useEffect(() => {
     const load = async () => {
@@ -150,7 +152,7 @@ export default function ApplicantsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bewerber" subtitle="Review applicant profiles" />
+      <PageHeader title={t.applicants.title} subtitle={t.applicants.subtitle} />
 
       <FilterBar filters={statusFilters} activeFilter={filter} onFilterChange={setFilter} />
       {workshopApplicants.length > 0 && (
@@ -159,7 +161,7 @@ export default function ApplicantsPage() {
 
       {loading ? null : hasNoResults ? (
         <p className="text-center text-sm text-muted py-16">
-          No applicants found.
+          {t.applicants.noApplicants}
         </p>
       ) : (
         <StaggerList className="space-y-4">
@@ -184,7 +186,7 @@ export default function ApplicantsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
-                        {visitor?.full_name || 'Unnamed'}
+                        {visitor?.full_name || t.applicants.unnamed}
                       </p>
                       <p className="text-xs text-muted">{visitor?.email}</p>
                       {visitor?.university && (
@@ -207,7 +209,7 @@ export default function ApplicantsPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors duration-150"
                   >
-                    <FileText className="h-3 w-3" /> View CV
+                    <FileText className="h-3 w-3" /> {t.applicants.viewCv}
                   </a>
                 )}
 
@@ -218,14 +220,14 @@ export default function ApplicantsPage() {
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-green-500/10 py-3 text-xs font-semibold text-green-400 hover:bg-green-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
-                      Accept
+                      {t.applicants.accept}
                     </TapButton>
                     <TapButton
                       onClick={() => handleStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-red-500/10 py-3 text-xs font-semibold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
-                      Reject
+                      {t.applicants.reject}
                     </TapButton>
                   </div>
                 )}
@@ -255,7 +257,7 @@ export default function ApplicantsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
-                        {visitor?.full_name || 'Unnamed'}
+                        {visitor?.full_name || t.applicants.unnamed}
                       </p>
                       <p className="text-xs text-muted">{visitor?.email}</p>
                       {visitor?.university && (
@@ -263,7 +265,7 @@ export default function ApplicantsPage() {
                       )}
                       {applicant.workshop && (
                         <p className="text-xs font-medium text-blue-400 mt-0.5">
-                          Workshop: {applicant.workshop.title}
+                          {t.applicants.workshopLabel} {applicant.workshop.title}
                         </p>
                       )}
                     </div>
@@ -283,7 +285,7 @@ export default function ApplicantsPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors duration-150"
                   >
-                    <FileText className="h-3 w-3" /> View CV
+                    <FileText className="h-3 w-3" /> {t.applicants.viewCv}
                   </a>
                 )}
 
@@ -294,14 +296,14 @@ export default function ApplicantsPage() {
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-green-500/10 py-3 text-xs font-semibold text-green-400 hover:bg-green-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
-                      Accept
+                      {t.applicants.accept}
                     </TapButton>
                     <TapButton
                       onClick={() => handleWorkshopStatusChange(applicant.id, 'rejected')}
                       disabled={updating === applicant.id}
                       className="flex-1 rounded-xl bg-red-500/10 py-3 text-xs font-semibold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors duration-150"
                     >
-                      Reject
+                      {t.applicants.reject}
                     </TapButton>
                   </div>
                 )}

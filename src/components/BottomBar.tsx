@@ -6,26 +6,28 @@ import { usePathname } from 'next/navigation';
 import { Calendar, Info, Users, Ticket, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRole } from '@/components/DataProvider';
-
-const visitorTabs: { href: string; label: string; icon?: typeof Calendar; imageSrc?: string }[] = [
-  { href: '/schedule', label: 'Schedule', icon: Calendar },
-  { href: '/information', label: 'Info', icon: Info },
-  { href: '/home', label: 'Home', imageSrc: '/SC Logo.png' },
-  { href: '/ticket', label: 'Ticket', icon: Ticket },
-  { href: '/lageplan', label: 'Lageplan', icon: Map },
-];
-
-const exhibitorTabs: { href: string; label: string; icon?: typeof Calendar; imageSrc?: string }[] = [
-  { href: '/applicants', label: 'Bewerber', icon: Users },
-  { href: '/lageplan', label: 'Lageplan', icon: Map },
-];
+import { useLanguage } from '@/lib/i18n';
 
 export default function BottomBar() {
   const pathname = usePathname();
   const role = useRole();
   const [mounted, setMounted] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => setMounted(true), []);
+
+  const visitorTabs: { href: string; label: string; icon?: typeof Calendar; imageSrc?: string }[] = [
+    { href: '/schedule', label: t.nav.schedule, icon: Calendar },
+    { href: '/information', label: t.nav.info, icon: Info },
+    { href: '/home', label: t.nav.home, imageSrc: '/SC Logo.png' },
+    { href: '/ticket', label: t.nav.ticket, icon: Ticket },
+    { href: '/lageplan', label: t.nav.floorPlan, icon: Map },
+  ];
+
+  const exhibitorTabs: { href: string; label: string; icon?: typeof Calendar; imageSrc?: string }[] = [
+    { href: '/applicants', label: t.nav.applicants, icon: Users },
+    { href: '/lageplan', label: t.nav.floorPlan, icon: Map },
+  ];
 
   const tabs = role === 'exhibitor' ? exhibitorTabs : visitorTabs;
 

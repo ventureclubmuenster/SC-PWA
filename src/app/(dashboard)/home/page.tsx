@@ -6,6 +6,7 @@ import { useProfile, useWorkshops, useSchedule } from '@/components/DataProvider
 import PageHeader from '@/components/PageHeader';
 import { StaggerList, StaggerItem, FadeIn, TapCard } from '@/components/motion';
 import { Flame, ArrowRight, Calendar, Clock, MapPin, Sparkles, Ticket, Map, Handshake, User } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 /* ── Point milestones ───────────────────────────────── */
 const MILESTONES = [
@@ -21,14 +22,16 @@ const MAX_POINTS = MILESTONES[MILESTONES.length - 1].points;
 const DEMO_POINTS = 160;
 
 /* ── Helpers ────────────────────────────────────────── */
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
 /* ── Page ───────────────────────────────────────────── */
 export default function HomePage() {
   const { profile } = useProfile();
   const { workshops, bookings } = useWorkshops();
   const { items: schedule } = useSchedule();
+  const { t, locale } = useLanguage();
+
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleTimeString(locale === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
   const points = DEMO_POINTS;
   const pct = Math.min((points / MAX_POINTS) * 100, 100);
@@ -60,7 +63,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`Hey ${firstName}`} accent={firstName} subtitle="Dein Messe-Dashboard" />
+      <PageHeader title={`Hey ${firstName}`} accent={firstName} subtitle={t.home.subtitle} />
 
       {/* ── Points / Progress ─────────────────────────── */}
       <FadeIn delay={0.05}>
@@ -74,7 +77,7 @@ export default function HomePage() {
               >
                 <Flame className="h-4.5 w-4.5" style={{ color: 'var(--ci-orange)' }} />
               </div>
-              <span className="text-sm font-bold tracking-tight">Deine Punkte</span>
+              <span className="text-sm font-bold tracking-tight">{t.home.yourPoints}</span>
             </div>
             <span className="text-3xl font-extrabold gradient-accent-text tabular-nums">{points}</span>
           </div>
@@ -158,10 +161,10 @@ export default function HomePage() {
           >
             <Sparkles className="h-4 w-4 shrink-0" style={{ color: 'var(--ci-orange)' }} />
             <span className="text-xs font-medium" style={{ color: 'var(--ci-orange)' }}>
-              Level: <strong>{MILESTONES[currentIdx].label}</strong>
+              {t.home.level}: <strong>{MILESTONES[currentIdx].label}</strong>
               {nextMilestone && (
                 <>
-                  {' '}— noch <strong>{nextMilestone.points - points}</strong> Punkte bis{' '}
+                  {' '}— {t.home.pointsUntil.replace('{count}', String(nextMilestone.points - points))}{' '}
                   {nextMilestone.label}
                 </>
               )}
@@ -174,8 +177,8 @@ export default function HomePage() {
       <FadeIn delay={0.1}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="section-label">Angemeldete Formate</span>
-            <span className="text-xs text-muted">{bookedWorkshops.length} Anmeldungen</span>
+            <span className="section-label">{t.home.registeredFormats}</span>
+            <span className="text-xs text-muted">{bookedWorkshops.length} {t.home.registrations}</span>
           </div>
 
           {bookedWorkshops.length > 0 ? (
@@ -201,13 +204,13 @@ export default function HomePage() {
           ) : (
             <div className="card-clean rounded-2xl p-6 text-center space-y-2">
               <Calendar className="h-8 w-8 mx-auto text-muted" />
-              <p className="text-sm text-muted">Noch keine Anmeldungen</p>
+              <p className="text-sm text-muted">{t.home.noRegistrations}</p>
             </div>
           )}
 
           <Link href="/workshops">
             <div className="btn-primary rounded-2xl py-3.5 text-center text-sm font-semibold flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
-              Hier anmelden
+              {t.home.registerHere}
               <ArrowRight className="h-4 w-4" />
             </div>
           </Link>
@@ -217,7 +220,7 @@ export default function HomePage() {
       {/* ── Nächste Programmpunkte ────────────────────── */}
       <FadeIn delay={0.15}>
         <div className="space-y-3">
-          <span className="section-label">Nächste Programmpunkte</span>
+          <span className="section-label">{t.home.nextEvents}</span>
 
           {upcoming.length > 0 ? (
             <StaggerList className="space-y-3">
@@ -247,13 +250,13 @@ export default function HomePage() {
             </StaggerList>
           ) : (
             <div className="card-clean rounded-2xl p-6 text-center">
-              <p className="text-sm text-muted">Keine anstehenden Punkte</p>
+              <p className="text-sm text-muted">{t.home.noUpcoming}</p>
             </div>
           )}
 
           <Link href="/schedule">
             <div className="btn-glass rounded-2xl py-3 text-center text-sm font-semibold flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
-              Ganzes Programm
+              {t.home.fullProgram}
               <ArrowRight className="h-4 w-4" />
             </div>
           </Link>
@@ -263,13 +266,13 @@ export default function HomePage() {
       {/* ── Quick Actions Grid ────────────────────────── */}
       <FadeIn delay={0.2}>
         <div className="space-y-3">
-          <span className="section-label">Quick Actions</span>
+          <span className="section-label">{t.home.quickActions}</span>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { href: '/ticket', icon: Ticket, label: 'Mein Ticket' },
-              { href: '/lageplan', icon: Map, label: 'Lageplan' },
-              { href: '/information', icon: Handshake, label: 'Partner & Speaker' },
-              { href: '/profile', icon: User, label: 'Mein Profil' },
+              { href: '/ticket', icon: Ticket, label: t.home.myTicket },
+              { href: '/lageplan', icon: Map, label: t.home.floorPlan },
+              { href: '/information', icon: Handshake, label: t.home.partnersAndSpeakers },
+              { href: '/profile', icon: User, label: t.home.myProfile },
             ].map(({ href, icon: Icon, label }) => (
               <Link key={href} href={href}>
                 <TapCard className="card-clean rounded-2xl p-4 flex flex-col items-center gap-2.5 cursor-pointer">

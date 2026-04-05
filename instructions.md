@@ -555,6 +555,40 @@ await resend.emails.send({ from: '...', to: [...], subject: '...', html });
 
 ---
 
+## Internationalisation (i18n)
+
+The app supports **German (de)** and **English (en)** based on the device system language.
+
+### Implementation
+
+- **`src/lib/i18n/translations.ts`** — Full DE/EN translation object organised by namespace (common, login, personalize, transfer, home, ticket, nav, schedule, information, workshops, applicants, floorPlan, profile, pwaInstall, claim).
+- **`src/lib/i18n/index.tsx`** — `LanguageProvider` React context + `useLanguage()` hook.
+
+### Usage
+
+Wrap the root layout with `<LanguageProvider>` (already done in `src/app/layout.tsx`).  
+In any client component:
+
+```tsx
+import { useLanguage } from '@/lib/i18n';
+
+export default function MyComponent() {
+  const { t, locale, setLocale } = useLanguage();
+  return <p>{t.common.loading}</p>;
+}
+```
+
+### Language detection order
+
+1. `localStorage('app_locale')` — persisted user preference
+2. `navigator.language` — browser/system language (`de` for any `de-*` locale)
+3. Fallback: `'de'`
+
+SSR always renders German first; the client hydrates with the detected locale to avoid mismatches.  
+`document.documentElement.lang` is set via an inline script before React hydration and updated whenever `setLocale()` is called.
+
+---
+
 ## Future Enhancements
 - Stripe integration for ticket purchases & holding area
 - Push notifications for upcoming workshops

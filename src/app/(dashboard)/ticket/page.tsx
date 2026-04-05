@@ -5,7 +5,7 @@ import { useProfile } from '@/components/DataProvider';
 import { FadeIn } from '@/components/motion';
 import PageHeader from '@/components/PageHeader';
 import { QRCodeSVG } from 'qrcode.react';
-import { Wallet, Smartphone } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 async function hashId(id: string): Promise<string> {
   const data = new TextEncoder().encode(id);
@@ -18,6 +18,7 @@ async function hashId(id: string): Promise<string> {
 export default function TicketPage() {
   const { profile, loading } = useProfile();
   const [qrValue, setQrValue] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (profile) {
@@ -32,7 +33,7 @@ export default function TicketPage() {
   return (
     <>
       <div className="space-y-5">
-        <PageHeader title="My Ticket" accent="Ticket" subtitle="Your event entry pass" />
+        <PageHeader title={t.ticket.title} accent="Ticket" subtitle={t.ticket.subtitle} />
 
         {/* Ticket Card */}
         <FadeIn delay={0.1}>
@@ -46,7 +47,7 @@ export default function TicketPage() {
             {/* Top row */}
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--ticket-muted)' }}>
-                Entry Pass
+                {t.ticket.entryPass}
               </span>
               {profile?.ticket_id && (
                 <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--ticket-muted)' }}>
@@ -67,54 +68,34 @@ export default function TicketPage() {
             {/* Bottom row — role + status */}
             <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
               <span className="text-sm font-semibold capitalize" style={{ color: 'var(--ticket-text)' }}>
-                {profile?.role || 'Visitor'}
+                {profile?.role || t.ticket.visitor}
               </span>
               <span className="pill px-3 py-1 text-xs font-semibold" style={{ background: 'var(--status-success-bg)', color: 'var(--status-success)' }}>
-                Active
+                {t.ticket.active}
               </span>
             </div>
-          </div>
-        </FadeIn>
-
-        {/* Wallet buttons */}
-        <FadeIn delay={0.15}>
-          <div className="flex gap-3">
-            <button
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
-              style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
-            >
-              <Wallet className="h-4 w-4" />
-              Apple Wallet
-            </button>
-            <button
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-colors"
-              style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
-            >
-              <Smartphone className="h-4 w-4" />
-              Google Wallet
-            </button>
           </div>
         </FadeIn>
 
         {/* Ticket info */}
         <FadeIn delay={0.2}>
           <div className="card-clean p-6 space-y-4">
-            <p className="text-subtitle">Ticket info</p>
+            <p className="text-subtitle">{t.ticket.ticketInfo}</p>
 
             <div className="space-y-3">
-              <InfoRow label="Name" value={profile?.full_name || 'Attendee'} />
+              <InfoRow label={t.ticket.name} value={profile?.full_name || t.ticket.attendee} />
               <Divider />
-              <InfoRow label="Email" value={profile?.email || '—'} />
+              <InfoRow label={t.ticket.email} value={profile?.email || '—'} />
               {profile?.university && (
                 <>
                   <Divider />
-                  <InfoRow label="University" value={profile.university} />
+                  <InfoRow label={t.ticket.university} value={profile.university} />
                 </>
               )}
               <Divider />
-              <InfoRow label="Role" value={profile?.role || 'visitor'} capitalize />
+              <InfoRow label={t.ticket.role} value={profile?.role || t.ticket.visitor} capitalize />
               <Divider />
-              <InfoRow label="Status" value="Active" status />
+              <InfoRow label={t.ticket.status} value={t.ticket.active} status />
             </div>
           </div>
         </FadeIn>

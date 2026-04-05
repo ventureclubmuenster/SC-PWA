@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { Mail, CheckCircle, XCircle, Ticket, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 type AttendeeRole = 'student' | 'entrepreneur' | 'other';
 
@@ -45,6 +46,7 @@ type ClaimState =
   | { step: 'error'; message: string };
 
 function ClaimFlow() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [state, setState] = useState<ClaimState>({ step: 'loading' });
@@ -71,23 +73,23 @@ function ClaimFlow() {
         const data = await res.json();
 
         if (!res.ok) {
-          setState({ step: 'error', message: data.error || 'Unbekannter Fehler.' });
+          setState({ step: 'error', message: data.error || t.common.unknownError });
           return;
         }
 
         clearFormStorage();
         setState({ step: 'success', ticketId: data.ticketId });
       } catch {
-        setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
+        setState({ step: 'error', message: t.common.networkError });
       }
     },
-    [],
+    [t],
   );
 
   // On mount: validate token, check status, check auth, auto-claim if returning from email confirmation
   useEffect(() => {
     if (!token || token.length !== 64) {
-      setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
+      setState({ step: 'error', message: t.claim.invalidLink });
       return;
     }
 
@@ -102,11 +104,11 @@ function ClaimFlow() {
           return;
         }
         if (data.status === 'expired') {
-          setState({ step: 'error', message: 'Dieser Link ist abgelaufen.' });
+          setState({ step: 'error', message: t.claim.linkExpired });
           return;
         }
         if (data.status !== 'claimable') {
-          setState({ step: 'error', message: 'Ungültiger oder fehlender Claim-Link.' });
+          setState({ step: 'error', message: t.claim.invalidLink });
           return;
         }
 
@@ -127,13 +129,13 @@ function ClaimFlow() {
         });
       })
       .catch(() => {
-        setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
+        setState({ step: 'error', message: t.common.networkError });
       });
-  }, [token, claimTicket]);
+  }, [token, claimTicket, t]);
 
   const getFormData = (): ClaimFormData | null => {
     if (!firstName.trim() || !lastName.trim() || !attendeeRole) {
-      setFormError('Bitte fülle alle Pflichtfelder aus.');
+      setFormError(t.claim.fillRequired);
       return null;
     }
     return {
@@ -151,7 +153,7 @@ function ClaimFlow() {
     setFormError('');
 
     if (!email.trim()) {
-      setFormError('Bitte gib deine E-Mail-Adresse ein.');
+      setFormError(t.claim.enterEmail);
       return;
     }
 
@@ -224,9 +226,9 @@ function ClaimFlow() {
             <Image src="/icons/icon-192x192.png" alt="Startup Contacts" width={80} height={80} priority />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
-            Ticket aktivieren
+            {t.claim.title}
           </h1>
-          <p className="text-sm font-medium text-muted">Startup Contacts</p>
+          <p className="text-sm font-medium text-muted">{t.common.startupContacts}</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -240,7 +242,7 @@ function ClaimFlow() {
               className="card-clean rounded-2xl p-6 space-y-4"
             >
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
-              <p className="text-sm text-muted">Wird geladen...</p>
+              <p className="text-sm text-muted">{t.claim.loading}</p>
             </motion.div>
           )}
 
@@ -256,9 +258,9 @@ function ClaimFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
                 <CheckCircle className="h-6 w-6 text-muted" />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Bereits eingelöst</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.claim.alreadyClaimedTitle}</h2>
               <p className="text-sm text-muted">
-                Dieses Ticket wurde bereits aktiviert und kann nicht erneut eingelöst werden.
+                {t.claim.alreadyClaimedDesc}
               </p>
               <motion.a
                 href="/"
@@ -266,7 +268,7 @@ function ClaimFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}
@@ -286,7 +288,7 @@ function ClaimFlow() {
                   <Ticket className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
-                  Gib deine Daten ein, um dein Ticket zu aktivieren.
+                  {t.claim.formDesc}
                 </p>
               </div>
 
@@ -299,7 +301,7 @@ function ClaimFlow() {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Vorname *"
+                    placeholder={t.claim.firstNamePlaceholder}
                     required
                     className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                   />
@@ -307,7 +309,7 @@ function ClaimFlow() {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Nachname *"
+                    placeholder={t.claim.lastNamePlaceholder}
                     required
                     className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                   />
@@ -318,7 +320,7 @@ function ClaimFlow() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="E-Mail *"
+                    placeholder={t.claim.emailPlaceholder}
                     required
                     className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                   />
@@ -328,17 +330,17 @@ function ClaimFlow() {
                   type="text"
                   value={university}
                   onChange={(e) => setUniversity(e.target.value)}
-                  placeholder="Universität / Hochschule"
+                  placeholder={t.claim.universityPlaceholder}
                   className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
                 />
 
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>Rolle *</p>
+                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>{t.profile.role} *</p>
                   <div className="flex gap-2">
                     {([
-                      { value: 'student' as const, label: 'Studierende/r' },
-                      { value: 'entrepreneur' as const, label: 'Unternehmer' },
-                      { value: 'other' as const, label: 'Sonstiges' },
+                      { value: 'student' as const, label: t.profile.roleStudent },
+                      { value: 'entrepreneur' as const, label: t.profile.roleEntrepreneur },
+                      { value: 'other' as const, label: t.profile.roleOther },
                     ]).map((option) => (
                       <button
                         key={option.value}
@@ -357,7 +359,7 @@ function ClaimFlow() {
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl px-4 py-3.5 input-field">
-                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>Afterparty RSVP</span>
+                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>{t.profile.afterpartyRsvp}</span>
                   <button
                     type="button"
                     onClick={() => setAfterpartyRsvp(!afterpartyRsvp)}
@@ -390,10 +392,10 @@ function ClaimFlow() {
                   className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
                 >
                   {formLoading
-                    ? 'Wird verarbeitet...'
+                    ? t.claim.processing
                     : state.needsAuth
-                      ? 'E-Mail bestätigen & aktivieren'
-                      : 'Ticket aktivieren'}
+                      ? t.claim.confirmAndActivate
+                      : t.claim.activate}
                 </motion.button>
               </form>
             </motion.div>
@@ -412,14 +414,14 @@ function ClaimFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
                 <Mail className="h-6 w-6" style={{ color: 'var(--accent)' }} />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>E-Mail gesendet</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.claim.emailSentTitle}</h2>
               <p className="text-sm text-muted">
-                Bestätige deinen Login über den Link in deiner E-Mail.
+                {t.claim.emailSentDesc}
                 <br />
                 <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>
               </p>
               <p className="text-xs text-muted">
-                Nach der Bestätigung wird dein Ticket automatisch aktiviert.
+                {t.claim.emailSentHint}
               </p>
             </motion.div>
           )}
@@ -434,7 +436,7 @@ function ClaimFlow() {
               className="card-clean rounded-2xl p-6 space-y-4"
             >
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
-              <p className="text-sm text-muted">Ticket wird aktiviert...</p>
+              <p className="text-sm text-muted">{t.claim.activatingTicket}</p>
             </motion.div>
           )}
 
@@ -450,9 +452,9 @@ function ClaimFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
                 <CheckCircle className="h-6 w-6 text-green-500" />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Ticket aktiviert! 🎉</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.claim.successTitle}</h2>
               <p className="text-sm text-muted">
-                Dein Ticket wurde erfolgreich mit deinem Account verknüpft.
+                {t.claim.successDesc}
               </p>
               <motion.a
                 href="/ticket"
@@ -460,7 +462,7 @@ function ClaimFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
               >
-                Mein Ticket ansehen →
+                {t.claim.viewTicket}
               </motion.a>
             </motion.div>
           )}
@@ -477,7 +479,7 @@ function ClaimFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
                 <XCircle className="h-6 w-6 text-red-500" />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Fehler</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.common.error}</h2>
               <p className="text-sm text-muted">{state.message}</p>
               <motion.a
                 href="/"
@@ -485,7 +487,7 @@ function ClaimFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}

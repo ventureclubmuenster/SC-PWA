@@ -14,6 +14,7 @@ import {
   Download,
 } from 'lucide-react';
 import { getFingerprint } from '@/lib/fingerprint';
+import { useLanguage } from '@/lib/i18n';
 
 type AttendeeRole = 'student' | 'entrepreneur' | 'other';
 
@@ -31,6 +32,7 @@ const FORM_STORAGE_KEY = 'personalize_form_data';
 
 function SuccessRedirect({ sessionError }: { sessionError?: string }) {
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!sessionError) {
@@ -51,10 +53,10 @@ function SuccessRedirect({ sessionError }: { sessionError?: string }) {
         <CheckCircle className="h-6 w-6" style={{ color: 'var(--status-success)' }} />
       </div>
       <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-        Ticket aktiviert! 🎉
+        {t.personalize.successTitle}
       </h2>
       <p className="text-sm text-muted">
-        Dein Ticket wurde erfolgreich personalisiert und aktiviert.
+        {t.personalize.successDesc}
       </p>
       {sessionError ? (
         <>
@@ -65,11 +67,11 @@ function SuccessRedirect({ sessionError }: { sessionError?: string }) {
             whileTap={{ scale: 0.97 }}
             className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
           >
-            Zur Anmeldung
+            {t.personalize.toLogin}
           </motion.a>
         </>
       ) : (
-        <p className="text-xs text-muted">Du wirst weitergeleitet...</p>
+        <p className="text-xs text-muted">{t.personalize.redirecting}</p>
       )}
     </motion.div>
   );
@@ -79,9 +81,10 @@ function PersonalizeFlow() {
   const searchParams = useSearchParams();
   const paramToken = searchParams.get('t') ?? '';
   const initialized = useRef(false);
+  const { t } = useLanguage();
 
   const [state, setState] = useState<PageState>(
-    paramToken ? { step: 'loading' } : { step: 'error', message: 'Ungültiger oder fehlender Link.' }
+    paramToken ? { step: 'loading' } : { step: 'error', message: t.personalize.invalidLink }
   );
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -117,11 +120,11 @@ function PersonalizeFlow() {
           return;
         }
         if (data.status === 'expired') {
-          setState({ step: 'error', message: 'Dieser Link ist abgelaufen.' });
+          setState({ step: 'error', message: t.personalize.linkExpired });
           return;
         }
         if (data.status === 'invalid') {
-          setState({ step: 'error', message: 'Ungültiger Link.' });
+          setState({ step: 'error', message: t.personalize.invalidLinkShort });
           return;
         }
 
@@ -169,7 +172,7 @@ function PersonalizeFlow() {
         } catch { /* ignore */ }
       })
       .catch((err) => {
-        setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
+        setState({ step: 'error', message: t.common.networkError });
       });
   }, [paramToken]);
 
@@ -188,11 +191,11 @@ function PersonalizeFlow() {
     setFormError('');
 
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !attendeeRole) {
-      setFormError('Bitte fülle alle Pflichtfelder aus.');
+      setFormError(t.personalize.fillRequired);
       return;
     }
     if (!privacyConsent || !termsConsent) {
-      setFormError('Bitte stimme der Datenschutzerklärung und den AGB zu.');
+      setFormError(t.personalize.acceptPrivacyAndTerms);
       return;
     }
 
@@ -215,14 +218,14 @@ function PersonalizeFlow() {
 
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || 'Unbekannter Fehler.');
+        setFormError(data.error || t.common.unknownError);
         setFormLoading(false);
         return;
       }
 
       setState({ step: 'code-sent', encryptedToken, email: email.trim() });
     } catch {
-      setFormError('Netzwerkfehler. Bitte versuche es erneut.');
+      setFormError(t.common.networkError);
     }
     setFormLoading(false);
   };
@@ -233,7 +236,7 @@ function PersonalizeFlow() {
     setFormError('');
 
     if (code.length !== 4) {
-      setFormError('Bitte gib den vierstelligen Code ein.');
+      setFormError(t.login.enterFourDigitCode);
       return;
     }
 
@@ -261,7 +264,7 @@ function PersonalizeFlow() {
 
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || 'Unbekannter Fehler.');
+        setFormError(data.error || t.common.unknownError);
         setState({ step: 'code-sent', encryptedToken, email: email.trim() });
         setFormLoading(false);
         return;
@@ -276,7 +279,7 @@ function PersonalizeFlow() {
         sessionError: data.sessionError,
       });
     } catch {
-      setFormError('Netzwerkfehler. Bitte versuche es erneut.');
+      setFormError(t.common.networkError);
       setState({ step: 'code-sent', encryptedToken, email: email.trim() });
     }
     setFormLoading(false);
@@ -303,13 +306,13 @@ function PersonalizeFlow() {
 
       if (!res.ok) {
         const data = await res.json();
-        setFormError(data.error || 'Code konnte nicht erneut gesendet werden.');
+        setFormError(data.error || t.login.resendFailed);
       } else {
         setCode('');
         setFormError('');
       }
     } catch {
-      setFormError('Netzwerkfehler.');
+      setFormError(t.common.networkErrorShort);
     }
     setFormLoading(false);
   };
@@ -333,9 +336,9 @@ function PersonalizeFlow() {
             <Image src="/icons/icon-192x192.png" alt="Startup Contacts" width={80} height={80} priority />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
-            Ticket personalisieren
+            {t.personalize.title}
           </h1>
-          <p className="text-sm font-medium text-muted">Startup Contacts</p>
+          <p className="text-sm font-medium text-muted">{t.common.startupContacts}</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -349,7 +352,7 @@ function PersonalizeFlow() {
               className="card-clean rounded-2xl p-6 space-y-4"
             >
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
-              <p className="text-sm text-muted">Wird geladen...</p>
+              <p className="text-sm text-muted">{t.common.loading}</p>
             </motion.div>
           )}
 
@@ -368,10 +371,10 @@ function PersonalizeFlow() {
                   <Download className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                 </div>
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                  App installieren
+                  {t.personalize.installApp}
                 </h2>
                 <p className="text-sm text-muted">
-                  Für das beste Erlebnis installiere die Startup Contacts App auf deinem Gerät.
+                  {t.personalize.installDesc}
                 </p>
 
                 {!showInstallInstructions ? (
@@ -381,20 +384,20 @@ function PersonalizeFlow() {
                     onClick={() => setShowInstallInstructions(true)}
                     className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
                   >
-                    Wie installiere ich die App?
+                    {t.personalize.howToInstall}
                   </motion.button>
                 ) : (
                   <div className="text-left space-y-3 text-sm text-muted">
-                    <p><strong>iOS (Safari):</strong></p>
+                    <p><strong>{t.personalize.iosSafari}</strong></p>
                     <ol className="list-decimal list-inside space-y-1">
-                      <li>Tippe auf das Teilen-Symbol (⬆) unten</li>
-                      <li>{'Wähle „Zum Home-Bildschirm"'}</li>
-                      <li>{'Tippe auf „Hinzufügen"'}</li>
+                      <li>{t.personalize.iosStep1}</li>
+                      <li>{t.personalize.iosStep2}</li>
+                      <li>{t.personalize.iosStep3}</li>
                     </ol>
-                    <p className="mt-3"><strong>Android (Chrome):</strong></p>
+                    <p className="mt-3"><strong>{t.personalize.androidChrome}</strong></p>
                     <ol className="list-decimal list-inside space-y-1">
-                      <li>Tippe auf das Menü (⋮) oben rechts</li>
-                      <li>{'Wähle „App installieren" oder „Zum Startbildschirm hinzufügen"'}</li>
+                      <li>{t.personalize.androidStep1}</li>
+                      <li>{t.personalize.androidStep2}</li>
                     </ol>
                   </div>
                 )}
@@ -406,7 +409,7 @@ function PersonalizeFlow() {
                 onClick={() => setState({ step: 'form', encryptedToken: state.encryptedToken })}
                 className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-glass"
               >
-                Im Browser fortfahren →
+                {t.personalize.continueInBrowser}
               </motion.button>
             </motion.div>
           )}
@@ -426,7 +429,7 @@ function PersonalizeFlow() {
                   <Ticket className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
-                  Gib deine Daten ein, um dein Ticket zu personalisieren.
+                  {t.personalize.enterData}
                 </p>
               </div>
 
@@ -436,7 +439,7 @@ function PersonalizeFlow() {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Vorname *"
+                    placeholder={t.personalize.firstNamePlaceholder}
                     required
                     className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   />
@@ -444,7 +447,7 @@ function PersonalizeFlow() {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Nachname *"
+                    placeholder={t.personalize.lastNamePlaceholder}
                     required
                     className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   />
@@ -454,19 +457,19 @@ function PersonalizeFlow() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="E-Mail *"
+                  placeholder={t.personalize.emailPlaceholder}
                   required
                   className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                 />
 
                 {/* Role selection */}
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>Rolle *</p>
+                  <p className="text-sm font-medium text-left" style={{ color: 'var(--foreground)' }}>{t.personalize.roleLabel}</p>
                   <div className="flex gap-2">
                     {([
-                      { value: 'student' as const, label: 'Studierende/r' },
-                      { value: 'entrepreneur' as const, label: 'Unternehmer' },
-                      { value: 'other' as const, label: 'Sonstiges' },
+                      { value: 'student' as const, label: t.personalize.roleStudent },
+                      { value: 'entrepreneur' as const, label: t.personalize.roleEntrepreneur },
+                      { value: 'other' as const, label: t.personalize.roleOther },
                     ]).map((option) => (
                       <button
                         key={option.value}
@@ -486,7 +489,7 @@ function PersonalizeFlow() {
 
                 {/* Afterparty RSVP */}
                 <div className="flex items-center justify-between rounded-2xl px-4 py-3.5 input-field">
-                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>Afterparty RSVP</span>
+                  <span className="text-sm" style={{ color: 'var(--foreground)' }}>{t.personalize.afterpartyRsvp}</span>
                   <button
                     type="button"
                     onClick={() => setAfterpartyRsvp(!afterpartyRsvp)}
@@ -504,7 +507,7 @@ function PersonalizeFlow() {
                 {/* CV Upload */}
                 <div className="flex items-center justify-between rounded-2xl px-4 py-3.5 input-field">
                   <span className="text-sm" style={{ color: 'var(--foreground)' }}>
-                    {cvFile ? cvFile.name : 'CV hochladen (optional)'}
+                    {cvFile ? cvFile.name : t.personalize.cvUpload}
                   </span>
                   <label className="cursor-pointer">
                     <Upload className="h-5 w-5 text-muted" />
@@ -528,11 +531,11 @@ function PersonalizeFlow() {
                       style={{ accentColor: 'var(--accent)' }}
                     />
                     <span className="text-sm" style={{ color: 'var(--foreground)' }}>
-                      Ich stimme der{' '}
+                      {t.personalize.privacyConsentPrefix}
                       <a href="/datenschutz" target="_blank" className="font-medium underline underline-offset-2" style={{ color: 'var(--accent)' }}>
-                        Datenschutzerklärung
-                      </a>{' '}
-                      zu. *
+                        {t.personalize.privacyPolicy}
+                      </a>
+                      {t.personalize.privacyConsentSuffix}
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer rounded-2xl px-4 py-3 transition-colors duration-150" style={{ background: 'var(--surface-2)' }}>
@@ -544,11 +547,11 @@ function PersonalizeFlow() {
                       style={{ accentColor: 'var(--accent)' }}
                     />
                     <span className="text-sm" style={{ color: 'var(--foreground)' }}>
-                      Ich akzeptiere die{' '}
+                      {t.personalize.termsConsentPrefix}
                       <a href="/agb" target="_blank" className="font-medium underline underline-offset-2" style={{ color: 'var(--accent)' }}>
-                        AGB
+                        {t.personalize.terms}
                       </a>
-                      . *
+                      {t.personalize.termsConsentSuffix}
                     </span>
                   </label>
                 </div>
@@ -572,7 +575,7 @@ function PersonalizeFlow() {
                   disabled={formLoading}
                   className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                 >
-                  {formLoading ? 'Wird verarbeitet...' : 'Bestätigungscode anfordern'}
+                  {formLoading ? t.personalize.processing : t.personalize.requestCode}
                 </motion.button>
               </form>
             </motion.div>
@@ -590,12 +593,12 @@ function PersonalizeFlow() {
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                  Code eingeben
+                  {t.personalize.enterCodeTitle}
                 </h2>
                 <p className="text-sm text-muted">
-                  Wir haben einen vierstelligen Code an{' '}
+                  {t.personalize.codeSentTo}{' '}
                   <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>{' '}
-                  gesendet.
+                  {t.personalize.codeSentToSuffix}
                 </p>
 
                 <form onSubmit={handleVerifyCode} className="space-y-4">
@@ -630,7 +633,7 @@ function PersonalizeFlow() {
                     disabled={formLoading || code.length !== 4}
                     className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                   >
-                    {formLoading ? 'Wird überprüft...' : 'Code bestätigen'}
+                    {formLoading ? t.login.verifying : t.login.confirmCode}
                   </motion.button>
                 </form>
 
@@ -644,14 +647,14 @@ function PersonalizeFlow() {
                     className="flex items-center gap-1 text-xs font-medium text-muted transition-colors duration-150"
                   >
                     <ArrowLeft className="h-3 w-3" />
-                    E-Mail ändern
+                    {t.personalize.changeEmail}
                   </button>
                   <button
                     onClick={handleResendCode}
                     disabled={formLoading}
                     className="text-xs font-medium text-muted transition-colors duration-150 disabled:opacity-50"
                   >
-                    Code erneut senden
+                    {t.login.resendCode}
                   </button>
                 </div>
               </div>
@@ -668,7 +671,7 @@ function PersonalizeFlow() {
               className="card-clean rounded-2xl p-6 space-y-4"
             >
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
-              <p className="text-sm text-muted">Ticket wird aktiviert...</p>
+              <p className="text-sm text-muted">{t.personalize.activating}</p>
             </motion.div>
           )}
 
@@ -690,10 +693,10 @@ function PersonalizeFlow() {
                 <CheckCircle className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                Bereits aktiviert
+                {t.personalize.alreadyActivatedTitle}
               </h2>
               <p className="text-sm text-muted">
-                Dieses Ticket wurde bereits aktiviert und kann nicht erneut eingelöst werden.
+                {t.personalize.alreadyActivatedDesc}
               </p>
               <motion.a
                 href="/"
@@ -701,7 +704,7 @@ function PersonalizeFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}
@@ -718,7 +721,7 @@ function PersonalizeFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
                 <XCircle className="h-6 w-6" style={{ color: 'var(--status-error)' }} />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Fehler</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.common.error}</h2>
               <p className="text-sm text-muted">{state.message}</p>
               <motion.a
                 href="/"
@@ -726,7 +729,7 @@ function PersonalizeFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}

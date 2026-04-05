@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Clock,
 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 type PageState =
   | { step: 'loading' }
@@ -26,9 +27,10 @@ function TransferFlow() {
   const searchParams = useSearchParams();
   const encryptedToken = searchParams.get('t') ?? '';
   const initialized = useRef(false);
+  const { t } = useLanguage();
 
   const [state, setState] = useState<PageState>(
-    encryptedToken ? { step: 'loading' } : { step: 'error', message: 'Ungültiger oder fehlender Link.' }
+    encryptedToken ? { step: 'loading' } : { step: 'error', message: t.personalize.invalidLink }
   );
   const [recipientEmail, setRecipientEmail] = useState('');
   const [formError, setFormError] = useState('');
@@ -53,15 +55,15 @@ function TransferFlow() {
             transferToEmail: data.transferToEmail,
           });
         } else if (data.status === 'expired') {
-          setState({ step: 'error', message: 'Dieser Link ist abgelaufen.' });
+          setState({ step: 'error', message: t.personalize.linkExpired });
         } else if (data.status === 'invalid') {
-          setState({ step: 'error', message: 'Ungültiger Link.' });
+          setState({ step: 'error', message: t.personalize.invalidLinkShort });
         } else {
           setState({ step: 'form', encryptedToken });
         }
       })
       .catch(() => {
-        setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
+        setState({ step: 'error', message: t.common.networkError });
       });
   }, [encryptedToken]);
 
@@ -71,7 +73,7 @@ function TransferFlow() {
     setFormError('');
 
     if (!recipientEmail.trim()) {
-      setFormError('Bitte gib eine E-Mail-Adresse ein.');
+      setFormError(t.transfer.enterEmail);
       return;
     }
 
@@ -89,14 +91,14 @@ function TransferFlow() {
 
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || 'Unbekannter Fehler.');
+        setFormError(data.error || t.common.unknownError);
         setFormLoading(false);
         return;
       }
 
       setState({ step: 'success', email: recipientEmail.trim() });
     } catch {
-      setFormError('Netzwerkfehler. Bitte versuche es erneut.');
+      setFormError(t.common.networkError);
     }
     setFormLoading(false);
   };
@@ -115,14 +117,14 @@ function TransferFlow() {
 
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || 'Unbekannter Fehler.');
+        setFormError(data.error || t.common.unknownError);
         setFormLoading(false);
         return;
       }
 
       setState({ step: 'revoked' });
     } catch {
-      setFormError('Netzwerkfehler.');
+      setFormError(t.common.networkErrorShort);
     }
     setFormLoading(false);
   };
@@ -146,9 +148,9 @@ function TransferFlow() {
             <Image src="/icons/icon-192x192.png" alt="Startup Contacts" width={80} height={80} priority />
           </motion.div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
-            Ticket weiterleiten
+            {t.transfer.title}
           </h1>
-          <p className="text-sm font-medium text-muted">Startup Contacts</p>
+          <p className="text-sm font-medium text-muted">{t.common.startupContacts}</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -162,7 +164,7 @@ function TransferFlow() {
               className="card-clean rounded-2xl p-6 space-y-4"
             >
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted" />
-              <p className="text-sm text-muted">Wird geladen...</p>
+              <p className="text-sm text-muted">{t.common.loading}</p>
             </motion.div>
           )}
 
@@ -181,7 +183,7 @@ function TransferFlow() {
                   <Send className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
-                  Gib die E-Mail-Adresse der Person ein, an die du dein Ticket weiterleiten möchtest.
+                  {t.transfer.formDesc}
                 </p>
               </div>
 
@@ -190,7 +192,7 @@ function TransferFlow() {
                   type="email"
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
-                  placeholder="empfänger@email.com"
+                  placeholder={t.transfer.recipientPlaceholder}
                   required
                   className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   autoFocus
@@ -215,7 +217,7 @@ function TransferFlow() {
                   disabled={formLoading}
                   className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                 >
-                  {formLoading ? 'Wird gesendet...' : 'Ticket weiterleiten'}
+                  {formLoading ? t.transfer.sending : t.transfer.submit}
                 </motion.button>
               </form>
             </motion.div>
@@ -235,14 +237,14 @@ function TransferFlow() {
                   <Clock className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                 </div>
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                  Transfer ausstehend
+                  {t.transfer.pendingTitle}
                 </h2>
                 <p className="text-sm text-muted">
-                  Dieses Ticket wird gerade an{' '}
+                  {t.transfer.pendingDescPrefix}{' '}
                   <span className="font-medium" style={{ color: 'var(--foreground)' }}>
                     {state.transferToEmail}
                   </span>{' '}
-                  weitergeleitet. Sobald der Empfänger das Ticket aktiviert, ist der Transfer abgeschlossen.
+                  {t.transfer.pendingDescSuffix}
                 </p>
 
                 {formError && (
@@ -266,7 +268,7 @@ function TransferFlow() {
                 >
                   <span className="flex items-center justify-center gap-2">
                     <RotateCcw className="h-4 w-4" />
-                    {formLoading ? 'Wird widerrufen...' : 'Transfer widerrufen'}
+                    {formLoading ? t.transfer.revoking : t.transfer.revokeTransfer}
                   </span>
                 </motion.button>
               </div>
@@ -286,15 +288,15 @@ function TransferFlow() {
                 <CheckCircle className="h-6 w-6" style={{ color: 'var(--status-success)' }} />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                Transfer gestartet! 📩
+                {t.transfer.successTitle}
               </h2>
               <p className="text-sm text-muted">
-                Eine E-Mail mit dem Ticket wurde an{' '}
+                {t.transfer.successDescPrefix}{' '}
                 <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>{' '}
-                gesendet. Der Empfänger kann das Ticket jetzt personalisieren und aktivieren.
+                {t.transfer.successDescSuffix}
               </p>
               <p className="text-xs text-muted">
-                Solange das Ticket noch nicht aktiviert wurde, kannst du den Transfer über diesen Link widerrufen.
+                {t.transfer.successHint}
               </p>
             </motion.div>
           )}
@@ -312,10 +314,10 @@ function TransferFlow() {
                 <RotateCcw className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                Transfer widerrufen
+                {t.transfer.revokedTitle}
               </h2>
               <p className="text-sm text-muted">
-                Der Transfer wurde erfolgreich widerrufen. Du kannst das Ticket jetzt erneut weiterleiten oder selbst personalisieren.
+                {t.transfer.revokedDesc}
               </p>
               <div className="flex gap-3">
                 <motion.button
@@ -324,7 +326,7 @@ function TransferFlow() {
                   onClick={() => setState({ step: 'form', encryptedToken })}
                   className="flex-1 rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-glass"
                 >
-                  Erneut weiterleiten
+                  {t.transfer.forwardAgain}
                 </motion.button>
                 <motion.a
                   href={`/personalize?t=${encryptedToken}`}
@@ -332,7 +334,7 @@ function TransferFlow() {
                   whileTap={{ scale: 0.97 }}
                   className="flex-1 rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 flex items-center justify-center btn-primary gradient-glow"
                 >
-                  Selbst aktivieren
+                  {t.transfer.activateSelf}
                 </motion.a>
               </div>
             </motion.div>
@@ -351,10 +353,10 @@ function TransferFlow() {
                 <CheckCircle className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                Bereits aktiviert
+                {t.transfer.alreadyActivatedTitle}
               </h2>
               <p className="text-sm text-muted">
-                Dieses Ticket wurde bereits aktiviert und kann nicht mehr weitergeleitet werden.
+                {t.transfer.alreadyActivatedDesc}
               </p>
               <motion.a
                 href="/"
@@ -362,7 +364,7 @@ function TransferFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}
@@ -379,7 +381,7 @@ function TransferFlow() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
                 <XCircle className="h-6 w-6" style={{ color: 'var(--status-error)' }} />
               </div>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Fehler</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{t.common.error}</h2>
               <p className="text-sm text-muted">{state.message}</p>
               <motion.a
                 href="/"
@@ -387,7 +389,7 @@ function TransferFlow() {
                 whileTap={{ scale: 0.97 }}
                 className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
-                Zur Startseite
+                {t.common.toHomepage}
               </motion.a>
             </motion.div>
           )}

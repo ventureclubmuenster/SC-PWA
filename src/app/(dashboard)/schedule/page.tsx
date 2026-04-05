@@ -8,27 +8,29 @@ import DetailModal from '@/components/DetailModal';
 import { StaggerList, StaggerItem, TapCard, FadeIn } from '@/components/motion';
 import { MapPin, Mic2, Clock, ExternalLink, ChevronRight } from 'lucide-react';
 import type { ScheduleItem, Speaker } from '@/types';
-
-const categoryFilters = [
-  { label: 'All', value: 'all' },
-  { label: 'Keynote', value: 'keynote' },
-  { label: 'Workshop', value: 'workshop' },
-  { label: 'Podcast', value: 'podcast' },
-  { label: 'Event', value: 'event' },
-];
+import { useLanguage } from '@/lib/i18n';
 
 export default function SchedulePage() {
+  const { t, locale } = useLanguage();
   const { items, loading } = useSchedule();
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<ScheduleItem | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
+
+  const categoryFilters = [
+    { label: t.schedule.all, value: 'all' },
+    { label: t.schedule.keynote, value: 'keynote' },
+    { label: t.schedule.workshop, value: 'workshop' },
+    { label: t.schedule.podcast, value: 'podcast' },
+    { label: t.schedule.event, value: 'event' },
+  ];
 
   const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
 
   const locations = [...new Set(items.map((i) => i.location))];
   const [locationFilter, setLocationFilter] = useState('all');
   const locationFilters = [
-    { label: 'All Stages', value: 'all' },
+    { label: t.schedule.allStages, value: 'all' },
     ...locations.map((l) => ({ label: l, value: l })),
   ];
 
@@ -45,7 +47,7 @@ export default function SchedulePage() {
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString(locale === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
   const categoryDot: Record<string, string> = {
@@ -76,7 +78,7 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Schedule" accent="Schedule" subtitle="Today's event programme" />
+      <PageHeader title={t.schedule.title} accent={t.schedule.title} subtitle={t.schedule.subtitle} />
 
       <div className="space-y-3">
         <FilterBar filters={categoryFilters} activeFilter={filter} onFilterChange={setFilter} />
@@ -92,7 +94,7 @@ export default function SchedulePage() {
       {loading ? null : finalItems.length === 0 ? (
         <FadeIn>
           <p className="text-center text-sm text-muted py-16">
-            No events found.
+            {t.schedule.noEvents}
           </p>
         </FadeIn>
       ) : (
@@ -167,7 +169,7 @@ export default function SchedulePage() {
                     <Clock className="h-4 w-4 text-muted" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">Time</p>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">{t.schedule.time}</p>
                     <p className="text-sm font-semibold">
                       {formatTime(selected.time)}
                       {selected.end_time && ` – ${formatTime(selected.end_time)}`}
@@ -181,7 +183,7 @@ export default function SchedulePage() {
                     <MapPin className="h-4 w-4 text-muted" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">Location</p>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted">{t.schedule.location}</p>
                     <p className="text-sm font-semibold">{selected.location}</p>
                   </div>
                 </div>
@@ -203,7 +205,7 @@ export default function SchedulePage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">{selected.speaker.name}</p>
-                    <p className="text-xs text-muted">Speaker</p>
+                    <p className="text-xs text-muted">{t.schedule.speaker}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted shrink-0" />
                 </div>
@@ -212,7 +214,7 @@ export default function SchedulePage() {
 
             {selected.description && (
               <div>
-                <p className="section-label mb-2">About</p>
+                <p className="section-label mb-2">{t.information.about}</p>
                 <p className="text-sm leading-relaxed text-muted">{selected.description}</p>
               </div>
             )}
@@ -232,7 +234,7 @@ export default function SchedulePage() {
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <p className="section-label mt-5">Speaker</p>
+              <p className="section-label mt-5">{t.schedule.speaker}</p>
               <h2 className="mt-1 text-xl font-extrabold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
@@ -248,7 +250,7 @@ export default function SchedulePage() {
                 className="btn-dark inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold hover:opacity-90 transition-opacity duration-150"
               >
                 <ExternalLink className="h-4 w-4" />
-                LinkedIn Profile
+                {t.schedule.linkedInProfile}
               </a>
             )}
           </div>

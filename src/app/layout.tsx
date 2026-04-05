@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
+import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -49,15 +50,17 @@ export default function RootLayout({
         {/* Prevent FOUC: set theme class before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('sc-theme')||'light';document.documentElement.className=t})()`,
+            __html: `(function(){var t=localStorage.getItem('sc-theme')||'light';document.documentElement.className=t;var l=localStorage.getItem('app_locale')||(navigator.language||'de').startsWith('de')?'de':'en';document.documentElement.lang=l})()`,
           }}
         />
       </head>
       <body className={`${montserrat.variable} antialiased`}>
         <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{

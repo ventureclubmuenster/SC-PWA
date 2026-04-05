@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import ProfileContent from '@/components/ProfileContent';
+import { useLanguage } from '@/lib/i18n';
 
 const ProfileOverlayContext = createContext<{
   isOpen: boolean;
@@ -19,6 +20,7 @@ export function ProfileOverlayProvider({ children }: { children: React.ReactNode
   const [isOpen, setIsOpen] = useState(false);
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
+  const { t } = useLanguage();
 
   return (
     <ProfileOverlayContext.Provider value={{ isOpen, open, close }}>
@@ -34,7 +36,7 @@ export function ProfileOverlayProvider({ children }: { children: React.ReactNode
             style={{ background: 'var(--background)' }}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-5 pb-2">
-              <span className="text-lg font-bold">Profile</span>
+              <span className="text-lg font-bold">{t.profile.title}</span>
               <button
                 onClick={close}
                 className="flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-150"

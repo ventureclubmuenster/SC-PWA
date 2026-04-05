@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
+import { useLanguage } from '@/lib/i18n';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -256,6 +257,7 @@ function PlatformContent({
   deferredPrompt: BeforeInstallPromptEvent | null;
   onInstalled: () => void;
 }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const copyLink = useCallback(async () => {
@@ -285,15 +287,15 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <IOSShareIcon /> in der Symbolleiste
+            {t.pwaInstall.iosSafariStep1} <IOSShareIcon /> {t.pwaInstall.iosSafariStep1Suffix}
           </Step>
           <Step num={2}>
             Scrolle und tippe auf{" "}
-            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>
+            <strong className="font-semibold">{t.pwaInstall.iosSafariStep2}</strong>
           </Step>
           <Step num={3}>
             Bestätige mit{" "}
-            <strong className="font-semibold">„Hinzufügen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.iosSafariStep3}</strong>
           </Step>
         </div>
       );
@@ -302,22 +304,22 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <LiquidGlassDotsIcon /> rechts neben der Adressleiste
+            {t.pwaInstall.androidChromeStep1} <LiquidGlassDotsIcon /> {t.pwaInstall.androidChromeStep1Suffix}
           </Step>
           <Step num={2}>
             Tippe auf <IOSShareIcon />{" "}
-            <strong className="font-semibold">„Teilen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.androidChromeStep2Share}</strong>
           </Step>
           <Step num={3}>
             Scrolle nach unten und tippe auf{" "}
             <MehrAnzeigenIcon />{" "}
-            <strong className="font-semibold">„Mehr anzeigen…"</strong>
+            <strong className="font-semibold">{t.pwaInstall.androidChromeStep3More}</strong>
           </Step>
           <Step num={4}>
             Tippe auf{" "}
-            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>{" "}
+            <strong className="font-semibold">{t.pwaInstall.androidChromeStep4Home}</strong>{" "}
             und bestätige mit{" "}
-            <strong className="font-semibold">„Hinzufügen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.androidChromeStep5Add}</strong>
           </Step>
         </div>
       );
@@ -326,22 +328,22 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <DotsVerticalIcon /> (die drei Punkte) unten rechts im Browser
+            {t.pwaInstall.androidChromeStep1} <DotsVerticalIcon /> {t.pwaInstall.samsungStep1}
           </Step>
           <Step num={2}>
-            Tippe auf <strong className="font-semibold">„Mehr"</strong>
+            Tippe auf <strong className="font-semibold">{t.pwaInstall.samsungStep2More}</strong>
           </Step>
           <Step num={3}>
             Tippe auf <IOSShareIcon />{" "}
-            <strong className="font-semibold">„Teilen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.samsungStep3Share}</strong>
           </Step>
           <Step num={4}>
             Tippe auf{" "}
-            <strong className="font-semibold">„Mehr anzeigen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.samsungStep4MoreShow}</strong>
           </Step>
           <Step num={5}>
             Tippe auf{" "}
-            <strong className="font-semibold">„Zum Homebildschirm hinzufügen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.samsungStep5Home}</strong>
           </Step>
         </div>
       );
@@ -351,7 +353,7 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Kopiere den Link dieser Seite:
+            {t.pwaInstall.fallbackCopyLink}
             <button
               onClick={copyLink}
               className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all tap-btn"
@@ -361,15 +363,15 @@ function PlatformContent({
                 color: copied ? "#22c55e" : "var(--foreground)",
               }}
             >
-              {copied ? "✓ Kopiert" : "Link kopieren"}
+              {copied ? t.pwaInstall.copied : t.pwaInstall.copyLink}
             </button>
           </Step>
           <Step num={2}>
-            Öffne <strong className="font-semibold">Safari</strong> und füge den Link ein
+            Öffne <strong className="font-semibold">{t.pwaInstall.fallbackOpenSafari}</strong> und füge den Link ein
           </Step>
           <Step num={3}>
-            Tippe auf <IOSShareIcon /> und dann auf{" "}
-            <strong className="font-semibold">„Zum Home-Bildschirm"</strong>
+            {t.pwaInstall.iosSafariStep1} <IOSShareIcon /> und dann auf{" "}
+            <strong className="font-semibold">{t.pwaInstall.fallbackAddHome}</strong>
           </Step>
         </div>
       );
@@ -383,16 +385,16 @@ function PlatformContent({
               className="w-full py-3 rounded-2xl text-white font-semibold text-sm tap-btn gradient-glow"
               style={{ background: "linear-gradient(135deg, #FF3D00, #FF8C00)" }}
             >
-              Jetzt installieren
+              {t.pwaInstall.installNow}
             </button>
           ) : (
             <>
               <Step num={1}>
-                Tippe auf <DotsVerticalIcon /> oben rechts im Browser
+                {t.pwaInstall.androidChromeStep1} <DotsVerticalIcon /> {t.pwaInstall.desktopChromeStep1}
               </Step>
               <Step num={2}>
                 Tippe auf{" "}
-                <strong className="font-semibold">„App installieren"</strong>
+                <strong className="font-semibold">{t.pwaInstall.desktopChromeStep2}</strong>
               </Step>
             </>
           )}
@@ -403,11 +405,11 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <DotsVerticalIcon /> unten rechts im Browser
+            {t.pwaInstall.androidChromeStep1} <DotsVerticalIcon /> {t.pwaInstall.firefoxStep1}
           </Step>
           <Step num={2}>
             Tippe auf{" "}
-            <strong className="font-semibold">„Zum Startbildschirm hinzufügen"</strong>
+            <strong className="font-semibold">{t.pwaInstall.firefoxStep2}</strong>
           </Step>
         </div>
       );
@@ -416,14 +418,14 @@ function PlatformContent({
       return (
         <div className="flex flex-col gap-4">
           <Step num={1}>
-            Tippe auf <HamburgerIcon /> unten rechts im Browser
+            {t.pwaInstall.androidChromeStep1} <HamburgerIcon /> {t.pwaInstall.operaStep1}
           </Step>
           <Step num={2}>
             Tippe auf{" "}
-            <strong className="font-semibold">„Seite hinzufügen zu"</strong>
+            <strong className="font-semibold">{t.pwaInstall.operaStep2}</strong>
           </Step>
           <Step num={3}>
-            Wähle <strong className="font-semibold">„Startbildschirm"</strong>
+            Wähle <strong className="font-semibold">{t.pwaInstall.operaStep3}</strong>
           </Step>
         </div>
       );
@@ -438,11 +440,11 @@ function PlatformContent({
               className="w-full py-3 rounded-2xl text-white font-semibold text-sm tap-btn gradient-glow"
               style={{ background: "linear-gradient(135deg, #FF3D00, #FF8C00)" }}
             >
-              Jetzt installieren
+              {t.pwaInstall.installNow}
             </button>
           ) : (
             <Step num={1}>
-              Klicke auf das <strong className="font-semibold">Installations-Symbol</strong> in der
+              Klicke auf das <strong className="font-semibold">{t.pwaInstall.installIcon}</strong> in der
               Adressleiste oben rechts
             </Step>
           )}
@@ -454,6 +456,7 @@ function PlatformContent({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function AddToHomeScreenPrompt() {
+  const { t } = useLanguage();
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [visible, setVisible] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -518,9 +521,9 @@ export default function AddToHomeScreenPrompt() {
               style={{ boxShadow: "var(--shadow-sm)" }}
             />
             <div>
-              <div className="text-title text-[15px]">App installieren</div>
+              <div className="text-title text-[15px]">{t.pwaInstall.title}</div>
               <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-                Startup Contacts zum Home-Bildschirm hinzufügen
+                {t.pwaInstall.subtitle}
               </div>
             </div>
           </div>

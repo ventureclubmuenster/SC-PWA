@@ -8,21 +8,10 @@ import DetailModal from '@/components/DetailModal';
 import { StaggerList, StaggerItem, TapCard, FadeIn } from '@/components/motion';
 import { Building2, Mic2, ExternalLink, Map } from 'lucide-react';
 import type { Partner, Speaker } from '@/types';
-
-const viewFilters = [
-  { label: 'Partners', value: 'partners' },
-  { label: 'Speakers', value: 'speakers' },
-  { label: 'Lageplan', value: 'lageplan' },
-];
-
-const categoryFilters = [
-  { label: 'All', value: 'all' },
-  { label: 'Gold', value: 'gold' },
-  { label: 'Silver', value: 'silver' },
-  { label: 'Bronze', value: 'bronze' },
-];
+import { useLanguage } from '@/lib/i18n';
 
 export default function InformationPage() {
+  const { t } = useLanguage();
   const [view, setView] = useState('partners');
   const { partners, loading: partnersLoading } = usePartners();
   const { speakers, loading: speakersLoading } = useSpeakers();
@@ -30,6 +19,19 @@ export default function InformationPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
+
+  const viewFilters = useMemo(() => [
+    { label: t.information.partners, value: 'partners' },
+    { label: t.information.speakers, value: 'speakers' },
+    { label: t.information.floorPlan, value: 'lageplan' },
+  ], [t]);
+
+  const categoryFilters = useMemo(() => [
+    { label: t.information.all, value: 'all' },
+    { label: t.information.gold, value: 'gold' },
+    { label: t.information.silver, value: 'silver' },
+    { label: t.information.bronze, value: 'bronze' },
+  ], [t]);
 
   const filteredPartners = useMemo(
     () => categoryFilter === 'all' ? partners : partners.filter((p) => p.category === categoryFilter),
@@ -44,7 +46,7 @@ export default function InformationPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Information" accent="Information" subtitle="Partners, Speakers & Lageplan" />
+      <PageHeader title={t.information.title} accent={t.information.title} subtitle={t.information.subtitle} />
 
       <FilterBar filters={viewFilters} activeFilter={view} onFilterChange={setView} />
 
@@ -60,7 +62,7 @@ export default function InformationPage() {
         <>
         {filteredPartners.length === 0 ? (
           <p className="text-center text-sm text-muted py-16">
-            No partners found.
+            {t.information.noPartners}
           </p>
         ) : (
           <StaggerList className="space-y-4">
@@ -94,7 +96,7 @@ export default function InformationPage() {
                     </span>
                   </div>
                   {partner.booth_number && (
-                    <p className="text-xs text-muted">Booth {partner.booth_number}</p>
+                    <p className="text-xs text-muted">{t.information.booth} {partner.booth_number}</p>
                   )}
                   {partner.description && (
                     <p className="text-xs text-muted line-clamp-2 leading-relaxed">{partner.description}</p>
@@ -111,14 +113,14 @@ export default function InformationPage() {
           <div className="flex flex-col items-center justify-center gap-5 py-24 text-muted">
             <Map className="h-14 w-14 opacity-20" strokeWidth={1} />
             <div className="text-center space-y-2">
-              <p className="text-sm font-bold text-primary tracking-wide">Lageplan</p>
-              <p className="text-xs text-muted">Der Lageplan wird bald hinzugefügt.</p>
+              <p className="text-sm font-bold text-primary tracking-wide">{t.information.floorPlan}</p>
+              <p className="text-xs text-muted">{t.information.floorPlanComingSoon}</p>
             </div>
           </div>
         </div>
       ) : speakers.length === 0 ? (
         <p className="text-center text-sm text-muted py-16">
-          No speakers found.
+          {t.information.noSpeakers}
         </p>
       ) : (
         <StaggerList className="space-y-4">
@@ -175,14 +177,14 @@ export default function InformationPage() {
             {selectedPartner.booth_number && (
               <div className="card-clean rounded-2xl p-4">
                 <p className="text-sm text-muted">
-                  <span className="font-semibold text-primary">Booth:</span> {selectedPartner.booth_number}
+                  <span className="font-semibold text-primary">{t.information.booth}:</span> {selectedPartner.booth_number}
                 </p>
               </div>
             )}
 
             {selectedPartner.description && (
               <div>
-                <p className="section-label mb-2">About</p>
+                <p className="section-label mb-2">{t.information.about}</p>
                 <p className="text-sm text-muted leading-relaxed">{selectedPartner.description}</p>
               </div>
             )}
@@ -195,7 +197,7 @@ export default function InformationPage() {
                 className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
-                Website besuchen
+                {t.information.visitWebsite}
               </a>
             )}
           </div>
@@ -214,13 +216,13 @@ export default function InformationPage() {
                   <Mic2 className="h-10 w-10 text-muted" />
                 )}
               </div>
-              <p className="section-label mt-5">Speaker</p>
+              <p className="section-label mt-5">{t.schedule.speaker}</p>
               <h2 className="mt-1 text-xl font-extrabold tracking-tight">{selectedSpeaker.name}</h2>
             </div>
 
             {selectedSpeaker.bio && (
               <div>
-                <p className="section-label mb-2">About the Speaker</p>
+                <p className="section-label mb-2">{t.information.aboutSpeaker}</p>
                 <p className="text-sm text-muted leading-relaxed">{selectedSpeaker.bio}</p>
               </div>
             )}
@@ -233,7 +235,7 @@ export default function InformationPage() {
                 className="btn-primary inline-flex items-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity duration-150 gradient-glow"
               >
                 <ExternalLink className="h-4 w-4" />
-                LinkedIn Profil
+                {t.information.linkedInProfile}
               </a>
             )}
           </div>

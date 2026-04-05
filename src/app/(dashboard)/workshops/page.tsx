@@ -8,8 +8,10 @@ import DetailModal from '@/components/DetailModal';
 import { StaggerList, StaggerItem, TapButton, FadeIn } from '@/components/motion';
 import { Clock, MapPin, Users, Check, AlertCircle, FileText } from 'lucide-react';
 import type { ContentWorkshop, WorkshopBooking } from '@/types';
+import { useLanguage } from '@/lib/i18n';
 
 export default function WorkshopsPage() {
+  const { t, locale } = useLanguage();
   const { workshops, bookings: cachedBookings, profile, loading, refreshBookings } = useWorkshops();
   const [localBookings, setLocalBookings] = useState<WorkshopBooking[]>([]);
   const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export default function WorkshopsPage() {
     if (!workshop) return;
 
     if (workshop.cv_required && !profile?.cv_url && !isBooked(workshopId)) {
-      setCvError('Please upload your CV in your profile before applying to this workshop.');
+      setCvError(t.workshops.uploadCvHint);
       return;
     }
 
@@ -63,22 +65,22 @@ export default function WorkshopsPage() {
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString(locale === 'de' ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
   const bookingStatusLabel = (booking: WorkshopBooking | undefined) => {
     if (!booking) return null;
     switch (booking.status) {
-      case 'pending': return { text: 'Applied — pending review', color: 'bg-amber-500/15 text-amber-400' };
-      case 'accepted': return { text: 'Accepted', color: 'bg-green-500/15 text-green-400' };
-      case 'rejected': return { text: 'Rejected', color: 'bg-red-500/15 text-red-400' };
-      default: return { text: 'Booked — tap to cancel', color: 'bg-green-500/15 text-green-400' };
+      case 'pending': return { text: t.workshops.statusApplied, color: 'bg-amber-500/15 text-amber-400' };
+      case 'accepted': return { text: t.workshops.statusAccepted, color: 'bg-green-500/15 text-green-400' };
+      case 'rejected': return { text: t.workshops.statusRejected, color: 'bg-red-500/15 text-red-400' };
+      default: return { text: t.workshops.statusBooked, color: 'bg-green-500/15 text-green-400' };
     }
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Workshops" accent="Workshops" subtitle="Book your hands-on sessions" />
+      <PageHeader title={t.workshops.title} accent={t.workshops.title} subtitle={t.workshops.subtitle} />
 
       {cvError && (
         <div className="flex items-center gap-2.5 rounded-2xl bg-red-500/10 p-4 text-xs text-red-400">
@@ -90,7 +92,7 @@ export default function WorkshopsPage() {
       {loading ? null : workshops.length === 0 ? (
         <FadeIn>
           <p className="text-center text-sm text-muted py-16">
-            No workshops available.
+            {t.workshops.noWorkshops}
           </p>
         </FadeIn>
       ) : (
@@ -108,8 +110,8 @@ export default function WorkshopsPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-sm tracking-wide">{ws.title}</h3>
-                    {ws.has_waiting_list && <span className="shrink-0 pill bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">Waiting List</span>}
-                    {ws.cv_required && <span className="shrink-0 pill bg-blue-500/15 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV</span>}
+                    {ws.has_waiting_list && <span className="shrink-0 pill bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">{t.workshops.waitingList}</span>}
+                    {ws.cv_required && <span className="shrink-0 pill bg-blue-500/15 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />{t.workshops.cvRequired}</span>}
                   </div>
                   <p className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{ws.host}</p>
                 </div>
@@ -128,7 +130,7 @@ export default function WorkshopsPage() {
                   )}
                   <span className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5" />
-                    {ws.capacity} spots
+                    {ws.capacity} {t.workshops.spots}
                   </span>
                 </div>
 
@@ -146,15 +148,15 @@ export default function WorkshopsPage() {
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === ws.id ? (
-                    'Processing...'
+                    t.workshops.processing
                   ) : booked ? (
                     <span className="flex items-center justify-center gap-1">
                       <Check className="h-3 w-3" /> {status?.text}
                     </span>
                   ) : ws.has_waiting_list ? (
-                    'Apply for Workshop'
+                    t.workshops.applyForWorkshop
                   ) : (
-                    'Book Workshop'
+                    t.workshops.bookWorkshop
                   )}
                 </TapButton>
                 </div>
@@ -172,8 +174,8 @@ export default function WorkshopsPage() {
               <h2 className="text-xl font-extrabold tracking-tight">{selected.title}</h2>
               <p className="text-sm font-medium mt-1.5" style={{ color: 'var(--accent)' }}>{selected.host}</p>
               <div className="flex gap-2 mt-3">
-                {selected.has_waiting_list && <span className="pill bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">Waiting List</span>}
-                {selected.cv_required && <span className="pill bg-blue-500/15 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />CV Required</span>}
+                {selected.has_waiting_list && <span className="pill bg-amber-500/15 text-amber-400 px-2.5 py-0.5 text-[10px] font-medium">{t.workshops.waitingList}</span>}
+                {selected.cv_required && <span className="pill bg-blue-500/15 text-blue-400 px-2.5 py-0.5 text-[10px] font-medium flex items-center gap-0.5"><FileText className="h-2.5 w-2.5" />{t.workshops.cvRequired}</span>}
               </div>
             </div>
 
@@ -191,7 +193,7 @@ export default function WorkshopsPage() {
               )}
               <span className="flex items-center gap-1.5">
                 <Users className="h-4 w-4" />
-                {selected.capacity} spots
+                {selected.capacity} {t.workshops.spots}
               </span>
             </div>
 
@@ -202,7 +204,7 @@ export default function WorkshopsPage() {
             {selected.cv_required && !profile?.cv_url && !isBooked(selected.id) && (
               <div className="flex items-center gap-2.5 rounded-2xl bg-red-500/10 p-4 text-xs text-red-400">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                Upload your CV in your profile to apply for this workshop.
+                {t.workshops.uploadCvHint}
               </div>
             )}
 
@@ -221,15 +223,15 @@ export default function WorkshopsPage() {
                   } disabled:opacity-50`}
                 >
                   {bookingInProgress === selected.id ? (
-                    'Processing...'
+                    t.workshops.processing
                   ) : booked ? (
                     <span className="flex items-center justify-center gap-1">
                       <Check className="h-4 w-4" /> {status?.text}
                     </span>
                   ) : selected.has_waiting_list ? (
-                    'Apply for Workshop'
+                    t.workshops.applyForWorkshop
                   ) : (
-                    'Book Workshop'
+                    t.workshops.bookWorkshop
                   )}
                 </button>
               );
