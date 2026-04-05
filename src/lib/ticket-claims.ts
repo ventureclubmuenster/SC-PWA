@@ -49,17 +49,32 @@ export async function createClaimTokensForOrder(
     const rawToken = generateClaimToken();
     const tokenHash = await hashToken(rawToken);
 
+    // Upsert: if ticket row exists, update it; if not, create it with token_hash
     const { error } = await supabase
       .from('tickets')
-      .update({
-        token_hash: tokenHash,
-        token_expires_at: expiresAt,
-      })
-      .eq('ticket_id', ticketId);
+      .upsert(
+        {
+          ticket_id: ticketId,
+          token_hash: tokenHash,
+          token_expires_at: expiresAt,
+        },
+        { onConflict: 'ticket_id' },
+      );
 
     if (error) {
       console.error(`Failed to set claim token for ticket ${ticketId}:`, error);
       continue;
+    }
+
+    // Verify token was actually written
+    const { data: check } = await supabase
+      .from('tickets')
+      .select('token_hash')
+      .eq('ticket_id', ticketId)
+      .single();
+
+    if (!check?.token_hash) {
+      console.error(`token_hash is still empty for ticket ${ticketId} after upsert!`);
     }
 
     results.push({ ticketId, rawToken });

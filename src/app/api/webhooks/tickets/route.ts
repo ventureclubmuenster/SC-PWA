@@ -115,11 +115,20 @@ export async function POST(request: NextRequest) {
     const email = payload?.data?.ticket?.email ?? '';
 
     const supabase = createAdminClient();
-    const { error: dbError } = await supabase.from('tickets').insert({
-      ticket_id: ticketId,
-      email,
-      all_data: body,
-    });
+
+    // Upsert ticket — if order webhook already created the row with token_hash, preserve it
+    const { error: dbError } = await supabase.from('tickets').upsert(
+      {
+        ticket_id: ticketId,
+        email,
+        all_data: body,
+      },
+      { onConflict: 'ticket_id', ignoreDuplicates: false },
+    );
+
+    // After upsert, ensure we don't overwrite token_hash with null.
+    // The upsert above will set email + all_data; token_hash is not included
+    // so it won't be touched if the row already exists.
 
     if (dbError) {
       console.error('Failed to insert ticket:', dbError);

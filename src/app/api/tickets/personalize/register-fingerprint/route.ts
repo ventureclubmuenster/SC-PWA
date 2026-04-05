@@ -20,6 +20,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
+    // Clean up expired entries
+    await supabase
+      .from('pending_personalizations')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+
     // Remove any existing entries for this fingerprint (user may click link multiple times)
     await supabase
       .from('pending_personalizations')
@@ -31,7 +37,7 @@ export async function POST(request: NextRequest) {
       .insert({
         fingerprint,
         encrypted_token: encryptedToken,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+        expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 hours
       });
 
     if (error) {

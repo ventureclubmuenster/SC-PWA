@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS pending_personalizations (
   fingerprint TEXT NOT NULL,
   encrypted_token TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
-  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '24 hours')
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '48 hours')
 );
 
 CREATE INDEX IF NOT EXISTS idx_pending_personalizations_fp

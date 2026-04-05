@@ -17,6 +17,12 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
     const now = new Date().toISOString();
 
+    // Clean up expired entries
+    await supabase
+      .from('pending_personalizations')
+      .delete()
+      .lt('expires_at', now);
+
     // 1. Try exact fingerprint match
     if (fingerprint && typeof fingerprint === 'string') {
       const { data, error } = await supabase
