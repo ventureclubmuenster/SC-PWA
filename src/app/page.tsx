@@ -62,6 +62,7 @@ function LoginFlow() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPwaHint, setShowPwaHint] = useState(false);
 
   // On mount in PWA mode: check for pending personalization by fingerprint
   useEffect(() => {
@@ -83,6 +84,12 @@ function LoginFlow() {
         if (data.found && data.encryptedToken) {
           router.replace(`/personalize?t=${encodeURIComponent(data.encryptedToken)}`);
         } else {
+          // First PWA launch without a linked ticket → show hint once
+          const hintKey = 'pwa_first_launch_hint_shown';
+          if (!localStorage.getItem(hintKey)) {
+            setShowPwaHint(true);
+            localStorage.setItem(hintKey, '1');
+          }
           setState({ step: 'email' });
         }
       })
@@ -99,23 +106,16 @@ function LoginFlow() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
+      await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Anmeldung fehlgeschlagen.');
-        setLoading(false);
-        return;
-      }
-
-      setState({ step: 'code-sent', email: email.trim() });
     } catch {
-      setError('Netzwerkfehler. Bitte versuche es erneut.');
+      // Silently ignore – always proceed to code screen
     }
+
+    setState({ step: 'code-sent', email: email.trim() });
     setLoading(false);
   };
 
@@ -221,6 +221,11 @@ function LoginFlow() {
               className="space-y-4"
             >
               <div className="card-clean rounded-2xl p-5 space-y-2 text-left">
+                {showPwaHint && (
+                  <div className="rounded-2xl p-3 mb-2 text-xs" style={{ color: 'var(--status-warning)', background: 'rgba(251, 191, 36, 0.1)' }}>
+                    Kein Ticket gefunden. Bitte fahre mit der Ticket-Personalisierung im Browser fort – öffne dazu den Link in deiner Bestellungsmail.
+                  </div>
+                )}
                 <p className="text-sm text-muted">
                   <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Ticket erhalten?</span>{' '}
                   Personalisiere es über den Link in deiner Bestellungsmail.
@@ -238,14 +243,15 @@ function LoginFlow() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="deine@email.com"
                   required
-                  className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                 />
                 {error && (
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="text-sm text-red-500"
+                    className="text-sm"
+                    style={{ color: 'var(--status-error)' }}
                   >
                     {error}
                   </motion.p>
@@ -255,8 +261,7 @@ function LoginFlow() {
                   whileTap={{ scale: 0.97 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity duration-150 disabled:opacity-50 gradient-glow"
-                  style={{ background: 'linear-gradient(135deg, #FF3D00, #FF8C00)' }}
+                  className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 disabled:opacity-50 btn-primary gradient-glow"
                 >
                   {loading ? 'Wird gesendet...' : 'Anmelden'}
                 </motion.button>
@@ -274,16 +279,15 @@ function LoginFlow() {
               className="space-y-4"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                   <KeyRound className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                 </div>
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                   Code eingeben
                 </h2>
                 <p className="text-sm text-muted">
-                  Wir haben einen vierstelligen Code an{' '}
-                  <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>{' '}
-                  gesendet.
+                  Wenn ein Ticket unter dieser E-Mail hinterlegt ist, erhältst du einen Code an{' '}
+                  <span className="font-medium" style={{ color: 'var(--foreground)' }}>{state.email}</span>.
                 </p>
 
                 <form onSubmit={handleVerifyCode} className="space-y-4">
@@ -295,7 +299,7 @@ function LoginFlow() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
                     placeholder="0000"
-                    className="w-full rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] input-field"
+                    className="w-full rounded-2xl px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] input-field"
                     autoFocus
                   />
 
@@ -304,7 +308,8 @@ function LoginFlow() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="text-sm text-red-500"
+                      className="text-sm"
+                      style={{ color: 'var(--status-error)' }}
                     >
                       {error}
                     </motion.p>
@@ -315,8 +320,7 @@ function LoginFlow() {
                     whileTap={{ scale: 0.97 }}
                     type="submit"
                     disabled={loading || code.length !== 4}
-                    className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-opacity duration-150 disabled:opacity-50 gradient-glow"
-                    style={{ background: 'linear-gradient(135deg, #FF3D00, #FF8C00)' }}
+                    className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 disabled:opacity-50 btn-primary gradient-glow"
                   >
                     {loading ? 'Wird überprüft...' : 'Code bestätigen'}
                   </motion.button>

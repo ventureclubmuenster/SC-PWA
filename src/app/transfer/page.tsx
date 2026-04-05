@@ -177,7 +177,7 @@ function TransferFlow() {
               className="space-y-4"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                   <Send className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
@@ -192,7 +192,7 @@ function TransferFlow() {
                   onChange={(e) => setRecipientEmail(e.target.value)}
                   placeholder="empfänger@email.com"
                   required
-                  className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   autoFocus
                 />
 
@@ -201,7 +201,8 @@ function TransferFlow() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="text-sm text-red-500"
+                    className="text-sm"
+                    style={{ color: 'var(--status-error)' }}
                   >
                     {formError}
                   </motion.p>
@@ -212,7 +213,7 @@ function TransferFlow() {
                   whileTap={{ scale: 0.97 }}
                   type="submit"
                   disabled={formLoading}
-                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                  className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                 >
                   {formLoading ? 'Wird gesendet...' : 'Ticket weiterleiten'}
                 </motion.button>
@@ -230,7 +231,7 @@ function TransferFlow() {
               className="space-y-4"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                   <Clock className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                 </div>
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
@@ -249,7 +250,8 @@ function TransferFlow() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="text-sm text-red-500"
+                    className="text-sm"
+                    style={{ color: 'var(--status-error)' }}
                   >
                     {formError}
                   </motion.p>
@@ -260,8 +262,7 @@ function TransferFlow() {
                   whileTap={{ scale: 0.97 }}
                   onClick={handleRevoke}
                   disabled={formLoading}
-                  className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
-                  style={{ background: 'var(--surface-2)', color: 'var(--foreground)' }}
+                  className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-glass"
                 >
                   <span className="flex items-center justify-center gap-2">
                     <RotateCcw className="h-4 w-4" />
@@ -281,8 +282,8 @@ function TransferFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-                <CheckCircle className="h-6 w-6 text-green-500" />
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(74, 222, 128, 0.1)' }}>
+                <CheckCircle className="h-6 w-6" style={{ color: 'var(--status-success)' }} />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                 Transfer gestartet! 📩
@@ -307,7 +308,7 @@ function TransferFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                 <RotateCcw className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
@@ -321,8 +322,7 @@ function TransferFlow() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setState({ step: 'form', encryptedToken })}
-                  className="flex-1 rounded-xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90"
-                  style={{ background: 'var(--surface-2)', color: 'var(--foreground)' }}
+                  className="flex-1 rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-glass"
                 >
                   Erneut weiterleiten
                 </motion.button>
@@ -330,7 +330,7 @@ function TransferFlow() {
                   href={`/personalize?t=${encryptedToken}`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 flex items-center justify-center"
+                  className="flex-1 rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 flex items-center justify-center btn-primary gradient-glow"
                 >
                   Selbst aktivieren
                 </motion.a>
@@ -347,7 +347,7 @@ function TransferFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                 <CheckCircle className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
@@ -360,7 +360,7 @@ function TransferFlow() {
                 href="/"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+                className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
                 Zur Startseite
               </motion.a>
@@ -376,8 +376,8 @@ function TransferFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
-                <XCircle className="h-6 w-6 text-red-500" />
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+                <XCircle className="h-6 w-6" style={{ color: 'var(--status-error)' }} />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Fehler</h2>
               <p className="text-sm text-muted">{state.message}</p>
@@ -385,7 +385,7 @@ function TransferFlow() {
                 href="/"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+                className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
                 Zur Startseite
               </motion.a>

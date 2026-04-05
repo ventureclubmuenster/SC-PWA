@@ -47,8 +47,8 @@ function SuccessRedirect({ sessionError }: { sessionError?: string }) {
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       className="card-clean rounded-2xl p-6 space-y-4"
     >
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-        <CheckCircle className="h-6 w-6 text-green-500" />
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(74, 222, 128, 0.1)' }}>
+        <CheckCircle className="h-6 w-6" style={{ color: 'var(--status-success)' }} />
       </div>
       <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
         Ticket aktiviert! 🎉
@@ -58,12 +58,12 @@ function SuccessRedirect({ sessionError }: { sessionError?: string }) {
       </p>
       {sessionError ? (
         <>
-          <p className="text-xs text-amber-500">{sessionError}</p>
+          <p className="text-xs" style={{ color: 'var(--status-warning)' }}>{sessionError}</p>
           <motion.a
             href="/"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+            className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
           >
             Zur Anmeldung
           </motion.a>
@@ -95,11 +95,6 @@ function PersonalizeFlow() {
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
-
-  const addLog = (msg: string) => {
-    setDebugLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
-  };
 
   const encryptedToken = paramToken;
 
@@ -110,15 +105,12 @@ function PersonalizeFlow() {
 
     if (!paramToken) return; // already showing error state from init
 
-    addLog(`Token: ${paramToken.slice(0, 20)}...`);
 
     fetch(`/api/tickets/personalize?t=${encodeURIComponent(paramToken)}`, { cache: 'no-store' })
       .then((res) => {
-        addLog(`Status check response: ${res.status}`);
         return res.json();
       })
       .then(async (data) => {
-        addLog(`Ticket status: ${data.status || data.error || JSON.stringify(data)}`);
 
         if (data.status === 'activated') {
           setState({ step: 'activated' });
@@ -136,7 +128,6 @@ function PersonalizeFlow() {
         // Ticket is claimable — register fingerprint for PWA handoff
         try {
           const fp = await getFingerprint();
-          addLog(`Fingerprint: ${fp}`);
           const fpRes = await fetch('/api/tickets/personalize/register-fingerprint', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -144,12 +135,9 @@ function PersonalizeFlow() {
           });
           const fpData = await fpRes.json();
           if (!fpRes.ok) {
-            addLog(`FP registration failed: ${fpData.error || fpData.detail || JSON.stringify(fpData)}`);
           } else {
-            addLog('FP registered ✓');
           }
         } catch (err) {
-          addLog(`FP error: ${err instanceof Error ? err.message : String(err)}`);
         }
 
         // Check if running as installed PWA
@@ -181,7 +169,6 @@ function PersonalizeFlow() {
         } catch { /* ignore */ }
       })
       .catch((err) => {
-        addLog(`Network error: ${err instanceof Error ? err.message : String(err)}`);
         setState({ step: 'error', message: 'Netzwerkfehler. Bitte versuche es erneut.' });
       });
   }, [paramToken]);
@@ -377,7 +364,7 @@ function PersonalizeFlow() {
               className="space-y-4"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                   <Download className="h-6 w-6" style={{ color: 'var(--accent)' }} />
                 </div>
                 <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
@@ -392,7 +379,7 @@ function PersonalizeFlow() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => setShowInstallInstructions(true)}
-                    className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+                    className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
                   >
                     Wie installiere ich die App?
                   </motion.button>
@@ -417,8 +404,7 @@ function PersonalizeFlow() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setState({ step: 'form', encryptedToken: state.encryptedToken })}
-                className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90"
-                style={{ background: 'var(--surface-2)', color: 'var(--foreground)' }}
+                className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-glass"
               >
                 Im Browser fortfahren →
               </motion.button>
@@ -436,7 +422,7 @@ function PersonalizeFlow() {
               className="space-y-6"
             >
               <div className="card-clean rounded-2xl p-6 space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                   <Ticket className="h-6 w-6 text-muted" />
                 </div>
                 <p className="text-sm text-muted">
@@ -452,7 +438,7 @@ function PersonalizeFlow() {
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Vorname *"
                     required
-                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                    className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   />
                   <input
                     type="text"
@@ -460,7 +446,7 @@ function PersonalizeFlow() {
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Nachname *"
                     required
-                    className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                    className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                   />
                 </div>
 
@@ -470,7 +456,7 @@ function PersonalizeFlow() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="E-Mail *"
                   required
-                  className="w-full rounded-xl px-4 py-3.5 text-sm input-field"
+                  className="w-full rounded-2xl px-4 py-3.5 text-sm input-field"
                 />
 
                 {/* Role selection */}
@@ -486,9 +472,9 @@ function PersonalizeFlow() {
                         key={option.value}
                         type="button"
                         onClick={() => setAttendeeRole(option.value)}
-                        className={`flex-1 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
+                        className={`flex-1 rounded-2xl px-3 py-3 text-sm font-medium transition-all duration-150 ${
                           attendeeRole === option.value
-                            ? 'bg-[#1D1D1F] text-white'
+                            ? 'selected-state'
                             : 'input-field'
                         }`}
                       >
@@ -499,7 +485,7 @@ function PersonalizeFlow() {
                 </div>
 
                 {/* Afterparty RSVP */}
-                <div className="flex items-center justify-between rounded-xl px-4 py-3.5 input-field">
+                <div className="flex items-center justify-between rounded-2xl px-4 py-3.5 input-field">
                   <span className="text-sm" style={{ color: 'var(--foreground)' }}>Afterparty RSVP</span>
                   <button
                     type="button"
@@ -516,7 +502,7 @@ function PersonalizeFlow() {
                 </div>
 
                 {/* CV Upload */}
-                <div className="flex items-center justify-between rounded-xl px-4 py-3.5 input-field">
+                <div className="flex items-center justify-between rounded-2xl px-4 py-3.5 input-field">
                   <span className="text-sm" style={{ color: 'var(--foreground)' }}>
                     {cvFile ? cvFile.name : 'CV hochladen (optional)'}
                   </span>
@@ -532,33 +518,35 @@ function PersonalizeFlow() {
                 </div>
 
                 {/* Consent checkboxes */}
-                <div className="space-y-3 text-left">
-                  <label className="flex items-start gap-3 cursor-pointer">
+                <div className="space-y-2 text-left">
+                  <label className="flex items-center gap-3 cursor-pointer rounded-2xl px-4 py-3 transition-colors duration-150" style={{ background: 'var(--surface-2)' }}>
                     <input
                       type="checkbox"
                       checked={privacyConsent}
                       onChange={(e) => setPrivacyConsent(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded accent-[#1D1D1F]"
+                      className="h-5 w-5 shrink-0 rounded"
+                      style={{ accentColor: 'var(--accent)' }}
                     />
-                    <span className="text-xs text-muted">
+                    <span className="text-sm" style={{ color: 'var(--foreground)' }}>
                       Ich stimme der{' '}
-                      <a href="/datenschutz" target="_blank" className="underline" style={{ color: 'var(--accent)' }}>
+                      <a href="/datenschutz" target="_blank" className="font-medium underline underline-offset-2" style={{ color: 'var(--accent)' }}>
                         Datenschutzerklärung
                       </a>{' '}
                       zu. *
                     </span>
                   </label>
-                  <label className="flex items-start gap-3 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer rounded-2xl px-4 py-3 transition-colors duration-150" style={{ background: 'var(--surface-2)' }}>
                     <input
                       type="checkbox"
                       checked={termsConsent}
                       onChange={(e) => setTermsConsent(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded accent-[#1D1D1F]"
+                      className="h-5 w-5 shrink-0 rounded"
+                      style={{ accentColor: 'var(--accent)' }}
                     />
-                    <span className="text-xs text-muted">
+                    <span className="text-sm" style={{ color: 'var(--foreground)' }}>
                       Ich akzeptiere die{' '}
-                      <a href="/agb" target="_blank" className="underline" style={{ color: 'var(--accent)' }}>
-                        Allgemeinen Geschäftsbedingungen
+                      <a href="/agb" target="_blank" className="font-medium underline underline-offset-2" style={{ color: 'var(--accent)' }}>
+                        AGB
                       </a>
                       . *
                     </span>
@@ -570,7 +558,8 @@ function PersonalizeFlow() {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="text-sm text-red-500"
+                    className="text-sm"
+                    style={{ color: 'var(--status-error)' }}
                   >
                     {formError}
                   </motion.p>
@@ -581,7 +570,7 @@ function PersonalizeFlow() {
                   whileTap={{ scale: 0.97 }}
                   type="submit"
                   disabled={formLoading}
-                  className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                  className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                 >
                   {formLoading ? 'Wird verarbeitet...' : 'Bestätigungscode anfordern'}
                 </motion.button>
@@ -618,7 +607,7 @@ function PersonalizeFlow() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
                     placeholder="0000"
-                    className="w-full rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] input-field"
+                    className="w-full rounded-2xl px-4 py-4 text-center text-2xl font-bold tracking-[0.3em] input-field"
                     autoFocus
                   />
 
@@ -627,7 +616,8 @@ function PersonalizeFlow() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="text-sm text-red-500"
+                      className="text-sm"
+                      style={{ color: 'var(--status-error)' }}
                     >
                       {formError}
                     </motion.p>
@@ -638,7 +628,7 @@ function PersonalizeFlow() {
                     whileTap={{ scale: 0.97 }}
                     type="submit"
                     disabled={formLoading || code.length !== 4}
-                    className="w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
+                    className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 btn-primary gradient-glow"
                   >
                     {formLoading ? 'Wird überprüft...' : 'Code bestätigen'}
                   </motion.button>
@@ -696,7 +686,7 @@ function PersonalizeFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--surface-2)' }}>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
                 <CheckCircle className="h-6 w-6 text-muted" />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
@@ -709,7 +699,7 @@ function PersonalizeFlow() {
                 href="/"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+                className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
                 Zur Startseite
               </motion.a>
@@ -725,8 +715,8 @@ function PersonalizeFlow() {
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               className="card-clean rounded-2xl p-6 space-y-4"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
-                <XCircle className="h-6 w-6 text-red-500" />
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+                <XCircle className="h-6 w-6" style={{ color: 'var(--status-error)' }} />
               </div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Fehler</h2>
               <p className="text-sm text-muted">{state.message}</p>
@@ -734,7 +724,7 @@ function PersonalizeFlow() {
                 href="/"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-block w-full rounded-xl bg-[#1D1D1F] py-3.5 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+                className="inline-block w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity duration-150 hover:opacity-90 btn-primary gradient-glow"
               >
                 Zur Startseite
               </motion.a>
@@ -742,14 +732,7 @@ function PersonalizeFlow() {
           )}
         </AnimatePresence>
 
-        {/* Debug Logs */}
-        {debugLogs.length > 0 && (
-          <div className="mt-6 w-full rounded-xl p-4 text-left text-[10px] font-mono leading-relaxed space-y-0.5 overflow-auto max-h-48" style={{ background: 'var(--surface-2)', color: 'var(--muted)' }}>
-            {debugLogs.map((log, i) => (
-              <div key={i} className={log.includes('error') || log.includes('failed') || log.includes('Failed') ? 'text-red-400' : ''}>{log}</div>
-            ))}
-          </div>
-        )}
+
       </div>
     </div>
   );
